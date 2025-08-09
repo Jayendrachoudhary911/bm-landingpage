@@ -1,26 +1,18 @@
 import React from "react";
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
   Box,
   Container,
+  Typography,
+  Button,
   Stack,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import { motion } from "framer-motion";
-import GeometricBackground from "../elements/GeometricBackground";
 import { keyframes } from "@emotion/react";
+import { Typewriter } from "react-simple-typewriter";
 
-// Animations
-const float = keyframes`
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-  100% { transform: translateY(0px); }
-`;
-
+// Background animation keyframes
 const blobMovement = keyframes`
   0% { transform: translate(0px, 0px) scale(1); }
   50% { transform: translate(30px, -50px) scale(1.05); }
@@ -36,16 +28,20 @@ export default function HeroLight() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  return (
-    <>
+  const titleWords = [
+    "Trips Made Simple",
+    "Travel with Friends",
+    "Budget Smarter",
+    "Create Unforgettable Moments",
+  ];
 
-      <Box
+  return (
+    <Box
       sx={{
         position: "relative",
         overflow: "hidden",
         minHeight: "100vh",
-        backgroundColor: "#ffffffff",
-        color: "#000",
+        backgroundColor: "#fff",
         backgroundImage: gridBackground,
         backgroundSize: "40px 40px",
         display: "flex",
@@ -55,12 +51,12 @@ export default function HeroLight() {
         px: 2,
       }}
     >
-      {/* Blurred blobs */}
+      {/* Animated Gradient Blobs */}
       <Box
         sx={{
           position: "absolute",
-          top: "-100px",
-          left: "-100px",
+          top: "-120px",
+          left: "-120px",
           width: 300,
           height: 300,
           background: "radial-gradient(circle, #ff80b5, transparent 70%)",
@@ -84,91 +80,129 @@ export default function HeroLight() {
       />
 
       {/* Content */}
-  <Container maxWidth="md" sx={{ position: "relative", zIndex: 1 }}>
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.9 }}
-    >
-      {/* Tagline */}
-      <Box
-        sx={{
-          bgcolor: "#f5f5f5",
-          display: "inline-block",
-          px: 2,
-          py: 0.5,
-          borderRadius: "999px",
-          fontSize: "0.875rem",
-          fontWeight: 500,
-          mb: 3,
-        }}
-      >
-        Flexible Plans for You →
-      </Box>
-
-      {/* Headline */}
-      <Typography
-        variant={isMobile ? "h4" : "h3"}
-        fontWeight={700}
-        sx={{ mb: 2 }}
-      >
-        Deploy your website
-        <br />
-        in <strong>seconds</strong>, not hours
-      </Typography>
-
-      {/* Subheading */}
-      <Typography
-        variant="body1"
-        color="text.secondary"
-        sx={{ maxWidth: 600, mx: "auto", mb: 4 }}
-      >
-        With our state of the art, cutting edge, we are so back kinda hosting
-        services, you can deploy your website in seconds.
-      </Typography>
-
-      {/* Buttons */}
-      <Stack
-        direction="row"
-        spacing={2}
-        justifyContent="center"
-        flexWrap="wrap"
-      >
-        <Button
-          variant="contained"
-          sx={{
-            px: 4,
-            py: 1.5,
-            borderRadius: "999px",
-            fontWeight: 600,
-            textTransform: "none",
-            bgcolor: "#000",
-            color: "#fff",
-            "&:hover": {
-              bgcolor: "#333",
-            },
+      <Container maxWidth="md" sx={{ position: "relative", zIndex: 1 }}>
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          transition={{ staggerChildren: 0.2 }}
+          variants={{
+            hidden: {},
+            visible: {},
           }}
         >
-          Start a project
-        </Button>
+          {/* Tagline Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <Box
+              sx={{
+                bgcolor: "#f5f5f5",
+                display: "inline-block",
+                px: 2,
+                py: 0.5,
+                borderRadius: "999px",
+                fontSize: "0.875rem",
+                fontWeight: 500,
+                mb: 3,
+              }}
+            >
+              Plan Smarter. Travel Together.
+            </Box>
+          </motion.div>
 
-        <Button
-          variant="outlined"
-          sx={{
-            px: 4,
-            py: 1.5,
-            borderRadius: "999px",
-            fontWeight: 600,
-            textTransform: "none",
-          }}
-        >
-          Book a call
-        </Button>
-      </Stack>
-    </motion.div>
-  </Container>
+          {/* Headline */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+          >
+            <Typography
+              variant={isMobile ? "h3" : "h2"}
+              fontWeight={700}
+              sx={{ mb: 2, lineHeight: 1.2 }}
+            >
+              <Box component="span" sx={{ color: "#000000ff" }}>
+                <Typewriter
+                  words={titleWords}
+                  loop
+                  cursor
+                  cursorStyle="_"
+                  typeSpeed={70}
+                  deleteSpeed={50}
+                  delaySpeed={1500}
+                />
+              </Box>
+            </Typography>
+          </motion.div>
+
+          {/* Subheading */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 1 }}
+          >
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{ maxWidth: 620, mx: "auto", mb: 4 }}
+            >
+              BunkMates is the ultimate trip planner — manage budgets, create checklists,
+              share moments, and chat with friends in one beautifully integrated platform.
+            </Typography>
+          </motion.div>
+
+          {/* Call-to-action Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+          >
+            <Stack
+              direction="row"
+              spacing={2}
+              justifyContent="center"
+              flexWrap="wrap"
+            >
+              <Button
+                variant="contained"
+                sx={{
+                  px: 4,
+                  py: 1.5,
+                  borderRadius: "999px",
+                  fontWeight: 600,
+                  textTransform: "none",
+                  bgcolor: "#000",
+                  color: "#fff",
+                  '&:hover': {
+                    bgcolor: "#222",
+                  },
+                }}
+                href="#get-started"
+              >
+                Get Started
+              </Button>
+
+              <Button
+                variant="outlined"
+                sx={{
+                  px: 4,
+                  py: 1.5,
+                  borderRadius: "999px",
+                  fontWeight: 600,
+                  textTransform: "none",
+                  border: "1.2px solid #000",
+                  color: "#000"
+                }}
+                href="#about"
+              >
+                View Community
+              </Button>
+            </Stack>
+          </motion.div>
+        </motion.div>
+      </Container>
     </Box>
-
-    </>
   );
 }

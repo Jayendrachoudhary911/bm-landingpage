@@ -55,7 +55,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { db } from "../firebase";
-import { collection, onSnapshot, orderBy, query, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { collection, onSnapshot, orderBy, query, updateDoc, deleteDoc, doc, arrayUnion } from "firebase/firestore";
 import { motion } from "framer-motion";
 
 const itemVariants = {
@@ -80,15 +80,25 @@ const Navbar = ({ user }) => {
   const handleMenuOpen = (e) => setAnchorEl(e.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
 
-  const handleMarkAsRead = async (id) => {
-    try {
-      await updateDoc(doc(db, "notifications", id), {
+const handleMarkAsRead = async (notif) => {
+  try {
+    const notifRef = doc(db, "notifications", notif.id);
+
+    if (notif.uid) {
+      // User-specific notification
+      await updateDoc(notifRef, {
         read: true,
       });
-    } catch (err) {
-      console.error("Failed to mark as read", err);
+    } else {
+      // Global notification → add user.uid to readBy array
+      await updateDoc(notifRef, {
+        readBy: arrayUnion(user.uid),
+      });
     }
-  };
+  } catch (err) {
+    console.error("Failed to mark as read", err);
+  }
+};
 
   const handleDeleteNotification = async (id) => {
     try {
@@ -100,7 +110,7 @@ const Navbar = ({ user }) => {
 
   const handleOpenDialog = async (notif) => {
     if (!notif.read) {
-      await handleMarkAsRead(notif.id);
+      await handleMarkAsRead(notif);
     }
     setSelectedNotif(notif);
     setDialogOpen(true);
@@ -111,32 +121,43 @@ const Navbar = ({ user }) => {
     setSelectedNotif(null);
   };
 
-  useEffect(() => {
-    const q = query(collection(db, "notifications"), orderBy("timestamp", "desc"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({
+useEffect(() => {
+  const q = query(collection(db, "notifications"), orderBy("timestamp", "desc"));
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    const data = snapshot.docs
+      .map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      }));
-      setNotifications(data);
-      setLoading(false);
-    });
+        readBy: doc.data().readBy || [], // fallback
+      }))
+      .filter((notif) => {
+        return !notif.uid || notif.uid === user.uid;
+      });
 
-    return () => unsubscribe();
-  }, []);
+    setNotifications(data);
+    setLoading(false);
+  });
+
+  return () => unsubscribe();
+}, [user?.uid]);
 
   const handleLogout = () => {
     handleMenuClose();
   };
 
+  const isNotificationRead = (notif) =>
+  notif.uid ? notif.read : notif.readBy?.includes(user.uid);
+
+
 const navLinks = [
-  { label: 'Home', icon: <HomeOutlinedIcon /> },
-  { label: 'Features', icon: <ExtensionOutlinedIcon /> },
-  { label: 'Pricing', icon: <AttachMoneyOutlinedIcon /> },
-  { label: 'Blog', icon: <ArticleOutlinedIcon /> },
-  { label: 'FAQ', icon: <HelpOutlineOutlinedIcon /> },
-  { label: 'About Us', icon: <InfoOutlinedIcon /> },
+  { label: 'Home', path: '/', icon: <HomeOutlinedIcon /> },
+  { label: 'Features', path: '/features', icon: <ExtensionOutlinedIcon /> },
+  { label: 'Pricing', path: '/pricing', icon: <AttachMoneyOutlinedIcon /> },
+  { label: 'Blog', path: '/blog', icon: <ArticleOutlinedIcon /> },
+  { label: 'FAQ', path: '/faq', icon: <HelpOutlineOutlinedIcon /> },
+  { label: 'About Us', path: '/about', icon: <InfoOutlinedIcon /> },
 ];
+
 
   return (
     <Box
@@ -153,7 +174,7 @@ const navLinks = [
         backgroundColor: "#ffffffb3",
         boxShadow: scrolled
           ? "0 4px 20px rgba(0,0,0,0.1)"
-          : "0 2px 10px rgba(0,0,0,0.06)",
+          : "none",
         transition: "all 0.3s ease",
         py: 1,
         px: 3,
@@ -172,21 +193,23 @@ const navLinks = [
 
   {!isMobile && (
   <Stack direction="row" spacing={3} alignItems="center">
-    {navLinks.map((item) => (
-      <Button
-        key={item.label}
-        sx={{
-          textTransform: 'none',
-          fontWeight: 500,
-          borderRadius: '20px',
-          color: "#000",
-          px: 2,
-          '&:hover': { backgroundColor: '#f0f0f0' },
-        }}
-      >
-        {item.label}
-      </Button>
-    ))}
+{navLinks.map(({ label, path }) => (
+  <Button
+    key={label}
+    onClick={() => navigate(path)}
+    sx={{
+      textTransform: 'none',
+      fontWeight: 500,
+      borderRadius: '20px',
+      color: "#000",
+      px: 2,
+      '&:hover': { backgroundColor: '#f0f0f0' },
+    }}
+  >
+    {label}
+  </Button>
+))}
+
   </Stack>
 )}
 
@@ -194,7 +217,12 @@ const navLinks = [
       {!isMobile && (
         <Stack direction="row" spacing={3} alignItems="center">
           <IconButton onClick={() => setNotifDrawerOpen(true)}>
-            <Badge badgeContent={notifications.filter(n => !n.read).length} color="error">
+            <Badge
+  badgeContent={notifications.filter(n => !isNotificationRead(n)).length}
+  color="error"
+  invisible={notifications.filter(n => !isNotificationRead(n)).length === 0}
+>
+
               <NotificationsIcon />
             </Badge>
           </IconButton>
@@ -309,6 +337,13 @@ const navLinks = [
           <IconButton onClick={() => setMobileDrawerOpen(true)}>
             <MenuIcon />
           </IconButton>
+        
+        {!user && 
+          <Stack direction="row" spacing={1}>
+              <Button onClick={() => navigate('/login')}>Login</Button>
+              <Button onClick={() => navigate('/signup')}>Signup</Button>
+          </Stack>
+        }
         </Stack>
       )}
 
@@ -363,10 +398,14 @@ const navLinks = [
 
 <Box sx={{ display: "flex", justifyContent: "space-between", flexDirection: "column" }}>
     <List>
-      {navLinks.map((link) => (
+      {navLinks.map(({label, icon, path}) => (
         <ListItem
           button
-          key={link.label}
+        onClick={() => {
+          navigate(path);
+          setMobileDrawerOpen(false);
+        }}
+          key={label}
           sx={{
             px: 2,
             py: 1.5,
@@ -376,9 +415,9 @@ const navLinks = [
             },
           }}
         >
-            <ListItemIcon>{link.icon}</ListItemIcon>
+            <ListItemIcon>{icon}</ListItemIcon>
           <ListItemText
-            primary={link.label}
+            primary={label}
             primaryTypographyProps={{
               fontSize: "1rem",
               fontWeight: 500,
@@ -479,7 +518,7 @@ const navLinks = [
         }}
         sx={{
           "& .MuiDrawer-paper": {
-            width: isMobile ? "100%" : 360,
+            width: isMobile ? "100%" : 540,
             background: "rgba(255, 255, 255, 0.75)",
             backdropFilter: "blur(12px)",
             borderTopLeftRadius: isMobile ? 0 : 16,
@@ -543,7 +582,17 @@ const navLinks = [
                     }}
                   >
                     <ListItemIcon sx={{ minWidth: 36 }}>
-                      <Badge color="error" variant="dot" invisible={notif.read} overlap="circular">
+                      <Badge
+  color="error"
+  variant="dot"
+  invisible={
+    notif.uid
+      ? notif.read
+      : notif.readBy?.includes(user.uid) // Check if user has read this global notif
+  }
+  overlap="circular"
+>
+
                         <NotificationsActiveIcon fontSize="small" color="black" />
                       </Badge>
                     </ListItemIcon>
@@ -553,9 +602,16 @@ const navLinks = [
                           <Typography fontWeight={600} fontSize="1rem" color="text.primary">
                             {notif.title}
                           </Typography>
-                          <Typography fontSize="0.875rem" color="text.secondary" sx={{ whiteSpace: "pre-wrap" }}>
-                            {notif.content}
-                          </Typography>
+                          <Typography
+  fontSize="0.875rem"
+  color="text.secondary"
+  sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+>
+  {notif.content?.length > 60
+    ? notif.content.slice(0, 57) + "..."
+    : notif.content}
+</Typography>
+
                         </Box>
                       }
                       secondary={

@@ -62,37 +62,41 @@ const features = [
 
 const FeaturesSection = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
-    <Box sx={{ backgroundColor: '#fdfdfd', py: 10 }}>
+    <Box sx={{ backgroundColor: '#fdfdfd', py: { xs: 16, md: 10 } }}>
       <Container>
-        <Typography variant="h4" fontWeight={700} align="center" gutterBottom>
+        <Typography variant="h3" fontWeight={700} align="center" gutterBottom>
           Features That Make a Difference
         </Typography>
-        <Typography variant="subtitle1" color="text.secondary" align="center" sx={{ maxWidth: 600, mx: 'auto', mb: 6 }}>
+        <Typography
+          variant="subtitle1"
+          color="text.secondary"
+          align="center"
+          sx={{ maxWidth: 600, mx: 'auto', mb: 6 }}
+        >
           Designed with real users in mind — bold, functional, and full of character.
         </Typography>
 
-        <Grid container spacing={3}>
+        <Grid container spacing={1}>
           {features.map((feature, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
+            <Grid item xs={12} sm={6} md={4} lg={3} key={index} mx={"auto"}>
               <Paper
                 variant="outlined"
                 sx={{
                   p: 3,
-                  minHeight: 200,
-                  width: isMobile ? "100%": 270,
                   borderRadius: 2,
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: 1,
-                  justifyContent: 'flex-start',
+                  gap: 1.5,
                   backgroundColor: '#fff',
+                  height: '100%',
+                  width: { xs: 360, md: 280 },
                   transition: '0.3s ease',
                   '&:hover': {
                     boxShadow: theme.shadows[3],
-                    transform: 'translateY(-2px)',
+                    transform: 'translateY(-3px)',
                   },
                 }}
               >
