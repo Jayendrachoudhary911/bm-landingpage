@@ -1,8 +1,9 @@
 import { Box, Typography, Avatar, Grid, useTheme } from "@mui/material";
 import { motion } from "framer-motion";
 
-import Jayendrachoudhary_pic from "../assets/team/jayendrachoudhary_pic.jpg";
-import dummy_pic from "../assets/team/dummy.jpg";
+import Jayendrachoudhary_pic from "../assets/team/1.jpeg";
+import mohitsharma_pic from "../assets/team/2.jpg";
+import sahilsuman_pic from "../assets/team/3.jpg";
 
 const team = [
   {
@@ -13,12 +14,12 @@ const team = [
   {
     name: "Mohit Sharma",
     role: "Backend Developer",
-    image: dummy_pic,
+    image: mohitsharma_pic,
   },
   {
     name: "Sahil Suman",
     role: "Frontend Developer",
-    image: dummy_pic,
+    image: sahilsuman_pic,
   },
   // Add more members here
 ];
@@ -90,7 +91,7 @@ const TeamSection = () => {
           py: 2,
           borderRadius: 3,
           backdropFilter: "blur(12px)",
-          background: "#00000000",
+          background: "rgba(0, 0, 0, 0.29)",
           color: "#fff",
           textAlign: "center",
         }}
