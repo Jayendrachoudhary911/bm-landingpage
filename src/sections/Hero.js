@@ -148,7 +148,7 @@ export default function HeroLight() {
               color="text.secondary"
               sx={{ maxWidth: 620, mx: "auto", mb: 4 }}
             >
-              BunkMates is the ultimate trip planner — manage budgets, create checklists,
+              BunkMate is the ultimate trip planner — manage budgets, create checklists,
               share moments, and chat with friends in one beautifully integrated platform.
             </Typography>
           </motion.div>
@@ -195,9 +195,9 @@ export default function HeroLight() {
                   border: "1.2px solid #000",
                   color: "#000"
                 }}
-                href="#about"
+                href="https://bunk-mates.vercel.app/waitlist"
               >
-                View Community
+                Join Beta
               </Button>
             </Stack>
           </motion.div>

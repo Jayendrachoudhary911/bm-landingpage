@@ -65,7 +65,7 @@ const formValid =
             align="center"
             sx={{ maxWidth: 720, mx: 'auto', fontSize: '1.05rem', mb: 6 }}
           >
-            We are a passionate team of developers and travelers, building BunkMates to make
+            We are a passionate team of developers and travelers, building BunkMate to make
             group trips fun, collaborative, and stress-free. Our mission is to bring people
             together and simplify planning so that all you need to focus on is enjoying the journey.
           </Typography>
@@ -96,7 +96,7 @@ const formValid =
             <Tooltip title="Email Us">
               <IconButton
                 component={Link}
-                href="mailto:hello@bunkmates.app"
+                href="mailto:hello@BunkMate.app"
                 target="_blank"
                 rel="noopener"
                 sx={{
@@ -112,7 +112,7 @@ const formValid =
             <Tooltip title="LinkedIn">
               <IconButton
                 component={Link}
-                href="https://www.linkedin.com/company/bunkmates"
+                href="https://www.linkedin.com/company/BunkMate"
                 target="_blank"
                 rel="noopener"
                 sx={{
@@ -128,7 +128,7 @@ const formValid =
             <Tooltip title="Twitter">
               <IconButton
                 component={Link}
-                href="https://twitter.com/bunkmatesapp"
+                href="https://twitter.com/BunkMateapp"
                 target="_blank"
                 rel="noopener"
                 sx={{

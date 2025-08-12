@@ -102,7 +102,7 @@ We've received your message and are thrilled to assist you. Here's a copy of you
 📧 Email: ${form.email}  
 📝 Message: ${form.message}
 
-Our support team will reach out to you shortly if needed. Thank you for connecting with BunkMates!`,
+Our support team will reach out to you shortly if needed. Thank you for connecting with BunkMate!`,
       timestamp: serverTimestamp(),
       uid: uid,
       read: false,

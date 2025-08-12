@@ -13,20 +13,39 @@ import {
   Drawer,
   TextField,
   Fade,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  useMediaQuery
 } from "@mui/material";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
   collection,
   doc,
   getDoc,
-  getDocs,
   updateDoc,
   where,
   query,
+  onSnapshot,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import Cropper from "react-easy-crop";
 import Navbar from '../components/Navbar';
+import { useTheme } from '@mui/material/styles';
+
+function TabPanel({ children, value, index }) {
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`profile-tabpanel-${index}`}
+      aria-labelledby={`profile-tab-${index}`}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
+}
 
 const AVATAR_SIZE = 108;
 
@@ -61,6 +80,7 @@ const getCroppedImg = async (imageSrc, pixelCrop) => {
 
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
+  const theme = useTheme();
   const [userDoc, setUserDoc] = useState({});
   const [contributions, setContributions] = useState({
     issues: [],
@@ -72,36 +92,121 @@ const ProfilePage = () => {
   const [editForm, setEditForm] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [cropDrawerOpen, setCropDrawerOpen] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [activeTab, setActiveTab] = useState(0);
+  const [userType, setUserType] = useState("");
+  const [friendsUIDs, setFriendsUIDs] = useState([]);
+  const [friendsInfo, setFriendsInfo] = useState([]);
+  const [trips, setTrips] = useState([]);
+  const [issues, setIssues] = useState([]);
+  const [feedback, setFeedback] = useState([]);
+  const [reports, setReports] = useState([]);
 
+  // Auth state and real-time user doc fetch
   useEffect(() => {
     const auth = getAuth();
-    const unsub = onAuthStateChanged(auth, async (authUser) => {
+    const unsub = onAuthStateChanged(auth, (authUser) => {
+      setUser(authUser);
       if (authUser) {
-        setUser(authUser);
-        const userSnap = await getDoc(doc(db, "users", authUser.uid));
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          setUserDoc(userData);
-          setEditForm({ ...userData, photoURL: authUser.photoURL || userData.photoURL || "" });
-        }
-        const [issuesSnap, feedbackSnap, reportSnap] = await Promise.all([
-          getDocs(query(collection(db, "issues"), where("uid", "==", authUser.uid))),
-          getDocs(query(collection(db, "feedback"), where("uid", "==", authUser.uid))),
-          getDocs(query(collection(db, "reports"), where("uid", "==", authUser.uid))),
-        ]);
-        setContributions({
-          issues: issuesSnap.docs.map((d) => ({ id: d.id, ...d.data() })),
-          feedbacks: feedbackSnap.docs.map((d) => ({ id: d.id, ...d.data() })),
-          reports: reportSnap.docs.map((d) => ({ id: d.id, ...d.data() })),
+        // Real-time user doc fetch
+        const userRef = doc(db, "users", authUser.uid);
+        const unsubUserDoc = onSnapshot(userRef, async (userSnap) => {
+          if (userSnap.exists()) {
+            const userData = userSnap.data();
+            setUserDoc(userData);
+            setEditForm({ ...userData, photoURL: authUser.photoURL || userData.photoURL || "" });
+
+            // Real-time contributions
+            const issuesQ = query(collection(db, "issues"), where("uid", "==", authUser.uid));
+            const feedbackQ = query(collection(db, "feedback"), where("uid", "==", authUser.uid));
+            const reportsQ = query(collection(db, "reports"), where("uid", "==", authUser.uid));
+            const unsubIssues = onSnapshot(issuesQ, (snap) =>
+              setContributions((state) => ({
+                ...state,
+                issues: snap.docs.map((d) => ({ id: d.id, ...d.data() })),
+              }))
+            );
+            const unsubFeedback = onSnapshot(feedbackQ, (snap) =>
+              setContributions((state) => ({
+                ...state,
+                feedbacks: snap.docs.map((d) => ({ id: d.id, ...d.data() })),
+              }))
+            );
+            const unsubReports = onSnapshot(reportsQ, (snap) =>
+              setContributions((state) => ({
+                ...state,
+                reports: snap.docs.map((d) => ({ id: d.id, ...d.data() })),
+              }))
+            );
+
+            setFriendsUIDs(userData.friends || []);
+            setTrips(userData.trips || []);
+            setLoading(false);
+
+            return () => {
+              unsubIssues();
+              unsubFeedback();
+              unsubReports();
+            };
+          }
         });
+        return () => {
+          unsubUserDoc();
+        };
+      } else {
         setLoading(false);
       }
     });
     return () => unsub();
+  }, []);
+
+  // Real-time friend info listeners
+  useEffect(() => {
+    let unsubList = [];
+    setFriendsInfo([]);
+    if (friendsUIDs.length === 0) return;
+
+    friendsUIDs.forEach((uid) => {
+      const unsubFriend = onSnapshot(doc(db, "users", uid), (snap) => {
+        if (snap.exists()) {
+          const { name, username, photoURL } = snap.data();
+          setFriendsInfo((prevInfo) => {
+            const filtered = prevInfo.filter(f => f.uid !== uid);
+            return [...filtered, { uid, name, username, photoURL }];
+          });
+        }
+      });
+      unsubList.push(unsubFriend);
+    });
+
+    return () => {
+      unsubList.forEach((unsub) => unsub());
+    };
+  }, [friendsUIDs]);
+
+  useEffect(() => {
+    const fetchUserTypeAndMeta = async () => {
+      const auth = getAuth();
+      const currUser = auth.currentUser;
+      if (!currUser) return;
+      const userSnap = await getDoc(doc(db, "users", currUser.uid));
+      if (userSnap.exists()) {
+        const data = userSnap.data();
+        setUserType(data.type || "Regular");
+        if (["Dev Beta", "Beta"].includes(data.type)) {
+          const issuesSnap = await getDoc(doc(db, "meta", "issues"));
+          const feedbackSnap = await getDoc(doc(db, "meta", "feedback"));
+          const reportsSnap = await getDoc(doc(db, "meta", "reports"));
+          setIssues(issuesSnap.data()?.items || []);
+          setFeedback(feedbackSnap.data()?.items || []);
+          setReports(reportsSnap.data()?.items || []);
+        }
+      }
+    };
+    fetchUserTypeAndMeta();
   }, []);
 
   const handleEditSubmit = async () => {
@@ -123,19 +228,22 @@ const ProfilePage = () => {
       <Typography align="center">Login to view your profile</Typography>
     );
 
+  // Tab options by user type
+  const isBetaDev = ["Dev Beta", "Beta"].includes(userType);
+  const tabs = isBetaDev
+    ? ["Issues", "Feedbacks", "Reports", "Friends"]
+    : ["Friends", "Trips"];
+  const tabContents = isBetaDev
+    ? [contributions.issues, contributions.feedbacks, contributions.reports, friendsInfo]
+    : [friendsInfo, trips];
+
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        py: 6,
-        px: 2,
-      }}
-    >
-        <Navbar user={user} />
+    <Box sx={{ minHeight: "100vh", py: 6, px: 2 }}>
+      <Navbar user={user} />
       <Container maxWidth="lg" sx={{ mt: 10 }}>
         <Grid container spacing={4}>
           {/* Sidebar */}
-          <Grid item xs={12} sm={4} md={3}>
+          <Grid item xs={12} sm={4} md={3} sx={{ mx: isMobile ? "auto" : "0" }}>
             <Paper
               elevation={3}
               sx={{
@@ -144,7 +252,7 @@ const ProfilePage = () => {
                 backdropFilter: "blur(10px)",
                 background: "rgba(255, 255, 255, 0.7)",
                 boxShadow: "none",
-                maxWidth: 410
+                maxWidth: 410,
               }}
             >
               <Avatar
@@ -170,14 +278,36 @@ const ProfilePage = () => {
               >
                 {userDoc.bio || "Add something cool about yourself!"}
               </Typography>
-
-              <Grid container spacing={1} mt={2} display={"flex"} flexDirection={"row"} alignItems={"center"} justifyContent={"center"} my={4}>
-                {[
-                  { label: "Issues", value: contributions.issues.length },
-                  { label: "Feedbacks", value: contributions.feedbacks.length },
-                  { label: "Reports", value: contributions.reports.length },
-                ].map((stat) => (
-                  <Grid item xs={4} key={stat.label} textAlign="center"  sx={{ backgroundColor: "#f1f1f1b6", p: 1.3, borderRadius: 3 }}>
+              {/* Stats Section */}
+              <Grid
+                container
+                spacing={1}
+                mt={2}
+                display="flex"
+                flexDirection="row"
+                alignItems="center"
+                justifyContent="center"
+                my={4}
+              >
+                {(isBetaDev
+                  ? [
+                      { label: "Issues", value: contributions.issues.length },
+                      { label: "Feedbacks", value: contributions.feedbacks.length },
+                      { label: "Reports", value: contributions.reports.length },
+                      { label: "Friends", value: friendsInfo.length },
+                    ]
+                  : [
+                      { label: "Friends", value: friendsInfo.length },
+                      { label: "Trips", value: trips.length },
+                    ]
+                ).map((stat) => (
+                  <Grid
+                    item
+                    xs={isBetaDev ? 3 : 6}
+                    key={stat.label}
+                    textAlign="center"
+                    sx={{ backgroundColor: "#f1f1f1b6", p: 1.3, borderRadius: 3, width: 120 }}
+                  >
                     <Typography fontWeight={700}>{stat.value}</Typography>
                     <Typography variant="caption" color="text.secondary">
                       {stat.label}
@@ -185,7 +315,6 @@ const ProfilePage = () => {
                   </Grid>
                 ))}
               </Grid>
-
               <Button
                 fullWidth
                 onClick={() => setEditOpen(true)}
@@ -203,94 +332,137 @@ const ProfilePage = () => {
               </Button>
             </Paper>
           </Grid>
-
           {/* Main Content */}
           <Grid item xs={12} sm={8} md={9}>
             <Paper
               elevation={3}
               sx={{
-                p: 2,
                 mb: 2,
-                borderRadius: 3,
                 backdropFilter: "blur(8px)",
-                background: "rgba(255, 255, 255, 0.8)", 
+                background: "rgba(255, 255, 255, 0.8)",
                 maxWidth: 610,
-                boxShadow: "none"
+                boxShadow: "none",
+                overflowX: "auto",
+                maxWidth: 380
               }}
             >
               <Tabs
                 value={activeTab}
                 onChange={(_, v) => setActiveTab(v)}
-                textColor="primary"
-                indicatorColor="primary"
-              >
-                <Tab label="Issues" />
-                <Tab label="Feedbacks" />
-                <Tab label="Reports" />
-              </Tabs>
-            </Paper>
-
-            <Fade in timeout={500}>
-              <Paper
-                elevation={3}
+                textColor="inherit"
+                TabIndicatorProps={{
+                  style: {
+                    backgroundColor: "#000",
+                    height: "3px",
+                    borderRadius: "3px",
+                  },
+                }}
+                aria-label="Profile tabs"
                 sx={{
-                  p: 3,
-                  borderRadius: 3,
-                  backdropFilter: "blur(6px)",
-                  background: "rgba(255, 255, 255, 0.85)",
-                  maxWidth: 610,
-                  boxShadow: "none"
+                  minHeight: "48px",
+                  "& .MuiTab-root": {
+                    minHeight: "48px",
+                    fontWeight: 500,
+                    textTransform: "none",
+                    fontSize: "0.95rem",
+                    color: "#666",
+                    transition: "all 0.3s ease",
+                    px: 0
+                  },
+                  "& .MuiTab-root.Mui-selected": { color: "#000" },
+                  "& .MuiTab-root:hover": {
+                    color: "#000",
+                    backgroundColor: "rgba(0,0,0,0.04)",
+                    borderRadius: "8px",
+                  },
                 }}
               >
-                <Typography variant="h6" gutterBottom>
-                  {["Your Issues", "Given Feedbacks", "Your Reports"][activeTab]}
-                </Typography>
-                {[contributions.issues, contributions.feedbacks, contributions.reports][
-                  activeTab
-                ]?.length === 0 ? (
-                  <Typography
-                    color="text.secondary"
-                    sx={{ textAlign: "center", py: 3 }}
-                  >
-                    No items yet.
-                  </Typography>
-                ) : (
-                  <Box>
-                    {[contributions.issues, contributions.feedbacks, contributions.reports][
-                      activeTab
-                    ].map((item) => (
-                      <Paper
-                        key={item.id}
-                        sx={{
-                          p: 2,
-                          mb: 2,
-                          borderRadius: 2,
-                          background: "#ffffffff",
-                          border: "1.2px solid #cacacaff",
-                          boxShadow: "none"
-                        }}
-                      >
-                        <Typography fontWeight={600}>
-                          {item.message || "Untitled"}
-                        </Typography>
-                        <Typography fontSize={14} color="text.secondary">
-                          {item.description?.slice(0, 100) || ""}
-                        </Typography>
-                      </Paper>
-                    ))}
-                  </Box>
-                )}
+                {tabs.map((label, idx) => (
+                  <Tab label={label} key={label} id={`profile-tab-${idx}`}
+                    aria-controls={`profile-tabpanel-${idx}`} />
+                ))}
+              </Tabs>
+            </Paper>
+            <Fade in timeout={500}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 0,
+                  borderRadius: 4,
+                  backdropFilter: "blur(10px)",
+                  background: "rgba(255, 255, 255, 0.9)",
+                  boxShadow: "none",
+                  maxWidth: 610,
+                }}
+              >
+                {tabs.map((label, idx) => (
+                  <TabPanel value={activeTab} index={idx} key={label} p={0}>
+                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: "#222" }}>
+                      {isBetaDev
+                        ? ["Your Issues", "Given Feedbacks", "Your Reports", "Your Friends"][idx]
+                        : ["Your Friends", "Your Trips"][idx]}
+                    </Typography>
+                    {tabContents[idx].length === 0 ? (
+                      <Typography color="text.secondary"
+                        sx={{ textAlign: "center", py: 4, fontSize: "0.95rem" }}>
+                        No items yet.
+                      </Typography>
+                    ) : (isBetaDev && idx === 3) || (!isBetaDev && idx === 0) ? (
+                      // FRIENDS TAB: Show detailed friend info list
+                      <List sx={{ p: 0 }}>
+                        {tabContents[idx]
+                          .sort((a, b) => a.name?.localeCompare(b.name || '') || 0)
+                          .map(friend => (
+                            <ListItem key={friend.uid}>
+                              <ListItemAvatar>
+                                <Avatar
+                                  src={friend.photoURL}
+                                  alt={friend.name || friend.username}
+                                />
+                              </ListItemAvatar>
+                              <ListItemText
+                                primary={friend.name || "No Name"}
+                                secondary={`@${friend.username || friend.uid}`}
+                              />
+                            </ListItem>
+                          ))}
+                      </List>
+                    ) : (
+                      <List>
+                        {tabContents[idx].map((item, i) =>
+                          isBetaDev ? (
+                            // For Beta/Dev Beta issues/feedback/reports
+                            <Paper key={item.id || i}
+                              sx={{
+                                p: 2, mb: 2, borderRadius: 3,
+                                background: "rgba(255,255,255,0.95)",
+                                border: "1px solid rgba(0,0,0,0.05)"
+                              }}>
+                              <Typography fontWeight={600}>{item.message || "Untitled"}</Typography>
+                              <Typography fontSize={14} color="text.secondary">
+                                {item.description?.slice(0, 100) || ""}
+                              </Typography>
+                            </Paper>
+                          ) : (
+                            // Otherwise, trips list, legacy
+                            <ListItem key={i}>
+                              <ListItemText primary={item} />
+                            </ListItem>
+                          )
+                        )}
+                      </List>
+                    )}
+                  </TabPanel>
+                ))}
               </Paper>
             </Fade>
           </Grid>
         </Grid>
-
-              {/* Edit Drawer */}
+        {/* Edit Drawer */}
         <Drawer
           anchor="bottom"
           open={editOpen}
           onClose={() => setEditOpen(false)}
-          fullWidth
           PaperProps={{
             sx: {
               background: "#ffffff",
@@ -300,23 +472,23 @@ const ProfilePage = () => {
               mx: "auto"
             },
           }}
-  ModalProps={{
-    BackdropProps: {
-      sx: {
-        backgroundColor: "rgba(0, 0, 0, 0.05)",
-        backdropFilter: "blur(2px)",
-      },
-    },
-  }}
-  sx={{
-    "& .MuiDrawer-paper": {
-      background: "rgba(255, 255, 255, 0.7)",
-      backdropFilter: "blur(14px)",
-      boxShadow: "0px 12px 32px rgba(0, 0, 0, 0.02)",
-      border: "1px solid rgba(255, 255, 255, 0.25)",
-      transition: "all 0.4s ease-in-out",
-    },
-  }}
+          ModalProps={{
+            BackdropProps: {
+              sx: {
+                backgroundColor: "rgba(0, 0, 0, 0.05)",
+                backdropFilter: "blur(2px)",
+              },
+            },
+          }}
+          sx={{
+            "& .MuiDrawer-paper": {
+              background: "rgba(255, 255, 255, 0.7)",
+              backdropFilter: "blur(14px)",
+              boxShadow: "0px 12px 32px rgba(0, 0, 0, 0.02)",
+              border: "1px solid rgba(255, 255, 255, 0.25)",
+              transition: "all 0.4s ease-in-out",
+            },
+          }}
         >
           <Box
             sx={{
@@ -475,23 +647,23 @@ const ProfilePage = () => {
                 mx: "auto"
               },
             }}
-  ModalProps={{
-    BackdropProps: {
-      sx: {
-        backgroundColor: "rgba(0, 0, 0, 0.05)",
-        backdropFilter: "blur(2px)",
-      },
-    },
-  }}
-  sx={{
-    "& .MuiDrawer-paper": {
-      background: "rgba(255, 255, 255, 0.7)",
-      backdropFilter: "blur(14px)",
-      boxShadow: "0px 12px 32px rgba(0, 0, 0, 0.02)",
-      border: "1px solid rgba(255, 255, 255, 0.25)",
-      transition: "all 0.4s ease-in-out",
-    },
-  }}
+            ModalProps={{
+              BackdropProps: {
+                sx: {
+                  backgroundColor: "rgba(0, 0, 0, 0.05)",
+                  backdropFilter: "blur(2px)",
+                },
+              },
+            }}
+            sx={{
+              "& .MuiDrawer-paper": {
+                background: "rgba(255, 255, 255, 0.7)",
+                backdropFilter: "blur(14px)",
+                boxShadow: "0px 12px 32px rgba(0, 0, 0, 0.02)",
+                border: "1px solid rgba(255, 255, 255, 0.25)",
+                transition: "all 0.4s ease-in-out",
+              },
+            }}
           >
             <Box sx={{ minHeight: "55vh", p: 3, color: "#161616" }}>
               <Typography

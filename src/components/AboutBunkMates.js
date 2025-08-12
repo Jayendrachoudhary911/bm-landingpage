@@ -10,7 +10,7 @@ const fadeInUp = {
   },
 };
 
-const AboutBunkMates = () => (
+const AboutBunkMate = () => (
   <Box
     initial="hidden"
     whileInView="visible"
@@ -37,7 +37,7 @@ const AboutBunkMates = () => (
           WebkitTextFillColor: "transparent",
         }}
       >
-        What is BunkMates?
+        What is BunkMate?
       </Typography>
 
       <Typography
@@ -49,13 +49,13 @@ const AboutBunkMates = () => (
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.8 }}
       >
-        BunkMates is a modern trip collaboration platform for friends and travel enthusiasts.
+        BunkMate is a modern trip collaboration platform for friends and travel enthusiasts.
         Whether it's budgeting, checklists, or shared memories — we simplify it all into one
-        powerful experience. Designed with travelers in mind, BunkMates fosters planning, bonding,
+        powerful experience. Designed with travelers in mind, BunkMate fosters planning, bonding,
         and coordination like never before.
       </Typography>
     </Stack>
   </Box>
 );
 
-export default AboutBunkMates;
+export default AboutBunkMate;

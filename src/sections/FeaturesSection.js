@@ -65,7 +65,7 @@ const FeaturesSection = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
-    <Box sx={{ backgroundColor: '#fdfdfd', py: { xs: 16, md: 10 } }}>
+    <Box id="features" sx={{ backgroundColor: '#fdfdfd', py: { xs: 16, md: 10 } }}>
       <Container>
         <Typography variant="h3" fontWeight={700} align="center" gutterBottom>
           Features That Make a Difference

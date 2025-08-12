@@ -74,7 +74,7 @@ const AboutSection = () => {
                 color: "#000",
               }}
             >
-              About BunkMates
+              About BunkMate
             </Typography>
 
             <Typography
@@ -84,7 +84,7 @@ const AboutSection = () => {
               lineHeight={1.9}
               mb={4}
             >
-              BunkMates is a social trip companion app that redefines how you plan,
+              BunkMate is a social trip companion app that redefines how you plan,
               coordinate, and enjoy trips with your friends. Whether it’s a college
               getaway, weekend trek, or long vacation, we help you budget, chat,
               checklist, and collaborate — effortlessly.
@@ -96,6 +96,7 @@ const AboutSection = () => {
 
             <Button
               variant="contained"
+              href="/about"
               size="large"
               sx={{
                 borderRadius: '30px',
@@ -128,7 +129,7 @@ const AboutSection = () => {
             <Box
               component="img"
               src="/assets/BunkMates_about.png"
-              alt="BunkMates About Illustration"
+              alt="BunkMate About Illustration"
               sx={{
                 width: '100%',
                 maxWidth: 540,

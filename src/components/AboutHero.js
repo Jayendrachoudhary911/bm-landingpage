@@ -38,7 +38,7 @@ const AboutHero = () => {
           WebkitTextFillColor: "transparent",
         }}
       >
-        Get to Know BunkMates
+        Get to Know BunkMate
       </Typography>
 
       <motion.div

@@ -151,11 +151,10 @@ useEffect(() => {
 
 const navLinks = [
   { label: 'Home', path: '/', icon: <HomeOutlinedIcon /> },
-  { label: 'Features', path: '/features', icon: <ExtensionOutlinedIcon /> },
-  { label: 'Pricing', path: '/pricing', icon: <AttachMoneyOutlinedIcon /> },
-  { label: 'Blog', path: '/blog', icon: <ArticleOutlinedIcon /> },
-  { label: 'FAQ', path: '/faq', icon: <HelpOutlineOutlinedIcon /> },
+  { label: 'Features', path: '#features', icon: <ExtensionOutlinedIcon /> },
+  { label: 'FAQ', path: '#faq', icon: <HelpOutlineOutlinedIcon /> },
   { label: 'About Us', path: '/about', icon: <InfoOutlinedIcon /> },
+  // { label: 'Download', path: '/bm-install', icon: <InfoOutlinedIcon /> },
 ];
 
 
@@ -188,7 +187,7 @@ const navLinks = [
         sx={{ cursor: 'pointer' }}
         onClick={() => navigate('/')}
       >
-        BunkMates
+        BunkMate
       </Typography>
 
   {!isMobile && (
@@ -196,7 +195,7 @@ const navLinks = [
 {navLinks.map(({ label, path }) => (
   <Button
     key={label}
-    onClick={() => navigate(path)}
+    href={path}
     sx={{
       textTransform: 'none',
       fontWeight: 500,

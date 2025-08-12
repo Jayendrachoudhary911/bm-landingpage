@@ -16,7 +16,7 @@ import EmailIcon from "@mui/icons-material/EmailOutlined";
 import LocationOnIcon from "@mui/icons-material/LocationOnOutlined";
 import CopyrightIcon from "@mui/icons-material/Copyright";
 
-const navLinks = ["Home", "Features", "Pricing", "Blog", "FAQ", "About Us"];
+const navLinks = ["Home", "Features", "FAQ", "About Us"];
 
 const Footer = () => {
   return (
@@ -50,7 +50,7 @@ const Footer = () => {
               WebkitTextFillColor: "transparent",
             }}
           >
-            BunkMates
+            BunkMate
           </Typography>
           <Typography
             variant="body2"
@@ -111,7 +111,7 @@ const Footer = () => {
           },
         }}
       >
-        hello@bunkmates.app
+        Mail us
       </Link>
             </Stack>
             <Stack direction="row" alignItems="center" spacing={1}>
@@ -124,12 +124,12 @@ const Footer = () => {
         {/* Join Beta / Social */}
         <Grid item xs={12} md={3}>
           <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-            BunkMates Beta
+            BunkMate Beta
           </Typography>
           <Stack direction="row" spacing={1}>
             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
               <Button
-                href="#"
+                href="https://bunk-mates.vercel.app/waitlist"
                 color="primary"
                 variant="contained"
                 sx={{
@@ -147,7 +147,7 @@ const Footer = () => {
             </motion.div>
             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
               <Button
-                href="#"
+                href="https://bunk-mates.vercel.app/community"
                 color="primary"
                 variant="contained"
                 sx={{
@@ -180,7 +180,7 @@ const Footer = () => {
         <Stack direction="row" alignItems="center" spacing={0.5}>
           <CopyrightIcon fontSize="small" />
           <Typography variant="caption">
-            {new Date().getFullYear()} BunkMates. All rights reserved.
+            {new Date().getFullYear()} BunkMate. All rights reserved.
           </Typography>
         </Stack>
         <Typography variant="caption" color="text.secondary">

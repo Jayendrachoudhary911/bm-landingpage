@@ -13,19 +13,19 @@ import { motion, useInView } from 'framer-motion';
 
 const faqs = [
   {
-    question: 'What is BunkMates and how does it work?',
+    question: 'What is BunkMate and how does it work?',
     answer:
-      'BunkMates is a smart travel planner that helps you organize trips, manage group expenses, chat with your friends, and coordinate everything in one place.',
+      'BunkMate is a smart travel planner that helps you organize trips, manage group expenses, chat with your friends, and coordinate everything in one place.',
   },
   {
-    question: 'Is BunkMates free to use?',
+    question: 'Is BunkMate free to use?',
     answer:
       'Yes. All core features are completely free to use. We may add optional premium upgrades for enhanced functionality in the future.',
   },
   {
-    question: 'Can I use BunkMates for solo trips?',
+    question: 'Can I use BunkMate for solo trips?',
     answer:
-      'Definitely. BunkMates is perfect for both group and solo travelers who want to plan, track budgets, and document experiences.',
+      'Definitely. BunkMate is perfect for both group and solo travelers who want to plan, track budgets, and document experiences.',
   },
   {
     question: 'How secure is my data?',

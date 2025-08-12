@@ -9,6 +9,7 @@ import FeaturesSection from '../sections/FeaturesSection';
 import AboutSection from '../sections/AboutSection';
 import FAQSection from '../sections/FAQSection';
 import AboutSectionTeam from '../sections/AboutTeam';
+import ContactSection from '../components/ContactSection';
 import Footer from '../components/Footer';
 
 const LandingPage = () => {
@@ -22,7 +23,7 @@ const LandingPage = () => {
           <AboutSection />
           <FeaturesSection />
           <FAQSection />
-          <AboutSectionTeam />
+          <ContactSection />
           <Footer />
     </Box>
   );
