@@ -25,21 +25,26 @@ const TimerGate = ({ children }) => {
     }
   }, [timerEnded]);
 
-  useEffect(() => {
+    useEffect(() => {
     if (timerEnded && location.pathname !== "/") {
       navigate("/");
     }
   }, [timerEnded, navigate, location.pathname]);
 
+
   if (!timerEnded) {
+    const hasAdminAccess = Cookies.get("bunkmate_admin_access") === "true";
     const hasSecretAccess = Cookies.get("bunkmate_secret_access") === "true";
+    if (hasAdminAccess) {
+      return children; // Admins can access all routes
+    }
     if (location.pathname === "/secret" && hasSecretAccess) {
-      return children; // Allow access to /secret if cookie is set
+      return children; // Secret access only for /secret
     }
     // For all other routes, show the timer page
     return <OverriddenTimer />;
   }
-  
+
   return children;
 };
 

@@ -140,7 +140,8 @@ const PasswordBox = ({ onSuccess, onBack }) => {
   const [error, setError] = useState("");
   const [pressedKey, setPressedKey] = useState(null);
   const [encryptPhase, setEncryptPhase] = useState(false);
-  const [correctPassword, setCorrectPassword] = useState(""); // fetched password
+  const [correctPassword, setCorrectPassword] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
   const [loading, setLoading] = useState(true);
 
   const { isMobile } = useScreenSize();
@@ -152,6 +153,7 @@ const PasswordBox = ({ onSuccess, onBack }) => {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           setCorrectPassword(docSnap.data().content);
+          setAdminPassword(docSnap.data().admin_pass || "");
         } else {
           setError("Password not set.");
         }
@@ -200,6 +202,10 @@ const PasswordBox = ({ onSuccess, onBack }) => {
     setTimeout(() => {
       const entered = inputs.join("");
       if (entered === correctPassword) {
+        Cookies.set("bunkmate_secret_access", "true", { expires: 7 });
+        setTimeout(() => onSuccess(), 2200);
+      } else if (entered === adminPassword) {
+        Cookies.set("bunkmate_admin_access", "true", { expires: 7 });
         setTimeout(() => onSuccess(), 2200);
       } else {
         setEncryptPhase(false);
