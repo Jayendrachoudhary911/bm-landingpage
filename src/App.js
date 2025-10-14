@@ -8,21 +8,26 @@ import ProfilePage from './pages/ProfilePage';
 import DownloadPage from './pages/download';
 import { AuthProvider } from './context/AuthContext';
 import { AnimatePresence } from 'framer-motion';
+import TimerGate from './elements/TimerGate';
+import SecretPage from './pages/secret';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <AnimatePresence mode="wait">
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/bm-install" element={<DownloadPage />} />
-          </Routes>
-        </AnimatePresence>
+        <TimerGate>
+          <AnimatePresence mode="wait">
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/bm-install" element={<DownloadPage />} />
+              <Route path="/secret" element={<SecretPage />} />
+            </Routes>
+          </AnimatePresence>
+        </TimerGate>
       </AuthProvider>
     </Router>
   );
