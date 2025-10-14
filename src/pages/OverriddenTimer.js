@@ -500,6 +500,12 @@ const OverriddenTimer = () => {
     }
   }, []);
 
+    useEffect(() => {
+    if (Cookies.get("bunkmate_admin_access") === "true") {
+      window.location.href = "/";
+    }
+  }, []);
+
   useEffect(() => {
     const interval = setInterval(() => {
       const updated = getTimeLeft();
@@ -522,10 +528,18 @@ const OverriddenTimer = () => {
     return () => clearInterval(pulseInterval);
   }, []);
 
-  const handleSuccess = () => {
-    Cookies.set("bunkmate_secret_access", "true", { expires: 7 }); // 7 days expiry
-    window.location.href = "/secret";
-  };
+// ...existing code...
+const handleSuccess = () => {
+  // If admin access, set admin cookie and redirect to homepage
+  if (Cookies.get("bunkmate_admin_access") === "true") {
+    window.location.href = "/";
+    return;
+  }
+  // Otherwise, set secret access and redirect to /secret
+  Cookies.set("bunkmate_secret_access", "true", { expires: 7 }); // 7 days expiry
+  window.location.href = "/secret";
+};
+// ...existing code...
 
   return (
     <motion.div
