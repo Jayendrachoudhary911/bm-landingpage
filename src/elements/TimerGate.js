@@ -4,7 +4,7 @@ import OverriddenTimer from "../pages/OverriddenTimer";
 import Cookies from "js-cookie";
 
 const getTimeLeft = () => {
-  const target = new Date("2025-10-22T20:00:00+05:30");
+  const target = new Date("2025-10-23T20:30:00+05:30");
   const now = new Date();
   return target - now;
 };
