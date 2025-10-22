@@ -29,6 +29,7 @@ export default function HeroLight() {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const titleWords = [
+    "Bunk The Chaos, Keep The Fun!",
     "Trips Made Simple",
     "Travel with Friends",
     "Budget Smarter",
@@ -59,7 +60,7 @@ export default function HeroLight() {
           left: "-120px",
           width: 300,
           height: 300,
-          background: "radial-gradient(circle, #ff80b5, transparent 70%)",
+          background: "radial-gradient(circle, #ff5555ff, transparent 70%)",
           filter: "blur(100px)",
           animation: `${blobMovement} 18s ease-in-out infinite`,
           zIndex: 0,
@@ -179,7 +180,7 @@ export default function HeroLight() {
                     bgcolor: "#222",
                   },
                 }}
-                href="#get-started"
+                href="bm-install"
               >
                 Get Started
               </Button>
