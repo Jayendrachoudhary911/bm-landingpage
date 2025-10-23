@@ -25,7 +25,6 @@ const About = () => {
       <motion.div id="about-start" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
       <AboutHero />
         <AboutBunkMate />
-        <TeamSection />
         <ContactSection />
         <Footer />
       </motion.div>

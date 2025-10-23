@@ -99,7 +99,7 @@ const Footer = () => {
             <Stack direction="row" alignItems="center" spacing={1}>
               <EmailIcon fontSize="small" color="#000" />
               <Link
-        href="mailto:jayendrachoudhary.am@gmail.com"
+        href="mailto:team.bunkmates@gmail.com"
         underline="hover"
         color="text.primary"
         sx={{
