@@ -20,7 +20,7 @@ const useScreenSize = () => {
 
 // Helper to calculate remaining time (No changes needed)
 const getTimeLeft = () => {
-  const target = new Date("2025-10-22T20:00:00+05:30");
+  const target = new Date("2025-10-23T20:30:00+05:30");
   const now = new Date();
   const diff = target - now;
   if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
