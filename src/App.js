@@ -15,7 +15,6 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <TimerGate>
           <AnimatePresence mode="wait">
             <Routes>
               <Route path="/" element={<LandingPage />} />
@@ -27,7 +26,6 @@ function App() {
               <Route path="/secret" element={<SecretPage />} />
             </Routes>
           </AnimatePresence>
-        </TimerGate>
       </AuthProvider>
     </Router>
   );
