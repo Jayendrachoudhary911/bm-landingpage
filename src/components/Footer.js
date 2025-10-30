@@ -7,11 +7,13 @@ import {
   Button,
   Stack,
   Divider,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { motion } from "framer-motion";
 import FacebookIcon from "@mui/icons-material/FacebookOutlined";
 import InstagramIcon from "@mui/icons-material/Instagram";
-import XIcon from "@mui/icons-material/X";
+import YouTubeIcon from "@mui/icons-material/YouTube";
 import EmailIcon from "@mui/icons-material/EmailOutlined";
 import LocationOnIcon from "@mui/icons-material/LocationOnOutlined";
 import CopyrightIcon from "@mui/icons-material/Copyright";
@@ -19,25 +21,38 @@ import CopyrightIcon from "@mui/icons-material/Copyright";
 const navLinks = ["Home", "Features", "FAQ", "About Us"];
 
 const Footer = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   return (
     <Box
-      component={motion.footer}
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.8 }}
       sx={{
-        mt: 10,
-        background: "rgba(255,255,255,0.8)",
-        backdropFilter: "blur(12px)",
-        px: { xs: 3, md: 12 },
+        background: "linear-gradient(180deg, #0a0a0a 0%, #111 100%)",
+        px: isMobile ? 6 : { xs: 3, md: 12 },
         py: { xs: 6, md: 8 },
-        borderTop: "1px solid rgba(0, 0, 0, 0.05)",
-        borderRadius: "24px 24px 0 0",
         boxShadow: "none",
+        color: "#fff",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
-      <Grid container spacing={6} justifyContent="space-between">
+      {/* Layered ripple background */}
+      {/* <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "radial-gradient(circle at 20% 40%, rgba(0,255,180,0.06), transparent 60%), radial-gradient(circle at 80% 70%, rgba(0,140,255,0.05), transparent 60%)",
+          zIndex: 0,
+        }}
+      /> */}
+
+      <Grid
+        container
+        spacing={6}
+        justifyContent="space-between"
+        sx={{ position: "relative", zIndex: 2 }}
+      >
         {/* Branding */}
         <Grid item xs={12} md={3}>
           <Typography
@@ -45,17 +60,14 @@ const Footer = () => {
             fontWeight={700}
             gutterBottom
             sx={{
-              background: "linear-gradient(to right, #000, #444)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
+              color: `#fff`
             }}
           >
-            BunkMate
+            BunkMates
           </Typography>
           <Typography
             variant="body2"
-            color="text.secondary"
-            sx={{ maxWidth: 280, lineHeight: 1.6 }}
+            sx={{ maxWidth: 280, lineHeight: 1.7, color: "rgba(255,255,255,0.7)" }}
           >
             Travel together, split smarter. All-in-one app for collaborative
             planning, budgeting & group communication.
@@ -67,19 +79,18 @@ const Footer = () => {
           <Typography variant="subtitle1" fontWeight={600} gutterBottom>
             Explore
           </Typography>
-          <Stack spacing={1}>
+          <Stack spacing={1.2}>
             {navLinks.map((link, idx) => (
               <Link
                 key={idx}
                 href="#"
                 underline="none"
-                color="text.primary"
                 sx={{
                   fontSize: 14,
-                  opacity: 0.85,
-                  transition: "0.3s",
+                  color: "rgba(255,255,255,0.8)",
+                  transition: "all 0.3s ease",
                   "&:hover": {
-                    color: "primary.main",
+                    color: "#ffdab3ff",
                     transform: "translateX(4px)",
                   },
                 }}
@@ -95,72 +106,108 @@ const Footer = () => {
           <Typography variant="subtitle1" fontWeight={600} gutterBottom>
             Contact
           </Typography>
-          <Stack spacing={1}>
+          <Stack spacing={1.5}>
             <Stack direction="row" alignItems="center" spacing={1}>
-              <EmailIcon fontSize="small" color="#000" />
+              <EmailIcon sx={{ color: "#d8d8d8ff", fontSize: 18 }} />
               <Link
-        href="mailto:team.bunkmates@gmail.com"
-        underline="hover"
-        color="text.primary"
-        sx={{
-          fontSize: 14,
-          transition: "0.3s",
-          '&:hover': {
-            color: "primary.main",
-            transform: "translateX(2px)",
-          },
-        }}
-      >
-        Mail us
-      </Link>
+                href="mailto:team.bunkmates@gmail.com"
+                underline="hover"
+                sx={{
+                  fontSize: 14,
+                  color: "rgba(255,255,255,0.8)",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    color: "#00ff94",
+                    transform: "translateX(2px)",
+                  },
+                }}
+              >
+                Mail us
+              </Link>
             </Stack>
+
             <Stack direction="row" alignItems="center" spacing={1}>
-              <LocationOnIcon fontSize="small" color="#000" />
-              <Typography variant="body2">Remote · India</Typography>
+              <LocationOnIcon sx={{ color: "#d8d8d8ff", fontSize: 18 }} />
+              <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                Remote · India
+              </Typography>
             </Stack>
+
+          <Stack direction="row" spacing={1} mt={3}>
+            {[InstagramIcon, YouTubeIcon].map((Icon, idx) => (
+              <motion.div
+                key={idx}
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Icon
+                  sx={{
+                    fontSize: 24,
+                    backgroundColor: "#2a2a2aff",
+                    padding: 1,
+                    borderRadius: 8,
+                    width: 42,
+                    height: 42,
+                    color: "rgba(255,255,255,0.7)",
+                    transition: "0.3s",
+                    "&:hover": { color: "#000000ff", backgroundColor: "#ffffffff" },
+                    cursor: "pointer",
+                  }}
+                />
+              </motion.div>
+            ))}
+          </Stack>
           </Stack>
         </Grid>
 
         {/* Join Beta / Social */}
         <Grid item xs={12} md={3}>
           <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-            BunkMate Beta
+            BunkMates Beta
           </Typography>
-          <Stack direction="row" spacing={1}>
-            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+
+          <Stack direction="row" spacing={1.5} flexWrap="wrap">
+            <motion.div whileHover={{ scale: 1.07 }} whileTap={{ scale: 0.95 }}>
               <Button
                 href="https://bunk-mates.vercel.app/waitlist"
-                color="primary"
-                variant="contained"
                 sx={{
                   borderRadius: "30px",
                   textTransform: "none",
                   px: 3,
-                  fontWeight: 500,
-                  border: "1.2px solid #000",
-                  backgroundColor: "#000",
+                  fontWeight: 600,
+                  background: 'linear-gradient(120deg, #923a00ff, #004377ff)',
                   color: "#fff",
+                  boxShadow: "none",
+                  "&:hover": {
+                    boxShadow: "none",
+                    transform: "translateY(-2px)",
+                  },
                 }}
               >
                 Join Beta
               </Button>
             </motion.div>
-            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+
+            <motion.div whileHover={{ scale: 1.07 }} whileTap={{ scale: 0.95 }}>
               <Button
                 href="https://bunk-mates.vercel.app/community"
-                color="primary"
-                variant="contained"
                 sx={{
                   borderRadius: "30px",
                   textTransform: "none",
                   px: 3,
-                  fontWeight: 500,
-                  border: "1.2px solid #000",
-                  backgroundColor: "#000",
-                  color: "#fff",
+                  fontWeight: 600,
+                  backgroundColor: "#fff",
+                  color: "#000",
+                  boxShadow: "none",
+                  "&:hover": {
+                    boxShadow: "none",
+                    transform: "translateY(-2px)",
+                    backgroundColor: "#2a2a2aff",
+                    color: "#fff",
+                  },
                 }}
               >
-                Join Our Community
+                Join Community
               </Button>
             </motion.div>
           </Stack>
@@ -168,7 +215,7 @@ const Footer = () => {
       </Grid>
 
       {/* Divider */}
-      <Divider sx={{ my: 4 }} />
+      <Divider sx={{ my: 4, borderColor: "rgba(255,255,255,0.1)" }} />
 
       {/* Bottom Row */}
       <Stack
@@ -176,14 +223,15 @@ const Footer = () => {
         justifyContent="space-between"
         alignItems="center"
         spacing={2}
+        sx={{ position: "relative", zIndex: 2 }}
       >
         <Stack direction="row" alignItems="center" spacing={0.5}>
-          <CopyrightIcon fontSize="small" />
-          <Typography variant="caption">
+          <CopyrightIcon sx={{ fontSize: 16, color: "rgba(255,255,255,0.6)" }} />
+          <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.7)" }}>
             {new Date().getFullYear()} BunkMate. All rights reserved.
           </Typography>
         </Stack>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.6)" }}>
           Built with ❤️ for modern travelers.
         </Typography>
       </Stack>

@@ -22,7 +22,7 @@ const AboutHero = () => {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        background: "linear-gradient(135deg, #E0F7FA, #E3F2FD)",
+        background: "linear-gradient(135deg, #8f5100a1, #000, #000, #002199e1)",
         clipPath: "polygon(0 0, 100% 0, 100% 85%, 0 100%)",
         px: 3,
         textAlign: "center",
@@ -33,7 +33,7 @@ const AboutHero = () => {
         fontWeight="bold"
         gutterBottom
         sx={{
-          background: "linear-gradient(to right, #000, #555)",
+          background: "linear-gradient(to right, #ffffffff, #555)",
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent",
         }}
@@ -47,8 +47,8 @@ const AboutHero = () => {
         transition={{ delay: 0.3, duration: 0.9 }}
       >
         <Typography
-          variant="h6"
-          color="text.secondary"
+          variant="subtitle1"
+          color="#9a9a9a"
           maxWidth={700}
           mx="auto"
           mb={4}
@@ -71,11 +71,12 @@ const AboutHero = () => {
               py: 1.5,
               textTransform: "none",
               fontWeight: 600,
-              backgroundColor: "#000",
+              backgroundColor: "#fff",
+              color: "#000",
               boxShadow: "none",
               '&:hover': {
-                backgroundColor: "#fff",
-                color: "#000",
+                backgroundColor: "#333333e8",
+                color: "#fff",
               boxShadow: "none",
               },
             }}

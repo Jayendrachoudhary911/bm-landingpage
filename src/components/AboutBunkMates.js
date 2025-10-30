@@ -25,6 +25,8 @@ const AboutBunkMate = () => (
       mx: "auto",
       my: 4,
       maxWidth: "1000px",
+      backgroundColor: "#000",
+      color: "#fff",
     }}
   >
     <Stack spacing={4} alignItems="center" textAlign="center">
@@ -32,7 +34,7 @@ const AboutBunkMate = () => (
         variant="h4"
         fontWeight={700}
         sx={{
-          background: "linear-gradient(to right, #000, #444)",
+          background: "linear-gradient(to right, #ffffffff, #6e6e6eff)",
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent",
         }}
@@ -42,7 +44,7 @@ const AboutBunkMate = () => (
 
       <Typography
         variant="body1"
-        color="text.secondary"
+        color="#9a9a9a"
         maxWidth="700px"
         component={motion.p}
         initial={{ opacity: 0, y: 20 }}

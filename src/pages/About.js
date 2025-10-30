@@ -19,7 +19,7 @@ const About = () => {
   }, []);
 
   return (
-    <Box sx={{ backgroundColor: "#f9f9f9", overflowX: "hidden" }}>
+    <Box sx={{ backgroundColor: "#000000ff", overflowX: "hidden" }}>
       <Navbar user={user} />
       <ScrollToSection />
       <motion.div id="about-start" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>

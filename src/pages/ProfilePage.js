@@ -17,7 +17,7 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
-  useMediaQuery
+  useMediaQuery,
 } from "@mui/material";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
@@ -225,7 +225,7 @@ const ProfilePage = () => {
     );
   if (!user)
     return (
-      <Typography align="center">Login to view your profile</Typography>
+      <Typography align="center" color="#fff">Login to view your profile</Typography>
     );
 
   // Tab options by user type
@@ -238,7 +238,7 @@ const ProfilePage = () => {
     : [friendsInfo, trips];
 
   return (
-    <Box sx={{ minHeight: "100vh", py: 6, px: 2 }}>
+    <Box sx={{ minHeight: "100vh", py: 6, px: 2, background: "#000", color: "#fff" }}>
       <Navbar user={user} />
       <Container maxWidth="lg" sx={{ mt: 10 }}>
         <Grid container spacing={4}>
@@ -249,9 +249,11 @@ const ProfilePage = () => {
               sx={{
                 p: 3,
                 borderRadius: 3,
+                // Dark theme glass effect
                 backdropFilter: "blur(10px)",
-                background: "rgba(255, 255, 255, 0.7)",
+                background: "rgba(30, 30, 30, 0.0)", // Darker translucent background
                 boxShadow: "none",
+                color: "#fff",
                 maxWidth: 410,
               }}
             >
@@ -263,18 +265,18 @@ const ProfilePage = () => {
                   height: AVATAR_SIZE,
                   mx: "auto",
                   mb: 2,
-                  border: "3px solid #e5e7eb",
+                  border: "3px solid #4a4a4a", // Light border for visibility
                 }}
               />
-              <Typography variant="h6" fontWeight={600} align="center">
+              <Typography variant="h6" fontWeight={600} align="center" color="white">
                 {user.displayName || "No Name"}
               </Typography>
-              <Typography variant="body2" color="text.secondary" align="center">
+              <Typography variant="body2" color="#9a9a9aff" align="center">
                 @{userDoc.username || "username"}
               </Typography>
               <Typography
                 variant="body2"
-                sx={{ mt: 1, textAlign: "center", fontSize: 14, color: "#555" }}
+                sx={{ mt: 1, textAlign: "center", fontSize: 14, color: "#9a9a9a" }}
               >
                 {userDoc.bio || "Add something cool about yourself!"}
               </Typography>
@@ -306,10 +308,15 @@ const ProfilePage = () => {
                     xs={isBetaDev ? 3 : 6}
                     key={stat.label}
                     textAlign="center"
-                    sx={{ backgroundColor: "#f1f1f1b6", p: 1.3, borderRadius: 3, width: 120 }}
+                    sx={{
+                      backgroundColor: "rgba(70, 70, 70, 0.5)", // Darker stat background
+                      p: 1.3,
+                      borderRadius: 3,
+                      width: 120
+                    }}
                   >
-                    <Typography fontWeight={700}>{stat.value}</Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography fontWeight={700} color="#fff">{stat.value}</Typography>
+                    <Typography variant="caption" color="#9a9a9a">
                       {stat.label}
                     </Typography>
                   </Grid>
@@ -323,9 +330,13 @@ const ProfilePage = () => {
                   mt: 3,
                   borderRadius: 999,
                   textTransform: "none",
-                  border: "1.2px solid #000",
+                  border: "1.2px solid #ffffff", // Light border
                   fontWeight: 600,
-                  color: "#000"
+                  color: "#ffffff", // Light text
+                  "&:hover": {
+                    borderColor: "#bbbbbb",
+                    backgroundColor: "rgba(255, 255, 255, 0.08)"
+                  }
                 }}
               >
                 Edit Profile
@@ -338,12 +349,14 @@ const ProfilePage = () => {
               elevation={3}
               sx={{
                 mb: 2,
+                // Dark theme glass effect for tabs
                 backdropFilter: "blur(8px)",
-                background: "rgba(255, 255, 255, 0.8)",
+                background: "rgba(30, 30, 30, 0.8)",
+                boxShadow: "0 4px 30px rgba(0, 0, 0, 0.2)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
                 maxWidth: 610,
-                boxShadow: "none",
                 overflowX: "auto",
-                maxWidth: 380
+                maxWidth: 380,
               }}
             >
               <Tabs
@@ -352,7 +365,7 @@ const ProfilePage = () => {
                 textColor="inherit"
                 TabIndicatorProps={{
                   style: {
-                    backgroundColor: "#000",
+                    backgroundColor: theme.palette.primary.main, // Use primary color for indicator
                     height: "3px",
                     borderRadius: "3px",
                   },
@@ -365,14 +378,14 @@ const ProfilePage = () => {
                     fontWeight: 500,
                     textTransform: "none",
                     fontSize: "0.95rem",
-                    color: "#666",
+                    color: "#9a9a9a", // Light gray for inactive
                     transition: "all 0.3s ease",
                     px: 0
                   },
-                  "& .MuiTab-root.Mui-selected": { color: "#000" },
+                  "& .MuiTab-root.Mui-selected": { color: "#fff"}, // White for active
                   "& .MuiTab-root:hover": {
-                    color: "#000",
-                    backgroundColor: "rgba(0,0,0,0.04)",
+                    color: "#fff",
+                    backgroundColor: "rgba(255, 255, 255, 0.08)", // Light hover effect
                     borderRadius: "8px",
                   },
                 }}
@@ -389,21 +402,23 @@ const ProfilePage = () => {
                 sx={{
                   p: 0,
                   borderRadius: 4,
+                  // Dark theme glass effect for content area
                   backdropFilter: "blur(10px)",
-                  background: "rgba(255, 255, 255, 0.9)",
-                  boxShadow: "none",
+                  background: "rgba(30, 30, 30, 0.9)",
+                  boxShadow: "0 4px 30px rgba(0, 0, 0, 0.2)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
                   maxWidth: 610,
                 }}
               >
                 {tabs.map((label, idx) => (
                   <TabPanel value={activeTab} index={idx} key={label} p={0}>
-                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: "#222" }}>
+                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: "#fff" }}>
                       {isBetaDev
                         ? ["Your Issues", "Given Feedbacks", "Your Reports", "Your Friends"][idx]
                         : ["Your Friends", "Your Trips"][idx]}
                     </Typography>
                     {tabContents[idx].length === 0 ? (
-                      <Typography color="text.secondary"
+                      <Typography color="#9a9a9a"
                         sx={{ textAlign: "center", py: 4, fontSize: "0.95rem" }}>
                         No items yet.
                       </Typography>
@@ -421,8 +436,8 @@ const ProfilePage = () => {
                                 />
                               </ListItemAvatar>
                               <ListItemText
-                                primary={friend.name || "No Name"}
-                                secondary={`@${friend.username || friend.uid}`}
+                                primary={<Typography color="#fff">{friend.name || "No Name"}</Typography>}
+                                secondary={<Typography color="#9a9a9a">@{friend.username || friend.uid}</Typography>}
                               />
                             </ListItem>
                           ))}
@@ -435,18 +450,18 @@ const ProfilePage = () => {
                             <Paper key={item.id || i}
                               sx={{
                                 p: 2, mb: 2, borderRadius: 3,
-                                background: "rgba(255,255,255,0.95)",
-                                border: "1px solid rgba(0,0,0,0.05)"
+                                background: "rgba(50,50,50,0.95)", // Dark background for list items
+                                border: "1px solid rgba(255,255,255,0.08)"
                               }}>
-                              <Typography fontWeight={600}>{item.message || "Untitled"}</Typography>
-                              <Typography fontSize={14} color="text.secondary">
+                              <Typography fontWeight={600} color="#fff">{item.message || "Untitled"}</Typography>
+                              <Typography fontSize={14} color="#9a9a9a">
                                 {item.description?.slice(0, 100) || ""}
                               </Typography>
                             </Paper>
                           ) : (
                             // Otherwise, trips list, legacy
                             <ListItem key={i}>
-                              <ListItemText primary={item} />
+                              <ListItemText primary={<Typography color="#fff">{item}</Typography>} />
                             </ListItem>
                           )
                         )}
@@ -465,7 +480,7 @@ const ProfilePage = () => {
           onClose={() => setEditOpen(false)}
           PaperProps={{
             sx: {
-              background: "#ffffff",
+              background: theme.palette.background.paper, // Use theme paper color
               borderTopLeftRadius: 24,
               borderTopRightRadius: 24,
               maxWidth: 410,
@@ -475,17 +490,17 @@ const ProfilePage = () => {
           ModalProps={{
             BackdropProps: {
               sx: {
-                backgroundColor: "rgba(0, 0, 0, 0.05)",
+                backgroundColor: "rgba(0, 0, 0, 0.4)", // Darker backdrop
                 backdropFilter: "blur(2px)",
               },
             },
           }}
           sx={{
             "& .MuiDrawer-paper": {
-              background: "rgba(255, 255, 255, 0.7)",
+              background: "rgba(30, 30, 30, 0.9)", // Darker translucent drawer
               backdropFilter: "blur(14px)",
-              boxShadow: "0px 12px 32px rgba(0, 0, 0, 0.02)",
-              border: "1px solid rgba(255, 255, 255, 0.25)",
+              boxShadow: "0px -12px 32px rgba(0, 0, 0, 0.2)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
               transition: "all 0.4s ease-in-out",
             },
           }}
@@ -494,7 +509,7 @@ const ProfilePage = () => {
             sx={{
               height: "80vh",
               p: 4,
-              color: "#161616",
+              color: "#fff",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -502,13 +517,13 @@ const ProfilePage = () => {
           >
             <Typography
               variant="h6"
-              sx={{ mb: 2, fontWeight: 900, letterSpacing: 0.2 }}
+              sx={{ mb: 2, fontWeight: 900, letterSpacing: 0.2, color: "#fff" }}
             >
               Edit Profile
             </Typography>
             <Box
               sx={{
-                background: "#000",
+                background: theme.palette.primary.main,
                 borderRadius: "50%",
                 p: "2.5px",
                 mb: 2,
@@ -519,7 +534,7 @@ const ProfilePage = () => {
                 sx={{
                   width: 88,
                   height: 88,
-                  border: "3px solid #fff",
+                  border: `3px solid ${theme.palette.background.paper}`, // Border with paper color
                 }}
               />
             </Box>
@@ -531,10 +546,10 @@ const ProfilePage = () => {
                 borderRadius: 999,
                 textTransform: "none",
                 fontWeight: 600,
-                border: "1.5px solid #000000ff",
-                color: "#000000ff",
+                border: `1.5px solid ${"#fff"}`,
+                color: "#fff",
                 px: 2,
-                ":hover": { background: "#04040415" },
+                ":hover": { background: "rgba(255, 255, 255, 0.08)", borderColor: "#fff" },
               }}
             >
               Upload Profile Picture
@@ -563,7 +578,9 @@ const ProfilePage = () => {
                 setEditForm({ ...editForm, name: e.target.value })
               }
               margin="dense"
-              sx={{ my: 1, borderRadius: 3 }}
+              sx={{ my: 1, borderRadius: 3, "& .MuiInputBase-root": { backgroundColor: "rgba(255, 255, 255, 0.05)" } }}
+              InputLabelProps={{ style: { color: "#9a9a9a" } }}
+              InputProps={{ style: { color: "#fff" } }}
             />
             <TextField
               label="Username"
@@ -573,7 +590,9 @@ const ProfilePage = () => {
                 setEditForm({ ...editForm, username: e.target.value })
               }
               margin="dense"
-              sx={{ my: 1, borderRadius: 3 }}
+              sx={{ my: 1, borderRadius: 3, "& .MuiInputBase-root": { backgroundColor: "rgba(255, 255, 255, 0.05)" } }}
+              InputLabelProps={{ style: { color: "#9a9a9a" } }}
+              InputProps={{ style: { color: "#fff" } }}
             />
             <TextField
               label="Mobile"
@@ -583,7 +602,9 @@ const ProfilePage = () => {
                 setEditForm({ ...editForm, mobile: e.target.value })
               }
               margin="dense"
-              sx={{ my: 1, borderRadius: 3 }}
+              sx={{ my: 1, borderRadius: 3, "& .MuiInputBase-root": { backgroundColor: "rgba(255, 255, 255, 0.05)" } }}
+              InputLabelProps={{ style: { color: "#9a9a9a" } }}
+              InputProps={{ style: { color: "#fff" } }}
             />
             <TextField
               label="Bio"
@@ -595,7 +616,9 @@ const ProfilePage = () => {
                 setEditForm({ ...editForm, bio: e.target.value })
               }
               margin="dense"
-              sx={{ my: 1, borderRadius: 3 }}
+              sx={{ my: 1, borderRadius: 3, "& .MuiInputBase-root": { backgroundColor: "rgba(255, 255, 255, 0.05)" } }}
+              InputLabelProps={{ style: { color: "#9a9a9a" } }}
+              InputProps={{ style: { color: "#fff" } }}
             />
             <Box
               mt="auto"
@@ -609,7 +632,7 @@ const ProfilePage = () => {
                 sx={{
                   borderRadius: 999,
                   px: 4,
-                  color: "#333",
+                  color: "#9a9a9a",
                   textTransform: "none",
                   background: "transparent",
                   boxShadow: "none",
@@ -621,12 +644,13 @@ const ProfilePage = () => {
                 onClick={handleEditSubmit}
                 variant="contained"
                 sx={{
-                  background: "#000000ff",
-                  color: "#fff",
+                  background: theme.palette.primary.main,
+                  color: theme.palette.primary.contrastText,
                   borderRadius: 999,
                   px: 4,
                   textTransform: "none",
                   fontWeight: 700,
+                  "&:hover": { background: theme.palette.primary.dark }
                 }}
               >
                 Save
@@ -642,7 +666,7 @@ const ProfilePage = () => {
               sx: {
                 borderTopLeftRadius: 22,
                 borderTopRightRadius: 22,
-                background: "#fff",
+                background: theme.palette.background.paper,
                 width: 410,
                 mx: "auto"
               },
@@ -650,27 +674,28 @@ const ProfilePage = () => {
             ModalProps={{
               BackdropProps: {
                 sx: {
-                  backgroundColor: "rgba(0, 0, 0, 0.05)",
+                  backgroundColor: "rgba(0, 0, 0, 0.4)",
                   backdropFilter: "blur(2px)",
                 },
               },
             }}
             sx={{
               "& .MuiDrawer-paper": {
-                background: "rgba(255, 255, 255, 0.7)",
+                background: "rgba(30, 30, 30, 0.9)",
                 backdropFilter: "blur(14px)",
-                boxShadow: "0px 12px 32px rgba(0, 0, 0, 0.02)",
-                border: "1px solid rgba(255, 255, 255, 0.25)",
+                boxShadow: "0px -12px 32px rgba(0, 0, 0, 0.2)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
                 transition: "all 0.4s ease-in-out",
               },
             }}
           >
-            <Box sx={{ minHeight: "55vh", p: 3, color: "#161616" }}>
+            <Box sx={{ minHeight: "55vh", p: 3, color: "#fff" }}>
               <Typography
                 variant="h6"
                 mb={2}
                 fontWeight={800}
                 textAlign="center"
+                color={"#fff"}
               >
                 Crop Profile Picture
               </Typography>
@@ -682,6 +707,7 @@ const ProfilePage = () => {
                     maxWidth: 350,
                     mx: "auto",
                     height: 270,
+                    backgroundColor: theme.palette.grey[900] // Dark background for cropper
                   }}
                 >
                   <Cropper
@@ -701,11 +727,12 @@ const ProfilePage = () => {
                 <Button
                   variant="contained"
                   sx={{
-                    background: "#000000ff",
-                    color: "#fff",
+                    background: theme.palette.primary.main,
+                    color: theme.palette.primary.contrastText,
                     borderRadius: 999,
                     px: 4,
                     fontWeight: 600,
+                    "&:hover": { background: theme.palette.primary.dark }
                   }}
                   onClick={async () => {
                     const cropped = await getCroppedImg(

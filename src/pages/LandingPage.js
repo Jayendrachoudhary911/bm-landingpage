@@ -17,7 +17,7 @@ const LandingPage = () => {
   const { user } = useAuth();
 
   return (
-    <Box sx={{ bgcolor: '#f9f9f9', minHeight: '100vh' }}>
+    <Box sx={{ bgcolor: '#000000ff', minHeight: '100vh' }}>
           <Navbar user={user} />
           <HeroSection />
           <AboutSection />
