@@ -24,6 +24,12 @@ const Footer = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+
+  const socialLinks = [
+    { icon: InstagramIcon, url: "https://www.instagram.com/bunkmates.app" },
+    { icon: YouTubeIcon, url: "https://www.youtube.com/@Team_BunkMates" },
+  ];
+
   return (
     <Box
       sx={{
@@ -133,30 +139,34 @@ const Footer = () => {
               </Typography>
             </Stack>
 
-          <Stack direction="row" spacing={1} mt={3}>
-            {[InstagramIcon, YouTubeIcon].map((Icon, idx) => (
-              <motion.div
-                key={idx}
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Icon
-                  sx={{
-                    fontSize: 24,
-                    backgroundColor: "#2a2a2aff",
-                    padding: 1,
-                    borderRadius: 8,
-                    width: 42,
-                    height: 42,
-                    color: "rgba(255,255,255,0.7)",
-                    transition: "0.3s",
-                    "&:hover": { color: "#000000ff", backgroundColor: "#ffffffff" },
-                    cursor: "pointer",
-                  }}
-                />
-              </motion.div>
-            ))}
-          </Stack>
+    <Stack direction="row" spacing={1} mt={3}>
+      {socialLinks.map(({ icon: Icon, url }, idx) => (
+        <motion.div
+          key={idx}
+          whileHover={{ scale: 1.2 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Icon
+            onClick={() => window.open(url, "_blank", "noopener,noreferrer")}
+            sx={{
+              fontSize: 24,
+              backgroundColor: "#2a2a2a",
+              padding: 1,
+              borderRadius: 2,
+              width: 42,
+              height: 42,
+              color: "rgba(255,255,255,0.75)",
+              transition: "0.3s",
+              "&:hover": {
+                color: "#000",
+                backgroundColor: "#fff",
+              },
+              cursor: "pointer",
+            }}
+          />
+        </motion.div>
+      ))}
+    </Stack>
           </Stack>
         </Grid>
 
