@@ -19,13 +19,13 @@ const AboutBunkMate = () => (
     whileHover={{ scale: 1.01 }}
     sx={{
       px: { xs: 2, sm: 4 },
-      py: { xs: 6, sm: 10 },
-      borderRadius: "16px",
+      py: { xs: 6, sm: 12 },
+      borderRadius: "36px",
       boxShadow: "none",
       mx: "auto",
       my: 4,
       maxWidth: "1000px",
-      backgroundColor: "#000",
+      boxShadow: "none",
       color: "#fff",
     }}
   >

@@ -328,7 +328,7 @@ const Navbar = ({ user }) => {
                 <MenuItem
                   onClick={() => {
                     handleMenuClose();
-                    navigate('/terms');
+                    window.open('https://bunk-mates.vercel.app/terms', '_blank');
                   }}
                   sx={{
                     px: 2,
@@ -554,7 +554,7 @@ const Navbar = ({ user }) => {
                 <List>
                   <ListItem
                     button
-                    onClick={() => navigate("https://bunk-mates.vercel.app/terms")}
+                    onClick={() => window.open('https://bunk-mates.vercel.app/terms', '_blank')}
                     sx={{
                       borderRadius: 2,
                       px: 2,

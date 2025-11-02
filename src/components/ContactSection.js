@@ -112,6 +112,8 @@ const ContactSection = () => {
         backgroundColor: "#000",
         color: "#fff",
         overflow: "hidden",
+        width: "100%",
+        maxWidth: "1600px",
       }}
     >
       {/* Ripple Gradient Background */}

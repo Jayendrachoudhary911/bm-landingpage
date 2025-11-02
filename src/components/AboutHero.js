@@ -1,5 +1,6 @@
 import { Box, Typography, Button } from "@mui/material";
 import { motion } from "framer-motion";
+import DownloadIcon from "@mui/icons-material/DownloadOutlined";
 
 const AboutHero = () => {
   return (
@@ -22,7 +23,7 @@ const AboutHero = () => {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        background: "linear-gradient(135deg, #8f5100a1, #000, #000, #002199e1)",
+        background: 'transparent',
         clipPath: "polygon(0 0, 100% 0, 100% 85%, 0 100%)",
         px: 3,
         textAlign: "center",
@@ -63,8 +64,9 @@ const AboutHero = () => {
         >
           <Button
             variant="contained"
-            href="#contact"
+            href="/bm-install"
             size="large"
+            startIcon={<DownloadIcon />}
             sx={{
               borderRadius: "30px",
               px: 4,
@@ -81,7 +83,7 @@ const AboutHero = () => {
               },
             }}
           >
-            Contact Us
+            Download Now
           </Button>
         </motion.div>
       </motion.div>

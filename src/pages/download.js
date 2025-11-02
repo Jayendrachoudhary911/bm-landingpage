@@ -11,6 +11,7 @@ import {
   Divider,
   Rating,
   Drawer,
+  SwipeableDrawer,
   IconButton,
   TextField,
   Stack,
@@ -280,8 +281,8 @@ export default function DownloadPage() {
               onClick={() => setPreviewImage(src)}
               sx={{
                 flex: "0 0 auto",
-                width: { xs: 240, sm: 260, md: 300 },
-                height: { xs: 420, sm: 480, md: 520 },
+                width: { xs: 140, sm: 200, md: 240 },
+                height: { xs: 320, sm: 400, md: 540 },
                 borderRadius: 3,
                 overflow: "hidden",
                 cursor: "pointer",
@@ -315,8 +316,8 @@ export default function DownloadPage() {
               left: 0,
               width: "100vw",
               height: "100vh",
-              backgroundColor: "rgba(0,0,0,0.85)",
-              backdropFilter: "blur(4px)",
+              backgroundColor: "rgba(0, 0, 0, 0.12)",
+              backdropFilter: "blur(24px)",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
@@ -544,13 +545,14 @@ export default function DownloadPage() {
       </Container>
 
       {/* About Drawer */}
-<Drawer
+<SwipeableDrawer
   anchor="bottom"
   open={aboutOpen}
   onClose={() => setAboutOpen(false)}
   PaperProps={{
     sx: {
-      background: "#0b0b0b",
+      background: "#00000018",
+      backdropFilter: "blur(22px)",
       color: "#f5f5f5",
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
@@ -659,25 +661,14 @@ export default function DownloadPage() {
     }}
   >
     Version (Beta): <strong>Beta_1.10.1.001</strong><br />
-    APK Version: <strong>1.0.21</strong><br />
+    APK Version: <strong>1.0.31</strong><br />
     Supported: Android 9 (Pie) and above<br />
     Recommended RAM: 2GB+<br />
     Storage: ~120MB (with offline cache)<br />
     Network: Online + Limited Offline Support
   </Typography>
 
-  {/* TEAM */}
-  <Typography
-    variant="subtitle1"
-    sx={{
-      mb: 1.5,
-      fontWeight: 600,
-      letterSpacing: 0.3,
-      color: "#fafafa",
-    }}
-  >
-    Credits
-  </Typography>
+
   <Typography
     variant="body2"
     sx={{
@@ -688,9 +679,6 @@ export default function DownloadPage() {
     }}
   >
     Developed at <strong>BunkMates Lab</strong><br />
-    Backend Developer: <strong>Mohit Sharma</strong><br />
-    Frontend Developer: <strong>Sahil Suman</strong><br />
-    UI/UX Designer and Full-Stack Dev: <strong>Jayendra choudhary</strong><br />
     Year: 2025 Public Beta<br />
     Contact: <a href="mailto:team.bunkmates@gmail.com" style={{ color: "#90caf9" }}>Support Team</a>
   </Typography>
@@ -708,7 +696,7 @@ export default function DownloadPage() {
   >
     © {new Date().getFullYear()} BunkMates. All rights reserved.
   </Typography>
-</Drawer>
+</SwipeableDrawer>
 
 
       {/* Toast */}
