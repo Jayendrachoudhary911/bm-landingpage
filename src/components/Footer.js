@@ -116,7 +116,7 @@ const Footer = () => {
             <Stack direction="row" alignItems="center" spacing={1}>
               <EmailIcon sx={{ color: "#d8d8d8ff", fontSize: 18 }} />
               <Link
-                href="mailto:team.bunkmates@gmail.com"
+                href="mailto:help.bunkmates@gmail.com"
                 underline="hover"
                 sx={{
                   fontSize: 14,
