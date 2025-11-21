@@ -1,4 +1,3 @@
-// src/components/FeaturesSection.js
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -11,6 +10,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { motion } from "framer-motion";
+// Existing imports
 import NotificationsActiveOutlinedIcon from "@mui/icons-material/NotificationsActiveOutlined";
 import TravelExploreOutlinedIcon from "@mui/icons-material/TravelExploreOutlined";
 import AttractionsOutlinedIcon from "@mui/icons-material/AttractionsOutlined";
@@ -22,6 +22,10 @@ import WbSunnyOutlinedIcon from "@mui/icons-material/WbSunnyOutlined";
 import NoteAltOutlinedIcon from "@mui/icons-material/NoteAltOutlined";
 import SystemUpdateAltOutlinedIcon from "@mui/icons-material/SystemUpdateAltOutlined";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
+
+// NEW IMPORTS to match your Firestore Data
+import AddCommentTwoToneIcon from "@mui/icons-material/AddCommentTwoTone";
+import WidgetsIcon from "@mui/icons-material/Widgets";
 
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase"; // adjust path if needed
@@ -105,6 +109,10 @@ const ICON_MAP = {
   WbSunnyOutlinedIcon: <WbSunnyOutlinedIcon fontSize="medium" />,
   NoteAltOutlinedIcon: <NoteAltOutlinedIcon fontSize="medium" />,
   SystemUpdateAltOutlinedIcon: <SystemUpdateAltOutlinedIcon fontSize="medium" />,
+  
+  // Added mappings for the specific strings in your Firestore
+  AddCommentTwoTone: <AddCommentTwoToneIcon fontSize="medium" />,
+  Widgets: <WidgetsIcon fontSize="medium" />,
 };
 
 const FeaturesSection = () => {
@@ -145,6 +153,7 @@ const FeaturesSection = () => {
           if (maxLen > 0) {
             const built = Array.from({ length: maxLen }).map((_, i) => {
               const iconName = icons[i] ?? null;
+              // This lookup will now work because ICON_MAP contains "AddCommentTwoTone" and "Widgets"
               const iconComp = ICON_MAP[iconName] ?? (iconName ? <HelpOutlineOutlinedIcon fontSize="medium" /> : null);
 
               return {
@@ -271,59 +280,59 @@ const FeaturesSection = () => {
                   transition={{ delay: index * 0.05, duration: 0.4 }}
                 >
                   <Paper
-  sx={{
-    p: isMobile ? 1 : 3,
-    borderRadius: 4,
-    display: "flex",
-    flexDirection: isMobile ? "row" : "column",
-    justifyContent: "flex-start",
-    gap: 1.5,
-    height: isMobile ? "100px" : "250px",
-    width: isMobile ? "100%" : "200px",
-    background: "rgba(255, 255, 255, 0.05)",
-    backdropFilter: "blur(10px)",
-    border: "1px solid rgba(255, 255, 255, 0.01)",
-    transition: "0.3s ease",
-    position: "relative",
-    overflow: "hidden", // ⬅ keeps ripple inside
-    "&:hover": {
-      boxShadow: `0 0 25px ${feature.color}55`,
-      transform: "translateY(-6px)",
-      background: "rgba(255, 255, 255, 0.1)",
-    },
-  }}
+                    sx={{
+                      p: isMobile ? 1 : 3,
+                      borderRadius: 4,
+                      display: "flex",
+                      flexDirection: isMobile ? "row" : "column",
+                      justifyContent: "flex-start",
+                      gap: 1.5,
+                      height: isMobile ? "100px" : "250px",
+                      width: isMobile ? "100%" : "200px",
+                      background: "rgba(255, 255, 255, 0.05)",
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255, 255, 255, 0.01)",
+                      transition: "0.3s ease",
+                      position: "relative",
+                      overflow: "hidden", // ⬅ keeps ripple inside
+                      "&:hover": {
+                        boxShadow: `0 0 25px ${feature.color}55`,
+                        transform: "translateY(-6px)",
+                        background: "rgba(255, 255, 255, 0.1)",
+                      },
+                    }}
                   >
                     {/* Ripple + icon container */}
                     <Box
-    sx={{
-      position: "relative",
-      width: 48,
-      height: 48,
-      mt: isMobile ? 2 : 0,
-      ml: isMobile ? 1 : 0,
-      alignSelf: isMobile ? "center" : "flex-start",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    }}
+                      sx={{
+                        position: "relative",
+                        width: 48,
+                        height: 48,
+                        mt: isMobile ? 2 : 0,
+                        ml: isMobile ? 1 : 0,
+                        alignSelf: isMobile ? "center" : "flex-start",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
                     >
                       {/* layered ripple background */}
-    {[0.00, 0.00, 0.06, 0.00, 0.03, 0.00, 0.06, 0.00, 0.03, 0.00].map((opacity, idx) => (
-      <Box
-        key={idx}
-        sx={{
-          position: "absolute",
-          width: 48 + idx * 38,
-          height: 48 + idx * 38,
-          borderRadius: "50%",
-          background: `${feature.color}${Math.round(opacity * 255)
-            .toString(16)
-            .padStart(2, "0")}`,
-          filter: `blur(${2 + idx}px)`,
-          zIndex: 1,
-        }}
-      />
-    ))}
+                      {[0.00, 0.00, 0.06, 0.00, 0.03, 0.00, 0.06, 0.00, 0.03, 0.00].map((opacity, idx) => (
+                        <Box
+                          key={idx}
+                          sx={{
+                            position: "absolute",
+                            width: 48 + idx * 38,
+                            height: 48 + idx * 38,
+                            borderRadius: "50%",
+                            background: `${feature.color}${Math.round(opacity * 255)
+                              .toString(16)
+                              .padStart(2, "0")}`,
+                            filter: `blur(${2 + idx}px)`,
+                            zIndex: 1,
+                          }}
+                        />
+                      ))}
 
                       <Box sx={{ zIndex: 2, color: feature.color ?? "#fff" }}>
                         {feature.icon ?? <HelpOutlineOutlinedIcon fontSize="medium" />}

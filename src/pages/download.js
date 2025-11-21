@@ -7,7 +7,6 @@ import {
   Avatar,
   Button,
   Paper,
-  Grid,
   Chip,
   Divider,
   Rating,
@@ -26,7 +25,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import InstallMobileIcon from "@mui/icons-material/InstallMobile";
 import { motion } from "framer-motion";
-import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { db, auth } from "../firebase";
 import {
@@ -45,7 +43,6 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 const REVIEWS_COLLECTION_PATH = ["landing_page", "download_page", "reviews"];
 
 export default function DownloadPage() {
-  const { user } = useAuth();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
@@ -82,7 +79,11 @@ export default function DownloadPage() {
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
+    try {
+      await deferredPrompt.userChoice;
+    } catch {
+      // ignore
+    }
     setDeferredPrompt(null);
   };
 
@@ -90,6 +91,42 @@ export default function DownloadPage() {
     // file link for APK — keep your existing path or update if needed
     window.open("/assets/application/BunkMates_Beta.apk", "_blank");
   };
+
+  // Robust parser for app_version object in Firestore:
+  // - Handles keys like "App version", "Build version", app_version, build_version
+  // - If unknown keys, tries to pick first/second string values
+  function parseAppVersionObject(obj) {
+    if (!obj || typeof obj !== "object") return null;
+
+    // normalize keys -> lowercase trimmed
+    const entries = Object.entries(obj)
+      .filter(([, v]) => typeof v === "string" && v.trim() !== "")
+      .map(([k, v]) => [String(k).trim(), String(v).trim()]);
+
+    if (entries.length === 0) return null;
+
+    // helper to find key that contains substring
+    const findByKeySub = (subs) => {
+      const key = entries.find(([k]) => subs.some((s) => k.toLowerCase().includes(s)));
+      return key ? key[1] : null;
+    };
+
+    const appV =
+      findByKeySub(["app version", "app_version", "app-version", "apk version", "apk_version"]) ||
+      findByKeySub(["version", "app"]) ||
+      (entries[0] ? entries[0][1] : null);
+
+    const buildV =
+      findByKeySub(["build version", "build_version", "build-version", "build"]) ||
+      findByKeySub(["beta", "build"]) ||
+      (entries.length > 1 ? entries[1][1] : null);
+
+    return {
+      app_version: appV ?? null,
+      build_version: buildV ?? null,
+      raw: obj,
+    };
+  }
 
   // --- Realtime: listen to landing_page/download_page doc for app_version & whats_new
   useEffect(() => {
@@ -106,21 +143,20 @@ export default function DownloadPage() {
         }
         const data = snap.data();
 
-        // app_version is probably an object with keys like app_version and build_version
+        // parse app_version field robustly
         if (data?.app_version) {
-          setAppVersionInfo(data.app_version);
+          const parsed = parseAppVersionObject(data.app_version);
+          setAppVersionInfo(parsed);
         } else {
           setAppVersionInfo(null);
         }
 
         // whats_new — expected to be an array of objects with title and description (array)
         if (Array.isArray(data?.whats_new) && data.whats_new.length > 0) {
-          // normalize: each entry -> { title: string, description: array|string }
           const normalized = data.whats_new.map((entry) => {
             if (typeof entry === "string") {
               return { title: entry, description: [] };
             }
-            // entry may have { title: '...', description: [...] }
             return {
               title: entry.title ?? entry.name ?? "What's new",
               description: Array.isArray(entry.description)
@@ -227,11 +263,22 @@ export default function DownloadPage() {
 
   const FALLBACK_APP_VERSION = {
     app_version: "1.0.31",
-    build_version: "Beta_1.10.1.001",
+    build_version: "Beta_1.10.1.012",
   };
 
+  // compute render values
   const whatsNewToRender = !loadingPageMeta && whatsNew && whatsNew.length ? whatsNew : FALLBACK_WHATS_NEW;
-  const appVersionToRender = !loadingPageMeta && appVersionInfo ? appVersionInfo : FALLBACK_APP_VERSION;
+  const parsedAppVersion = !loadingPageMeta && appVersionInfo ? appVersionInfo : { app_version: FALLBACK_APP_VERSION.app_version, build_version: FALLBACK_APP_VERSION.build_version };
+
+  // badge text
+  const versionBadgeText = (() => {
+    const appV = parsedAppVersion?.app_version;
+    const buildV = parsedAppVersion?.build_version;
+    if (appV && buildV) return `App Version: v${appV} · Build Version: ${buildV}`;
+    if (appV) return `v${appV}`;
+    if (buildV) return `${buildV}`;
+    return "vN/A";
+  })();
 
   return (
     <Box
@@ -241,7 +288,7 @@ export default function DownloadPage() {
         color: "#fff",
       }}
     >
-      {/* Decorative hero / background image — using the uploaded local file path you provided */}
+      {/* Hero background image (keeps your asset usage) */}
       <Box
         sx={{
           position: "absolute",
@@ -257,6 +304,7 @@ export default function DownloadPage() {
           zIndex: 3,
         }}
       />
+
       <Container maxWidth="md" sx={{ py: 6, zIndex: 9, position: "relative", mt: { xs: "8vh", md: "15vh" } }}>
         <Button
           variant="outlined"
@@ -289,7 +337,32 @@ export default function DownloadPage() {
               }}
             />
             <Box>
-              <Typography variant="h4" fontWeight={800} sx={{ color: "#fff" }}>BunkMates</Typography>
+              <Box display="flex" alignItems="left" flexDirection={"column"} gap={2}>
+                <Typography variant="h4" fontWeight={800} sx={{ color: "#fff" }}>BunkMates</Typography>
+
+                {/* Version badge - clickable to open About */}
+                <Box sx={{ ml: 0 }}>
+                  {loadingPageMeta ? (
+                    <Chip label={<CircularProgress size={14} color="inherit" />} size="small" sx={{ bgcolor: "rgba(255,255,255,0.06)", color: "#fff" }} />
+                  ) : (
+                    <Chip
+                      label={versionBadgeText}
+                      size="small"
+                      onClick={() => setAboutOpen(true)}
+                      clickable
+                      sx={{
+                        ml: 0,
+                        bgcolor: "rgba(0,188,212,0.08)",
+                        color: "#00bcd4",
+                        fontWeight: 700,
+                        border: "1px solid rgba(0,188,212,0.12)",
+                        cursor: "pointer",
+                      }}
+                    />
+                  )}
+                </Box>
+              </Box>
+
               <Typography variant="body1" sx={{ color: "#aaa", mb: 1 }}>
                 Plan, share & enjoy trips with friends.
               </Typography>
@@ -309,38 +382,17 @@ export default function DownloadPage() {
           </Box>
         </motion.div>
 
-        {/* Install Button */}
+        {/* Install button */}
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.5 }}>
           <Box display="flex" justifyContent={isMobile ? "center" : "left"} mb={8}>
-            <Button
-              variant="contained"
-              size="large"
-              startIcon={<InstallMobileIcon />}
-              onClick={handleExternalDownload}
-              sx={{
-                borderRadius: "34px",
-                px: 10,
-                py: 1.5,
-                fontWeight: 700,
-                textTransform: "none",
-                backgroundColor: "#fff",
-                color: "#000",
-                boxShadow: "none",
-                "&:hover": {
-                  backgroundColor: "#272727ff",
-                  color: "#fff",
-                },
-              }}
-            >
+            <Button variant="contained" size="large" startIcon={<InstallMobileIcon />} onClick={handleExternalDownload} sx={{ borderRadius: "34px", px: 10, py: 1.5, fontWeight: 700, textTransform: "none", backgroundColor: "#fff", color: "#000", boxShadow: "none", "&:hover": { backgroundColor: "#272727ff", color: "#fff" } }}>
               Install
             </Button>
-            {deferredPrompt && (
-              <Button sx={{ ml: 2 }} onClick={handleInstallClick} variant="outlined" color="inherit">Install PWA</Button>
-            )}
+            {deferredPrompt && <Button sx={{ ml: 2 }} onClick={handleInstallClick} variant="outlined" color="inherit">Install PWA</Button>}
           </Box>
         </motion.div>
 
-        {/* Screenshots carousel (unchanged) */}
+        {/* Screenshots carousel */}
         <Box sx={{ display: "flex", overflowX: "auto", gap: 2, pb: 2, pt: 8, scrollSnapType: "x mandatory", "&::-webkit-scrollbar": { height: 8 }, "&::-webkit-scrollbar-thumb": { backgroundColor: "#333", borderRadius: 10 } }}>
           {[
             "/assets/BM-screenshots/1.png",
@@ -349,23 +401,7 @@ export default function DownloadPage() {
             "/assets/BM-screenshots/6.png",
             "/assets/BM-screenshots/7.png",
           ].map((src, i) => (
-            <Paper
-              key={i}
-              component={motion.div}
-              whileHover={{ scale: 1.03 }}
-              transition={{ duration: 0.3 }}
-              onClick={() => setPreviewImage(src)}
-              sx={{
-                flex: "0 0 auto",
-                width: { xs: 140, sm: 200, md: 240 },
-                height: { xs: 320, sm: 400, md: 540 },
-                borderRadius: 3,
-                overflow: "hidden",
-                cursor: "pointer",
-                scrollSnapAlign: "center",
-                boxShadow: "0 6px 18px rgba(0,0,0,0.6)",
-              }}
-            >
+            <Paper key={i} component={motion.div} whileHover={{ scale: 1.03 }} transition={{ duration: 0.3 }} onClick={() => setPreviewImage(src)} sx={{ flex: "0 0 auto", width: { xs: 140, sm: 200, md: 240 }, height: { xs: 320, sm: 400, md: 540 }, borderRadius: 3, overflow: "hidden", cursor: "pointer", scrollSnapAlign: "center", boxShadow: "0 6px 18px rgba(0,0,0,0.6)" }}>
               <Box component="img" src={src} alt={`BunkMates Screenshot ${i + 1}`} sx={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease", "&:hover": { transform: "scale(1.05)" } }} />
             </Paper>
           ))}
@@ -378,30 +414,20 @@ export default function DownloadPage() {
           </Box>
         )}
 
-        {/* About clickable box (opens drawer) */}
-        <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mt: 6 }}>
-          About this app
-        </Typography>
+        {/* About clickable box */}
+        <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mt: 6 }}>About this app</Typography>
         <Paper onClick={() => setAboutOpen(true)} sx={{ p: 3, mb: 4, borderRadius: 3, cursor: "pointer", background: "#111", "&:hover": { background: "#1a1a1a", boxShadow: "0 0 15px rgba(255,255,255,0.04)" } }}>
-          <Typography variant="body2" sx={{ color: "#aaa", lineHeight: 1.7 }}>
-            BunkMates helps you plan and manage group trips effortlessly — from chats and itineraries to budgets and offline maps.
-            (Click to read more)
-          </Typography>
+          <Typography variant="body2" sx={{ color: "#aaa", lineHeight: 1.7 }}>BunkMates helps you plan and manage group trips effortlessly — from chats and itineraries to budgets and offline maps. (Click to read more)</Typography>
         </Paper>
 
-        {/* What's New (dynamic from Firestore) */}
-        <Typography variant="h6" fontWeight={700} gutterBottom sx={{ color: "#fff" }}>
-          What's New in <span style={{ color: "#00bcd4" }}>BunkMates</span> 🚀
-        </Typography>
+        {/* What's New */}
+        <Typography variant="h6" fontWeight={700} gutterBottom sx={{ color: "#fff" }}>What's New in <span style={{ color: "#00bcd4" }}>BunkMates</span> 🚀</Typography>
 
         <Paper sx={{ p: 3, mb: 4, borderRadius: 3, background: "linear-gradient(145deg, #000000ff, #000000ff)", border: "0px solid rgba(255,255,255,0.08)", boxShadow: "none", transition: "all 0.3s ease" }}>
-          <Typography variant="h6" sx={{ color: "#fff", mb: 2, fontWeight: 600, letterSpacing: "0.5px" }}>
-            🔍 BunkMates Core Features
-          </Typography>
+          <Typography variant="h6" sx={{ color: "#fff", mb: 2, fontWeight: 600, letterSpacing: "0.5px" }}>🔍 BunkMates Core Features</Typography>
 
           <Collapse in={expanded} collapsedSize={180}>
             <Box sx={{ color: "#bbb", lineHeight: 1.8, fontSize: "0.95rem" }}>
-              {/* Render dynamic whatsNew */}
               {whatsNewToRender.map((item, idx) => (
                 <Box key={idx} sx={{ mb: 2 }}>
                   <Typography sx={{ color: "#fff", fontWeight: 700 }}>{item.title}</Typography>
@@ -418,8 +444,6 @@ export default function DownloadPage() {
                   )}
                 </Box>
               ))}
-
-              {/* If there was additional static detail you'd like to show, you can add below as fallback */}
             </Box>
           </Collapse>
 
@@ -430,10 +454,8 @@ export default function DownloadPage() {
           </Box>
         </Paper>
 
-        {/* Reviews section */}
-        <Typography variant="h6" fontWeight={700} gutterBottom>
-          Reviews
-        </Typography>
+        {/* Reviews */}
+        <Typography variant="h6" fontWeight={700} gutterBottom>Reviews</Typography>
         <Paper sx={{ p: 3, mb: 3, borderRadius: 3, background: "#11111185" }}>
           <Stack spacing={1}>
             <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -468,7 +490,7 @@ export default function DownloadPage() {
         )}
       </Container>
 
-      {/* About Drawer (shows app_version pulled from Firestore when available) */}
+      {/* About Drawer (shows app_version parsed from Firestore when available) */}
       <SwipeableDrawer anchor="bottom" open={aboutOpen} onClose={() => setAboutOpen(false)} PaperProps={{ sx: { background: "#00000018", backdropFilter: "blur(22px)", color: "#f5f5f5", borderTopLeftRadius: 20, borderTopRightRadius: 20, px: { xs: 3, md: 6 }, py: 4, maxHeight: "88vh", overflowY: "auto" } }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
           <Typography variant="h6" fontWeight={700} letterSpacing={0.4}>About BunkMates</Typography>
@@ -502,8 +524,8 @@ export default function DownloadPage() {
 
         <Typography variant="subtitle1" sx={{ mb: 1.5, fontWeight: 600, letterSpacing: 0.3, color: "#fafafa" }}>App Information</Typography>
         <Typography variant="body2" sx={{ color: "#bdbdbd", lineHeight: 1.8, fontSize: 14.5, mb: 4 }}>
-          Version (Build): <strong>{appVersionToRender?.build_version ?? appVersionToRender?.app_version ?? "Beta_1.10.1.001"}</strong><br />
-          APK Version: <strong>{appVersionToRender?.app_version ?? "1.0.31"}</strong><br />
+          Version (Build): <strong>{parsedAppVersion?.build_version ?? parsedAppVersion?.app_version ?? FALLBACK_APP_VERSION.build_version}</strong><br />
+          APK Version: <strong>{parsedAppVersion?.app_version ?? FALLBACK_APP_VERSION.app_version}</strong><br />
           Supported: Android 9 (Pie) and above<br />
           Recommended RAM: 2GB+<br />
           Storage: ~120MB (with offline cache)<br />

@@ -1,5 +1,5 @@
 // src/components/Footer.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Box,
   Grid,
@@ -12,8 +12,10 @@ import {
   useMediaQuery,
   CircularProgress,
   Tooltip,
+  IconButton,
 } from "@mui/material";
 import { motion } from "framer-motion";
+import * as MuiIcons from "@mui/icons-material";
 import FacebookIcon from "@mui/icons-material/FacebookOutlined";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import YouTubeIcon from "@mui/icons-material/YouTube";
@@ -27,8 +29,8 @@ import { db } from "../firebase"; // adjust path if needed
 
 const navLinks = ["Home", "Features", "FAQ", "About Us"];
 
-// Map names stored in Firestore to actual icon components
-const ICON_MAP = {
+// small compatibility map for names you may have used historically
+const STATIC_ICON_MAP = {
   InstagramIcon: InstagramIcon,
   YouTubeIcon: YouTubeIcon,
   YoutubeIcon: YouTubeIcon,
@@ -36,6 +38,20 @@ const ICON_MAP = {
   Email: EmailIcon,
   FacebookIcon: FacebookIcon,
 };
+
+function resolveIcon(name) {
+  if (!name) return EmailIcon;
+  // direct dynamic lookup in @mui/icons-material
+  if (MuiIcons[name]) return MuiIcons[name];
+  // fallback to static mapping
+  if (STATIC_ICON_MAP[name]) return STATIC_ICON_MAP[name];
+  // try adding/removing 'Icon' suffix
+  if (MuiIcons[name + "Icon"]) return MuiIcons[name + "Icon"];
+  const withoutIcon = name.replace(/Icon$/, "");
+  if (MuiIcons[withoutIcon]) return MuiIcons[withoutIcon];
+  // final fallback
+  return EmailIcon;
+}
 
 const Footer = () => {
   const theme = useTheme();
@@ -45,8 +61,8 @@ const Footer = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Listen to landing_page/home doc for real-time updates
-    const docRef = doc(db, "landing_page", "home");
+    // Listen to landing_page -> links (you requested links doc, not home)
+    const docRef = doc(db, "landing_page", "links");
     const unsub = onSnapshot(
       docRef,
       (snap) => {
@@ -56,36 +72,43 @@ const Footer = () => {
           return;
         }
         const data = snap.data();
+        const hotlinks = data?.hotlinks ?? null;
 
-        // Defensive checks for links.hotlinks structure
-        const hotlinks = data?.links?.hotlinks ?? null;
-
-        if (hotlinks) {
-          const icons = Array.isArray(hotlinks.icon) ? hotlinks.icon : [];
-          const links = Array.isArray(hotlinks.link) ? hotlinks.link : [];
-          const names = Array.isArray(hotlinks.name) ? hotlinks.name : [];
-
-          const maxLen = Math.max(icons.length, links.length, names.length);
-
-          const built = Array.from({ length: maxLen }).map((_, i) => {
-            const rawIcon = icons[i] ?? names[i] ?? null;
-            const IconComponent = ICON_MAP[rawIcon] ?? ICON_MAP[names[i]] ?? null;
-
-            return {
-              name: names[i] ?? icons[i] ?? `Link ${i + 1}`,
-              url: links[i] ?? "#",
-              IconComponent,
-            };
-          });
-
-          setSocialLinks(built);
-        } else {
+        if (!hotlinks) {
           setSocialLinks(null);
+          setLoading(false);
+          return;
         }
+
+        // Firestore fields in your DB: hotlinks.icons, hotlinks.name, hotlinks.link, hotlinks.live
+        // Be defensive: sometimes field names vary. Accept 'icons' or 'icon'.
+        const iconsArr = Array.isArray(hotlinks.icons)
+          ? hotlinks.icons
+          : Array.isArray(hotlinks.icon)
+          ? hotlinks.icon
+          : [];
+        const linksArr = Array.isArray(hotlinks.link) ? hotlinks.link : [];
+        const namesArr = Array.isArray(hotlinks.name) ? hotlinks.name : [];
+        const liveArr = Array.isArray(hotlinks.live) ? hotlinks.live : null;
+
+        const maxLen = Math.max(iconsArr.length, linksArr.length, namesArr.length);
+
+        const built = Array.from({ length: maxLen }).map((_, i) => {
+          const rawIcon = iconsArr[i] ?? namesArr[i] ?? null;
+          const IconComponent = resolveIcon(rawIcon);
+          const name = namesArr[i] ?? iconsArr[i] ?? `Link ${i + 1}`;
+          const url = linksArr[i] ?? "#";
+          // If live array is missing, treat as true
+          const live = Array.isArray(liveArr) ? Boolean(liveArr[i]) : true;
+
+          return { name, url, IconComponent, live };
+        });
+
+        setSocialLinks(built);
         setLoading(false);
       },
       (err) => {
-        console.error("Error listening to landing_page/home:", err);
+        console.error("Footer onSnapshot error:", err);
         setSocialLinks(null);
         setLoading(false);
       }
@@ -96,9 +119,9 @@ const Footer = () => {
 
   // Fallback static links if Firestore not available or empty
   const FALLBACK = [
-    { name: "Instagram", url: "https://www.instagram.com/bunkmates.app", IconComponent: InstagramIcon },
-    { name: "Youtube", url: "https://www.youtube.com/@Team_BunkMates", IconComponent: YouTubeIcon },
-    { name: "Mail Us", url: "mailto:help.bunkmates@gmail.com", IconComponent: EmailIcon },
+    { name: "Instagram", url: "https://www.instagram.com/bunkmates.app", IconComponent: InstagramIcon, live: true },
+    { name: "Youtube", url: "https://www.youtube.com/@Team_BunkMates", IconComponent: YouTubeIcon, live: true },
+    { name: "Mail Us", url: "mailto:help.bunkmates@gmail.com", IconComponent: EmailIcon, live: true },
   ];
 
   const linksToRender = !loading && Array.isArray(socialLinks) && socialLinks.length > 0 ? socialLinks : FALLBACK;
@@ -116,7 +139,7 @@ const Footer = () => {
         overflow: "hidden",
       }}
     >
-      {/* Decorative faint image background - local path will be transformed to URL by toolchain */}
+      {/* subtle decorative background (optional) */}
       <Box
         sx={{
           position: "absolute",
@@ -168,7 +191,7 @@ const Footer = () => {
           </Stack>
         </Grid>
 
-        {/* Contact Info */}
+        {/* Contact & Social (fetched) */}
         <Grid item xs={12} md={3}>
           <Typography variant="subtitle1" fontWeight={600} gutterBottom>
             Contact
@@ -205,44 +228,51 @@ const Footer = () => {
               ) : (
                 <Stack direction="row" spacing={1}>
                   {linksToRender.map((item, idx) => {
-                    const Icon = item.IconComponent ?? (ICON_MAP[item.name] ?? EmailIcon);
+                    const Icon = item.IconComponent ?? resolveIcon(item.name);
+                    const isLive = item.live !== false; // default true
+                    const btnSx = {
+                      minWidth: 44,
+                      height: 44,
+                      p: 0,
+                      borderRadius: 2,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      // different look when not live
+                      backgroundColor: isLive ? "rgba(255,255,255,0.04)" : "rgba(255,0,0,0.06)",
+                      color: isLive ? "rgba(255,255,255,0.87)" : "rgba(255,100,100,0.95)",
+                      "&:hover": {
+                        backgroundColor: isLive ? "rgba(255,255,255,0.12)" : "rgba(255,0,0,0.12)",
+                        transform: "translateY(-3px)",
+                      },
+                    };
+
                     return (
                       <motion.div key={idx} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
-                        <Tooltip title={item.name ?? "Open link"}>
-                          <Button
-                            aria-label={item.name}
-                            onClick={() => {
-                              try {
-                                // open external links in new tab; for mailto use location.href fallback
-                                if ((item.url || "").startsWith("mailto:")) {
-                                  window.location.href = item.url;
-                                } else {
-                                  window.open(item.url, "_blank", "noopener,noreferrer");
+                        <Tooltip title={`${item.name} ${isLive ? "" : "(Not live - disabled)"} `} arrow>
+                          {/* wrap in <span> because disabled buttons can't show tooltip reliably */}
+                          <span>
+                            <Button
+                              aria-label={item.name}
+                              onClick={() => {
+                                try {
+                                  if (!isLive) return; // do nothing when not live
+                                  if ((item.url || "").startsWith("mailto:")) {
+                                    window.location.href = item.url;
+                                  } else {
+                                    window.open(item.url, "_blank", "noopener,noreferrer");
+                                  }
+                                } catch (err) {
+                                  console.error("Failed to open link", err);
                                 }
-                              } catch (err) {
-                                console.error("Failed to open link", err);
-                              }
-                            }}
-                            sx={{
-                              minWidth: 44,
-                              height: 44,
-                              p: 0,
-                              borderRadius: 2,
-                              backgroundColor: "rgba(255,255,255,0.04)",
-                              color: "rgba(255,255,255,0.87)",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              "&:hover": {
-                                backgroundColor: "rgba(255,255,255,0.12)",
-                                color: "#fff",
-                                transform: "translateY(-3px)",
-                              },
-                            }}
-                          >
-                            <Icon sx={{ fontSize: 20 }} />
-                            <OpenInNewIcon sx={{ fontSize: 12, ml: 0.5, opacity: 0.0 }} />{/* keeps spacing consistent */}
-                          </Button>
+                              }}
+                              sx={btnSx}
+                              disabled={!isLive}
+                            >
+                              <Icon sx={{ fontSize: 20 }} />
+                              <OpenInNewIcon sx={{ fontSize: 12, ml: 0.5, opacity: 0.0 }} />
+                            </Button>
+                          </span>
                         </Tooltip>
                       </motion.div>
                     );
