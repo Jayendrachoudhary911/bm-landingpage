@@ -1,3 +1,5 @@
+// src/components/FeaturesSection.jsx (updated)
+// only icon fetching logic changed — rest kept intact
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -26,6 +28,9 @@ import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 // NEW IMPORTS to match your Firestore Data
 import AddCommentTwoToneIcon from "@mui/icons-material/AddCommentTwoTone";
 import WidgetsIcon from "@mui/icons-material/Widgets";
+
+// IMPORTANT: dynamic MUI icons lookup
+import * as MuiIcons from "@mui/icons-material";
 
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase"; // adjust path if needed
@@ -97,7 +102,7 @@ const FALLBACK_UPCOMING = [
   "And many more coming soon...",
 ];
 
-// map firestore icon name strings to actual icon components
+// map firestore icon name strings to actual icon components (kept for explicit common values)
 const ICON_MAP = {
   NotificationsActiveOutlinedIcon: <NotificationsActiveOutlinedIcon fontSize="medium" />,
   TravelExploreOutlinedIcon: <TravelExploreOutlinedIcon fontSize="medium" />,
@@ -109,11 +114,47 @@ const ICON_MAP = {
   WbSunnyOutlinedIcon: <WbSunnyOutlinedIcon fontSize="medium" />,
   NoteAltOutlinedIcon: <NoteAltOutlinedIcon fontSize="medium" />,
   SystemUpdateAltOutlinedIcon: <SystemUpdateAltOutlinedIcon fontSize="medium" />,
-  
+
   // Added mappings for the specific strings in your Firestore
   AddCommentTwoTone: <AddCommentTwoToneIcon fontSize="medium" />,
   Widgets: <WidgetsIcon fontSize="medium" />,
 };
+
+// Helper: robust resolution for icon name strings coming from Firestore
+function getIconComponentFromName(iconName) {
+  // if already JSX element provided
+  if (!iconName) return null;
+
+  // direct explicit mapping (keeps your old behavior)
+  if (ICON_MAP[iconName]) return ICON_MAP[iconName];
+
+  // if the value is already full JSX (rare) — return as is
+  if (React.isValidElement(iconName)) return iconName;
+
+  // Try lookup in the dynamic MuiIcons object
+  // Try multiple variants, e.g. "TravelExplore", "TravelExploreOutlined", "TravelExploreIcon"
+  const tryNames = [
+    iconName,
+    `${iconName}Outlined`,
+    `${iconName}Rounded`,
+    `${iconName}Sharp`,
+    `${iconName}TwoTone`,
+    `${iconName}Icon`,
+    iconName.replace(/Icon$/, ""), // remove suffix if present
+  ];
+
+  for (const name of tryNames) {
+    if (!name) continue;
+    if (MuiIcons[name]) {
+      const Comp = MuiIcons[name];
+      return <Comp fontSize="medium" />;
+    }
+  }
+
+  // if iconName looks like a short label (e.g., "TravelExplore" vs "TravelExploreOutlined"), still handled above
+  // fallback to generic help icon
+  return <HelpOutlineOutlinedIcon fontSize="medium" />;
+}
 
 const FeaturesSection = () => {
   const theme = useTheme();
@@ -153,8 +194,8 @@ const FeaturesSection = () => {
           if (maxLen > 0) {
             const built = Array.from({ length: maxLen }).map((_, i) => {
               const iconName = icons[i] ?? null;
-              // This lookup will now work because ICON_MAP contains "AddCommentTwoTone" and "Widgets"
-              const iconComp = ICON_MAP[iconName] ?? (iconName ? <HelpOutlineOutlinedIcon fontSize="medium" /> : null);
+              // Use the robust resolver to get a component
+              const iconComp = getIconComponentFromName(iconName);
 
               return {
                 icon: iconComp ?? <HelpOutlineOutlinedIcon fontSize="medium" />,
@@ -168,7 +209,7 @@ const FeaturesSection = () => {
             // fallback: try if features itself is an array of objects
             if (Array.isArray(data.features) && data.features.length) {
               const arr = data.features.map((it) => ({
-                icon: ICON_MAP[it.icon] ?? <HelpOutlineOutlinedIcon fontSize="medium" />,
+                icon: getIconComponentFromName(it.icon) ?? <HelpOutlineOutlinedIcon fontSize="medium" />,
                 title: it.title ?? it.name ?? "Untitled",
                 description: it.description ?? it.content ?? "",
                 color: it.color ?? "#888",
@@ -181,7 +222,7 @@ const FeaturesSection = () => {
         } else if (Array.isArray(data?.features) && data.features.length) {
           // features as array of objects
           const arr = data.features.map((it) => ({
-            icon: ICON_MAP[it.icon] ?? <HelpOutlineOutlinedIcon fontSize="medium" />,
+            icon: getIconComponentFromName(it.icon) ?? <HelpOutlineOutlinedIcon fontSize="medium" />,
             title: it.title ?? it.name ?? "Untitled",
             description: it.description ?? it.content ?? "",
             color: it.color ?? "#888",
