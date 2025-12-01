@@ -8,7 +8,7 @@ import {
   Paper,
   Chip,
   Divider,
-  Rating,
+  Rating, // Keep this
   SwipeableDrawer,
   IconButton,
   TextField,
@@ -35,7 +35,7 @@ import {
   onSnapshot,
   doc,
 } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth"; // <-- Added import for auth listener
+import { onAuthStateChanged } from "firebase/auth"; 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import Navbar from "../components/Navbar";
@@ -144,7 +144,7 @@ export default function DownloadPage() { // Component name updated
   // --- Realtime: listen to app_metadata/download_page doc for app_version & whats_new
   useEffect(() => {
     setLoadingPageMeta(true);
-    const docRef = doc(db, "app_metadata", "download_page"); 
+    const docRef = doc(db, "app_metadata", "download_page");
     const unsub = onSnapshot(
       docRef,
       (snap) => {
@@ -321,7 +321,14 @@ export default function DownloadPage() { // Component name updated
         <Paper sx={{ p: 3, mb: 3, borderRadius: 3, background: "#11111185" }}>
           <Stack spacing={1}>
             <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Rating value={newRating} onChange={(e, v) => setNewRating(v || 0)} sx={{ color: "#ffd700" }} disabled={isAuthLoading || !currentUser} />
+              {/* === CHANGE 1: Add precision={0.5} for user input Rating === */}
+              <Rating 
+                value={newRating} 
+                onChange={(e, v) => setNewRating(v || 0)} 
+                sx={{ color: "#ffd700" }} 
+                disabled={isAuthLoading || !currentUser} 
+                precision={0.5} // <-- Added for half-star input
+              />
               <Button 
                 variant="contained" 
                 endIcon={submitting ? <CircularProgress size={16} sx={{ color: "#fff" }} /> : <SendIcon />} 
@@ -363,7 +370,14 @@ export default function DownloadPage() { // Component name updated
                 </Avatar>
                 <Box>
                   <Typography variant="body2" fontWeight={600} sx={{ color: "#fff" }}>{review.userName || "Anonymous"}</Typography>
-                  <Rating value={review.rating || 0} size="small" readOnly sx={{ color: "#ffd700" }} />
+                  {/* === CHANGE 2: Add precision={0.5} for display Rating === */}
+                  <Rating 
+                    value={review.rating || 0} 
+                    size="small" 
+                    readOnly 
+                    sx={{ color: "#ffd700" }} 
+                    precision={0.5} // <-- Added for half-star display
+                  />
                 </Box>
               </Box>
               <Typography variant="body2" sx={{ color: "#aaa" }}>{review.text}</Typography>
