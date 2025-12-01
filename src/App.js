@@ -10,6 +10,7 @@ import { AuthProvider } from './context/AuthContext';
 import { AnimatePresence } from 'framer-motion';
 import TimerGate from './elements/TimerGate';
 import SecretPage from './pages/secret';
+import DummyReview from './pages/dummy_reviews';
 
 function App() {
   return (
@@ -23,7 +24,7 @@ function App() {
               <Route path="/about" element={<About />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/bm-install" element={<DownloadPage />} />
-              <Route path="/secret" element={<SecretPage />} />
+              <Route path="/dummy-review" element={<DummyReview />} />
             </Routes>
           </AnimatePresence>
       </AuthProvider>
