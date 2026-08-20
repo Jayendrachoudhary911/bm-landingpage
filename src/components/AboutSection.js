@@ -9,9 +9,11 @@ import {
   Button,
   Avatar,
   Divider,
+  Stack,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import { db } from "../firebase"; // adjust path to your firebase config
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
+import { db } from "../firebase";
 import {
   collection,
   addDoc,
@@ -20,15 +22,30 @@ import {
   query,
   orderBy,
 } from "firebase/firestore";
-import { useAuth } from "../context/AuthContext"; // your auth context hook
+import { useAuth } from "../context/AuthContext";
+import { useCustomTheme } from "../context/ThemeContext";
 
-const AboutSection = () => {
+const AboutReviewsSection = () => {
   const [open, setOpen] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
+  const { isDark } = useCustomTheme();
+  const { user } = useAuth();
 
-  const { user } = useAuth(); // should return { uid, displayName, photoURL }
+  const colors = {
+    background: isDark ? "#000000" : "#ffffff",
+    surface: isDark ? "#0d0d0d" : "#f7f7f7",
+    surfaceStrong: isDark ? "#141414" : "#ffffff",
+    text: isDark ? "#ffffff" : "#111111",
+    secondaryText: isDark ? "#a3a3a3" : "#737373",
+    border: isDark
+      ? "rgba(255, 255, 255, 0.09)"
+      : "rgba(0, 0, 0, 0.08)",
+    subtleBorder: isDark
+      ? "rgba(255, 255, 255, 0.06)"
+      : "rgba(0, 0, 0, 0.05)",
+  };
 
   useEffect(() => {
     const q = query(
@@ -48,7 +65,7 @@ const AboutSection = () => {
   }, []);
 
   const handleSubmit = async () => {
-    if (!rating || !reviewText.trim()) return alert("Please add rating & text");
+    if (!rating || !reviewText.trim()) return alert("Please add rating & review text");
 
     try {
       await addDoc(collection(db, "reviews", "userReviews"), {
@@ -69,112 +86,151 @@ const AboutSection = () => {
   };
 
   return (
-    <>
-      {/* ABOUT SUMMARY */}
+    <Box sx={{ width: "100%", display: "flex", justifyContent: "center" }}>
+      {/* Trigger Card */}
       <Box
         onClick={() => setOpen(true)}
         sx={{
-          p: 2,
-          borderRadius: 2,
-          bgcolor: "#f5f5f5",
+          width: "100%",
+          maxWidth: 600,
+          p: 2.5,
+          borderRadius: "20px",
+          backgroundColor: colors.surfaceStrong,
+          border: `1px solid ${colors.border}`,
           cursor: "pointer",
-          "&:hover": { bgcolor: "#ececec" },
+          transition: "border-color 0.2s ease, transform 0.2s ease",
+          display: "flex",
+          alignItems: "center",
+          "&:hover": {
+            borderColor: isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.14)",
+            transform: "translateY(-2px)",
+          },
         }}
       >
-        <Typography variant="h6" fontWeight="600">
-          About
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Tap to know more about us and read user reviews.
-        </Typography>
+        <Stack direction="row" spacing={1.5} alignItems="center">
+          <Box
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: "12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: colors.surface,
+              border: `1px solid ${colors.subtleBorder}`,
+              color: colors.text,
+              flexShrink: 0,
+            }}
+          >
+            <AutoAwesomeRoundedIcon sx={{ fontSize: 18 }} />
+          </Box>
+          <Box>
+            <Typography sx={{ fontWeight: 750, color: colors.text, fontSize: "0.95rem" }}>
+              Community Reviews
+            </Typography>
+            <Typography sx={{ color: colors.secondaryText, fontSize: "0.78rem" }}>
+              Tap to explore squad stories and feedback.
+            </Typography>
+          </Box>
+        </Stack>
       </Box>
 
-      {/* DRAWER */}
-      <Drawer anchor="bottom" open={open} onClose={() => setOpen(false)}>
-        <Box
-          sx={{
-            height: "100vh",
-            p: 3,
-            display: "flex",
-            flexDirection: "column",
-            bgcolor: "#fff",
-          }}
-        >
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6" fontWeight="600">
-              About BunkMates
+      {/* Reviews Bottom Drawer */}
+      <Drawer
+        anchor="bottom"
+        open={open}
+        onClose={() => setOpen(false)}
+        PaperProps={{
+          sx: {
+            backgroundColor: colors.background,
+            color: colors.text,
+            borderTopLeftRadius: 28,
+            borderTopRightRadius: 28,
+            borderTop: `1px solid ${colors.border}`,
+            maxHeight: "88vh",
+            maxWidth: 620,
+            mx: "auto",
+          },
+        }}
+      >
+        <Box sx={{ p: { xs: 2.5, sm: 3.5 }, display: "flex", flexDirection: "column" }}>
+          {/* Header */}
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: "-0.03em" }}>
+              About & Reviews
             </Typography>
-            <IconButton onClick={() => setOpen(false)}>
-              <CloseIcon />
+            <IconButton
+              onClick={() => setOpen(false)}
+              sx={{
+                width: 36,
+                height: 36,
+                borderRadius: "10px",
+                color: colors.secondaryText,
+                border: `1px solid ${colors.border}`,
+              }}
+            >
+              <CloseRoundedIcon sx={{ fontSize: 18 }} />
             </IconButton>
           </Box>
 
-          <Typography sx={{ mt: 2, color: "#333" }}>
-            BunkMates is your ultimate travel companion — plan trips, manage
-            budgets, chat with your group, track your checklist, and much more.
+          <Typography sx={{ color: colors.secondaryText, fontSize: "0.9rem", lineHeight: 1.7 }}>
+            BunkMates connects travel crews to organize stops, split group bills fairly, and stay synced wherever the adventure takes them.
           </Typography>
 
-          <Divider sx={{ my: 3 }} />
+          <Divider sx={{ my: 2.5, borderColor: colors.border }} />
 
-          {/* REVIEWS SECTION */}
-          <Typography variant="h6" gutterBottom>
+          {/* User Reviews List */}
+          <Typography sx={{ fontWeight: 750, mb: 1.5, fontSize: "0.95rem" }}>
             User Reviews
           </Typography>
 
-          <Box
-            sx={{
-              maxHeight: "45vh",
-              overflowY: "auto",
-              mb: 2,
-              pr: 1,
-            }}
-          >
+          <Box sx={{ maxHeight: "38vh", overflowY: "auto", pr: 0.5, mb: 2, display: "flex", flexDirection: "column" }}>
             {reviews.length > 0 ? (
-              reviews.map((rev) => (
-                <Box
-                  key={rev.id}
-                  sx={{
-                    display: "flex",
-                    gap: 2,
-                    mb: 2,
-                    bgcolor: "#fafafa",
-                    p: 2,
-                    borderRadius: 2,
-                  }}
-                >
-                  <Avatar src={rev.userPhotoURL} alt={rev.userName} />
-                  <Box>
-                    <Typography fontWeight="600">{rev.userName}</Typography>
-                    <Rating value={rev.rating} size="small" readOnly />
-                    <Typography variant="body2">{rev.text}</Typography>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{ mt: 0.5, display: "block" }}
-                    >
-                      {rev.createdAt?.toDate
-                        ? rev.createdAt.toDate().toLocaleString()
-                        : ""}
+              <Stack spacing={1.5}>
+                {reviews.map((rev) => (
+                  <Box
+                    key={rev.id}
+                    sx={{
+                      p: 2,
+                      borderRadius: "18px",
+                      backgroundColor: colors.surface,
+                      border: `1px solid ${colors.subtleBorder}`,
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
+                      <Avatar src={rev.userPhotoURL} alt={rev.userName} sx={{ width: 32, height: 32 }} />
+                      <Box sx={{ flex: 1 }}>
+                        <Typography sx={{ fontWeight: 700, fontSize: "0.86rem", color: colors.text }}>
+                          {rev.userName}
+                        </Typography>
+                        <Rating value={rev.rating} size="small" readOnly sx={{ fontSize: "0.85rem" }} />
+                      </Box>
+                    </Stack>
+                    <Typography sx={{ color: colors.secondaryText, fontSize: "0.85rem", lineHeight: 1.6 }}>
+                      {rev.text}
                     </Typography>
                   </Box>
-                </Box>
-              ))
+                ))}
+              </Stack>
             ) : (
-              <Typography color="text.secondary">
-                No reviews yet. Be the first to write one!
+              <Typography sx={{ color: colors.secondaryText, fontSize: "0.86rem", py: 2 }}>
+                No reviews yet. Share your experience below!
               </Typography>
             )}
           </Box>
 
-          {/* ADD REVIEW */}
-          <Box sx={{ mt: "auto" }}>
-            <Typography variant="subtitle1" fontWeight="600" gutterBottom>
+          {/* Add Review Form */}
+          <Box sx={{ pt: 1, borderTop: `1px solid ${colors.border}`, display: "flex", flexDirection: "column" }}>
+            <Typography sx={{ fontWeight: 750, fontSize: "0.88rem", mb: 1 }}>
               Add a Review
             </Typography>
             <Rating
               name="rating"
               value={rating}
               onChange={(e, newValue) => setRating(newValue)}
+              size="medium"
             />
             <TextField
               fullWidth
@@ -183,21 +239,40 @@ const AboutSection = () => {
               placeholder="Write your review..."
               value={reviewText}
               onChange={(e) => setReviewText(e.target.value)}
-              sx={{ my: 1 }}
+              InputProps={{
+                sx: {
+                  borderRadius: "16px",
+                  backgroundColor: colors.surface,
+                  color: colors.text,
+                  "& fieldset": { border: `1px solid ${colors.border}` },
+                },
+              }}
+              sx={{ my: 1.5 }}
             />
             <Button
               variant="contained"
               fullWidth
               onClick={handleSubmit}
-              sx={{ borderRadius: 2, textTransform: "none" }}
+              sx={{
+                borderRadius: "14px",
+                py: 1.2,
+                fontWeight: 750,
+                textTransform: "none",
+                fontSize: "0.92rem",
+                backgroundColor: colors.text,
+                color: colors.background,
+                "&:hover": {
+                  backgroundColor: isDark ? "#e8e8e8" : "#242424",
+                },
+              }}
             >
-              Submit
+              Submit Review
             </Button>
           </Box>
         </Box>
       </Drawer>
-    </>
+    </Box>
   );
 };
 
-export default AboutSection;
+export default AboutReviewsSection;

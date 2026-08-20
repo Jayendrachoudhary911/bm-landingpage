@@ -33,6 +33,7 @@ import { db } from "../firebase";
 import Cropper from "react-easy-crop";
 import Navbar from '../components/Navbar';
 import { useTheme } from '@mui/material/styles';
+import { useCustomTheme } from "../context/ThemeContext";
 
 function TabPanel({ children, value, index }) {
   return (
@@ -80,7 +81,8 @@ const getCroppedImg = async (imageSrc, pixelCrop) => {
 
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
-  const theme = useTheme();
+  const muiTheme = useTheme();
+  const { isDark, gradients } = useCustomTheme();
   const [userDoc, setUserDoc] = useState({});
   const [contributions, setContributions] = useState({
     issues: [],
@@ -92,7 +94,7 @@ const ProfilePage = () => {
   const [editForm, setEditForm] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
   const [cropDrawerOpen, setCropDrawerOpen] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -105,13 +107,11 @@ const ProfilePage = () => {
   const [feedback, setFeedback] = useState([]);
   const [reports, setReports] = useState([]);
 
-  // Auth state and real-time user doc fetch
   useEffect(() => {
     const auth = getAuth();
     const unsub = onAuthStateChanged(auth, (authUser) => {
       setUser(authUser);
       if (authUser) {
-        // Real-time user doc fetch
         const userRef = doc(db, "users", authUser.uid);
         const unsubUserDoc = onSnapshot(userRef, async (userSnap) => {
           if (userSnap.exists()) {
@@ -119,7 +119,6 @@ const ProfilePage = () => {
             setUserDoc(userData);
             setEditForm({ ...userData, photoURL: authUser.photoURL || userData.photoURL || "" });
 
-            // Real-time contributions
             const issuesQ = query(collection(db, "issues"), where("uid", "==", authUser.uid));
             const feedbackQ = query(collection(db, "feedback"), where("uid", "==", authUser.uid));
             const reportsQ = query(collection(db, "reports"), where("uid", "==", authUser.uid));
@@ -163,7 +162,6 @@ const ProfilePage = () => {
     return () => unsub();
   }, []);
 
-  // Real-time friend info listeners
   useEffect(() => {
     let unsubList = [];
     setFriendsInfo([]);
@@ -219,16 +217,20 @@ const ProfilePage = () => {
 
   if (loading)
     return (
-      <Box sx={{ mt: 14, display: "flex", justifyContent: "center" }}>
-        <CircularProgress />
+      <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: isDark ? "#000" : "#f8fafc" }}>
+        <CircularProgress color="primary" />
       </Box>
     );
+
   if (!user)
     return (
-      <Typography align="center" color="#fff">Login to view your profile</Typography>
+      <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: isDark ? "#000" : "#f8fafc" }}>
+        <Typography align="center" color={isDark ? "#fff" : "#0f172a"}>
+          Please log in to view your profile.
+        </Typography>
+      </Box>
     );
 
-  // Tab options by user type
   const isBetaDev = ["Dev Beta", "Beta"].includes(userType);
   const tabs = isBetaDev
     ? ["Issues", "Feedbacks", "Reports", "Friends"]
@@ -238,23 +240,45 @@ const ProfilePage = () => {
     : [friendsInfo, trips];
 
   return (
-    <Box sx={{ minHeight: "100vh", py: 6, px: 2, background: "#000", color: "#fff" }}>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        pb: 8,
+        backgroundColor: isDark ? "#000000" : "#f8fafc",
+        color: isDark ? "#fff" : "#0f172a",
+        transition: "background-color 0.3s ease, color 0.3s ease",
+      }}
+    >
       <Navbar user={user} />
-      <Container maxWidth="lg" sx={{ mt: 10 }}>
+
+      {/* Signature Header Gradient Backdrop */}
+      <Box
+        sx={{
+          height: { xs: "260px", sm: "320px" },
+          width: "100%",
+          background: isDark ? gradients.headerDark : gradients.headerLight,
+          backgroundSize: "cover",
+          backgroundPosition: "center bottom",
+          position: "relative",
+          boxShadow: isDark ? "0 10px 30px rgba(0,0,0,0.5)" : "0 10px 30px rgba(0,0,0,0.08)",
+        }}
+      />
+
+      <Container maxWidth="lg" sx={{ mt: { xs: -12, sm: -14 }, position: "relative", zIndex: 10 }}>
         <Grid container spacing={4}>
-          {/* Sidebar */}
-          <Grid item xs={12} sm={4} md={3} sx={{ mx: isMobile ? "auto" : "0" }}>
+          {/* Sidebar Card */}
+          <Grid item xs={12} sm={4} md={3.5} sx={{ mx: isMobile ? "auto" : "0" }}>
             <Paper
-              elevation={3}
+              elevation={4}
               sx={{
-                p: 3,
-                borderRadius: 3,
-                // Dark theme glass effect
-                backdropFilter: "blur(10px)",
-                background: "rgba(30, 30, 30, 0.0)", // Darker translucent background
-                boxShadow: "none",
-                color: "#fff",
-                maxWidth: 410,
+                p: 3.5,
+                borderRadius: 4,
+                backdropFilter: "blur(20px)",
+                background: isDark ? "rgba(15, 23, 42, 0.88)" : "rgba(255, 255, 255, 0.94)",
+                border: `1px solid ${isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.08)"}`,
+                boxShadow: isDark ? "0 20px 40px rgba(0,0,0,0.6)" : "0 20px 40px rgba(0,0,0,0.06)",
+                color: isDark ? "#fff" : "#0f172a",
+                textAlign: "center",
               }}
             >
               <Avatar
@@ -265,32 +289,25 @@ const ProfilePage = () => {
                   height: AVATAR_SIZE,
                   mx: "auto",
                   mb: 2,
-                  border: "3px solid #4a4a4a", // Light border for visibility
+                  border: "4px solid #38bdf8",
+                  boxShadow: "0 8px 25px rgba(56, 189, 248, 0.3)",
                 }}
               />
-              <Typography variant="h6" fontWeight={600} align="center" color="white">
+              <Typography variant="h5" fontWeight={700} sx={{ color: isDark ? "#fff" : "#0f172a" }}>
                 {user.displayName || "No Name"}
               </Typography>
-              <Typography variant="body2" color="#9a9a9aff" align="center">
+              <Typography variant="body2" sx={{ color: isDark ? "#38bdf8" : "#0284c7", fontWeight: 600, mt: 0.5 }}>
                 @{userDoc.username || "username"}
               </Typography>
               <Typography
                 variant="body2"
-                sx={{ mt: 1, textAlign: "center", fontSize: 14, color: "#9a9a9a" }}
+                sx={{ mt: 1.5, fontSize: "0.9rem", color: isDark ? "#94a3b8" : "#64748b", lineHeight: 1.6 }}
               >
-                {userDoc.bio || "Add something cool about yourself!"}
+                {userDoc.bio || "No bio yet. Add something cool about yourself!"}
               </Typography>
+
               {/* Stats Section */}
-              <Grid
-                container
-                spacing={1}
-                mt={2}
-                display="flex"
-                flexDirection="row"
-                alignItems="center"
-                justifyContent="center"
-                my={4}
-              >
+              <Grid container spacing={1.5} my={3} justifyContent="center">
                 {(isBetaDev
                   ? [
                       { label: "Issues", value: contributions.issues.length },
@@ -308,55 +325,59 @@ const ProfilePage = () => {
                     xs={isBetaDev ? 3 : 6}
                     key={stat.label}
                     textAlign="center"
-                    sx={{
-                      backgroundColor: "rgba(70, 70, 70, 0.5)", // Darker stat background
-                      p: 1.3,
-                      borderRadius: 3,
-                      width: 120
-                    }}
                   >
-                    <Typography fontWeight={700} color="#fff">{stat.value}</Typography>
-                    <Typography variant="caption" color="#9a9a9a">
-                      {stat.label}
-                    </Typography>
+                    <Box
+                      sx={{
+                        backgroundColor: isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.04)",
+                        p: 1.5,
+                        borderRadius: 3,
+                        border: `1px solid ${isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(0, 0, 0, 0.04)"}`,
+                      }}
+                    >
+                      <Typography fontWeight={800} sx={{ color: isDark ? "#fff" : "#0f172a", fontSize: "1.1rem" }}>
+                        {stat.value}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: isDark ? "#94a3b8" : "#64748b", fontWeight: 500 }}>
+                        {stat.label}
+                      </Typography>
+                    </Box>
                   </Grid>
                 ))}
               </Grid>
+
               <Button
                 fullWidth
                 onClick={() => setEditOpen(true)}
                 variant="outlined"
                 sx={{
-                  mt: 3,
-                  borderRadius: 999,
+                  borderRadius: "999px",
+                  py: 1,
                   textTransform: "none",
-                  border: "1.2px solid #ffffff", // Light border
                   fontWeight: 600,
-                  color: "#ffffff", // Light text
+                  borderColor: isDark ? "rgba(255, 255, 255, 0.3)" : "rgba(0, 0, 0, 0.2)",
+                  color: isDark ? "#ffffff" : "#0f172a",
                   "&:hover": {
-                    borderColor: "#bbbbbb",
-                    backgroundColor: "rgba(255, 255, 255, 0.08)"
-                  }
+                    borderColor: "#38bdf8",
+                    backgroundColor: "rgba(56, 189, 248, 0.08)",
+                  },
                 }}
               >
                 Edit Profile
               </Button>
             </Paper>
           </Grid>
-          {/* Main Content */}
-          <Grid item xs={12} sm={8} md={9}>
+
+          {/* Main Content Area */}
+          <Grid item xs={12} sm={8} md={8.5}>
             <Paper
-              elevation={3}
+              elevation={2}
               sx={{
-                mb: 2,
-                // Dark theme glass effect for tabs
-                backdropFilter: "blur(8px)",
-                background: "rgba(30, 30, 30, 0.8)",
-                boxShadow: "0 4px 30px rgba(0, 0, 0, 0.2)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                maxWidth: 610,
-                overflowX: "auto",
-                maxWidth: 380,
+                mb: 2.5,
+                borderRadius: 4,
+                backdropFilter: "blur(16px)",
+                background: isDark ? "rgba(15, 23, 42, 0.85)" : "rgba(255, 255, 255, 0.9)",
+                border: `1px solid ${isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.06)"}`,
+                p: 0.8,
               }}
             >
               <Tabs
@@ -365,79 +386,81 @@ const ProfilePage = () => {
                 textColor="inherit"
                 TabIndicatorProps={{
                   style: {
-                    backgroundColor: theme.palette.primary.main, // Use primary color for indicator
+                    backgroundColor: "#38bdf8",
                     height: "3px",
                     borderRadius: "3px",
                   },
                 }}
                 aria-label="Profile tabs"
                 sx={{
-                  minHeight: "48px",
+                  minHeight: "44px",
                   "& .MuiTab-root": {
-                    minHeight: "48px",
-                    fontWeight: 500,
+                    minHeight: "44px",
+                    fontWeight: 600,
                     textTransform: "none",
                     fontSize: "0.95rem",
-                    color: "#9a9a9a", // Light gray for inactive
-                    transition: "all 0.3s ease",
-                    px: 0
+                    color: isDark ? "#94a3b8" : "#64748b",
+                    borderRadius: "12px",
+                    px: 3,
+                    transition: "all 0.2s ease",
                   },
-                  "& .MuiTab-root.Mui-selected": { color: "#fff"}, // White for active
+                  "& .MuiTab-root.Mui-selected": { color: isDark ? "#fff" : "#0284c7" },
                   "& .MuiTab-root:hover": {
-                    color: "#fff",
-                    backgroundColor: "rgba(255, 255, 255, 0.08)", // Light hover effect
-                    borderRadius: "8px",
+                    color: isDark ? "#fff" : "#0284c7",
+                    backgroundColor: isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(0, 0, 0, 0.04)",
                   },
                 }}
               >
                 {tabs.map((label, idx) => (
-                  <Tab label={label} key={label} id={`profile-tab-${idx}`}
-                    aria-controls={`profile-tabpanel-${idx}`} />
+                  <Tab label={label} key={label} id={`profile-tab-${idx}`} aria-controls={`profile-tabpanel-${idx}`} />
                 ))}
               </Tabs>
             </Paper>
+
             <Fade in timeout={500}>
               <Paper
-                elevation={0}
+                elevation={2}
                 sx={{
-                  p: 0,
+                  p: 3,
                   borderRadius: 4,
-                  // Dark theme glass effect for content area
-                  backdropFilter: "blur(10px)",
-                  background: "rgba(30, 30, 30, 0.9)",
-                  boxShadow: "0 4px 30px rgba(0, 0, 0, 0.2)",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
-                  maxWidth: 610,
+                  backdropFilter: "blur(16px)",
+                  background: isDark ? "rgba(15, 23, 42, 0.85)" : "rgba(255, 255, 255, 0.9)",
+                  border: `1px solid ${isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.06)"}`,
+                  minHeight: "360px",
                 }}
               >
                 {tabs.map((label, idx) => (
-                  <TabPanel value={activeTab} index={idx} key={label} p={0}>
-                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: "#fff" }}>
+                  <TabPanel value={activeTab} index={idx} key={label}>
+                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: isDark ? "#fff" : "#0f172a" }}>
                       {isBetaDev
                         ? ["Your Issues", "Given Feedbacks", "Your Reports", "Your Friends"][idx]
                         : ["Your Friends", "Your Trips"][idx]}
                     </Typography>
+
                     {tabContents[idx].length === 0 ? (
-                      <Typography color="#9a9a9a"
-                        sx={{ textAlign: "center", py: 4, fontSize: "0.95rem" }}>
-                        No items yet.
+                      <Typography color={isDark ? "#94a3b8" : "#64748b"} sx={{ textAlign: "center", py: 6, fontSize: "0.95rem" }}>
+                        No items found yet.
                       </Typography>
                     ) : (isBetaDev && idx === 3) || (!isBetaDev && idx === 0) ? (
-                      // FRIENDS TAB: Show detailed friend info list
                       <List sx={{ p: 0 }}>
                         {tabContents[idx]
                           .sort((a, b) => a.name?.localeCompare(b.name || '') || 0)
-                          .map(friend => (
-                            <ListItem key={friend.uid}>
+                          .map((friend) => (
+                            <ListItem
+                              key={friend.uid}
+                              sx={{
+                                p: 1.5,
+                                borderRadius: 3,
+                                mb: 1,
+                                backgroundColor: isDark ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.02)",
+                              }}
+                            >
                               <ListItemAvatar>
-                                <Avatar
-                                  src={friend.photoURL}
-                                  alt={friend.name || friend.username}
-                                />
+                                <Avatar src={friend.photoURL} alt={friend.name || friend.username} sx={{ border: "2px solid #38bdf8" }} />
                               </ListItemAvatar>
                               <ListItemText
-                                primary={<Typography color="#fff">{friend.name || "No Name"}</Typography>}
-                                secondary={<Typography color="#9a9a9a">@{friend.username || friend.uid}</Typography>}
+                                primary={<Typography fontWeight={600} color={isDark ? "#fff" : "#0f172a"}>{friend.name || "No Name"}</Typography>}
+                                secondary={<Typography variant="body2" color={isDark ? "#94a3b8" : "#64748b"}>@{friend.username || friend.uid}</Typography>}
                               />
                             </ListItem>
                           ))}
@@ -446,22 +469,26 @@ const ProfilePage = () => {
                       <List>
                         {tabContents[idx].map((item, i) =>
                           isBetaDev ? (
-                            // For Beta/Dev Beta issues/feedback/reports
-                            <Paper key={item.id || i}
+                            <Paper
+                              key={item.id || i}
                               sx={{
-                                p: 2, mb: 2, borderRadius: 3,
-                                background: "rgba(50,50,50,0.95)", // Dark background for list items
-                                border: "1px solid rgba(255,255,255,0.08)"
-                              }}>
-                              <Typography fontWeight={600} color="#fff">{item.message || "Untitled"}</Typography>
-                              <Typography fontSize={14} color="#9a9a9a">
+                                p: 2.5,
+                                mb: 2,
+                                borderRadius: 3,
+                                background: isDark ? "rgba(255, 255, 255, 0.04)" : "#f8fafc",
+                                border: `1px solid ${isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(0, 0, 0, 0.06)"}`,
+                              }}
+                            >
+                              <Typography fontWeight={700} color={isDark ? "#fff" : "#0f172a"}>
+                                {item.message || "Untitled"}
+                              </Typography>
+                              <Typography fontSize={14} color={isDark ? "#94a3b8" : "#64748b"} sx={{ mt: 0.5 }}>
                                 {item.description?.slice(0, 100) || ""}
                               </Typography>
                             </Paper>
                           ) : (
-                            // Otherwise, trips list, legacy
-                            <ListItem key={i}>
-                              <ListItemText primary={<Typography color="#fff">{item}</Typography>} />
+                            <ListItem key={i} sx={{ borderRadius: 2, mb: 1, backgroundColor: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)" }}>
+                              <ListItemText primary={<Typography color={isDark ? "#fff" : "#0f172a"}>{item}</Typography>} />
                             </ListItem>
                           )
                         )}
@@ -473,86 +500,63 @@ const ProfilePage = () => {
             </Fade>
           </Grid>
         </Grid>
-        {/* Edit Drawer */}
+
+        {/* Edit Profile Drawer */}
         <Drawer
           anchor="bottom"
           open={editOpen}
           onClose={() => setEditOpen(false)}
           PaperProps={{
             sx: {
-              background: theme.palette.background.paper, // Use theme paper color
+              background: isDark ? "rgba(15, 23, 42, 0.98)" : "rgba(255, 255, 255, 0.98)",
+              backdropFilter: "blur(20px)",
               borderTopLeftRadius: 24,
               borderTopRightRadius: 24,
-              maxWidth: 410,
-              mx: "auto"
+              maxWidth: 480,
+              mx: "auto",
+              color: isDark ? "#fff" : "#0f172a",
+              border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
             },
           }}
           ModalProps={{
             BackdropProps: {
               sx: {
-                backgroundColor: "rgba(0, 0, 0, 0.4)", // Darker backdrop
-                backdropFilter: "blur(2px)",
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                backdropFilter: "blur(4px)",
               },
             },
           }}
-          sx={{
-            "& .MuiDrawer-paper": {
-              background: "rgba(30, 30, 30, 0.9)", // Darker translucent drawer
-              backdropFilter: "blur(14px)",
-              boxShadow: "0px -12px 32px rgba(0, 0, 0, 0.2)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              transition: "all 0.4s ease-in-out",
-            },
-          }}
         >
-          <Box
-            sx={{
-              height: "80vh",
-              p: 4,
-              color: "#fff",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{ mb: 2, fontWeight: 900, letterSpacing: 0.2, color: "#fff" }}
-            >
+          <Box sx={{ p: 4, display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <Typography variant="h6" sx={{ mb: 2.5, fontWeight: 800, color: isDark ? "#fff" : "#0f172a" }}>
               Edit Profile
             </Typography>
-            <Box
+
+            <Avatar
+              src={editForm.photoURL}
               sx={{
-                background: theme.palette.primary.main,
-                borderRadius: "50%",
-                p: "2.5px",
+                width: 90,
+                height: 90,
                 mb: 2,
+                border: "3px solid #38bdf8",
               }}
-            >
-              <Avatar
-                src={editForm.photoURL}
-                sx={{
-                  width: 88,
-                  height: 88,
-                  border: `3px solid ${theme.palette.background.paper}`, // Border with paper color
-                }}
-              />
-            </Box>
+            />
+
             <Button
               variant="outlined"
               component="label"
               sx={{
-                mb: 2,
-                borderRadius: 999,
+                mb: 3,
+                borderRadius: "999px",
                 textTransform: "none",
                 fontWeight: 600,
-                border: `1.5px solid ${"#fff"}`,
-                color: "#fff",
-                px: 2,
-                ":hover": { background: "rgba(255, 255, 255, 0.08)", borderColor: "#fff" },
+                borderColor: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.2)",
+                color: isDark ? "#fff" : "#0f172a",
+                px: 3,
+                "&:hover": { borderColor: "#38bdf8", backgroundColor: "rgba(56, 189, 248, 0.08)" },
               }}
             >
-              Upload Profile Picture
+              Upload New Picture
               <input
                 type="file"
                 hidden
@@ -570,41 +574,33 @@ const ProfilePage = () => {
                 }}
               />
             </Button>
+
             <TextField
               label="Name"
               fullWidth
               value={editForm.name || ""}
-              onChange={(e) =>
-                setEditForm({ ...editForm, name: e.target.value })
-              }
+              onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
               margin="dense"
-              sx={{ my: 1, borderRadius: 3, "& .MuiInputBase-root": { backgroundColor: "rgba(255, 255, 255, 0.05)" } }}
-              InputLabelProps={{ style: { color: "#9a9a9a" } }}
-              InputProps={{ style: { color: "#fff" } }}
+              InputLabelProps={{ style: { color: isDark ? "#94a3b8" : "#64748b" } }}
+              InputProps={{ style: { color: isDark ? "#fff" : "#0f172a", borderRadius: 12 } }}
             />
             <TextField
               label="Username"
               fullWidth
               value={editForm.username || ""}
-              onChange={(e) =>
-                setEditForm({ ...editForm, username: e.target.value })
-              }
+              onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
               margin="dense"
-              sx={{ my: 1, borderRadius: 3, "& .MuiInputBase-root": { backgroundColor: "rgba(255, 255, 255, 0.05)" } }}
-              InputLabelProps={{ style: { color: "#9a9a9a" } }}
-              InputProps={{ style: { color: "#fff" } }}
+              InputLabelProps={{ style: { color: isDark ? "#94a3b8" : "#64748b" } }}
+              InputProps={{ style: { color: isDark ? "#fff" : "#0f172a", borderRadius: 12 } }}
             />
             <TextField
-              label="Mobile"
+              label="Mobile Number"
               fullWidth
               value={editForm.mobile || ""}
-              onChange={(e) =>
-                setEditForm({ ...editForm, mobile: e.target.value })
-              }
+              onChange={(e) => setEditForm({ ...editForm, mobile: e.target.value })}
               margin="dense"
-              sx={{ my: 1, borderRadius: 3, "& .MuiInputBase-root": { backgroundColor: "rgba(255, 255, 255, 0.05)" } }}
-              InputLabelProps={{ style: { color: "#9a9a9a" } }}
-              InputProps={{ style: { color: "#fff" } }}
+              InputLabelProps={{ style: { color: isDark ? "#94a3b8" : "#64748b" } }}
+              InputProps={{ style: { color: isDark ? "#fff" : "#0f172a", borderRadius: 12 } }}
             />
             <TextField
               label="Bio"
@@ -612,30 +608,20 @@ const ProfilePage = () => {
               multiline
               rows={3}
               value={editForm.bio || ""}
-              onChange={(e) =>
-                setEditForm({ ...editForm, bio: e.target.value })
-              }
+              onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
               margin="dense"
-              sx={{ my: 1, borderRadius: 3, "& .MuiInputBase-root": { backgroundColor: "rgba(255, 255, 255, 0.05)" } }}
-              InputLabelProps={{ style: { color: "#9a9a9a" } }}
-              InputProps={{ style: { color: "#fff" } }}
+              InputLabelProps={{ style: { color: isDark ? "#94a3b8" : "#64748b" } }}
+              InputProps={{ style: { color: isDark ? "#fff" : "#0f172a", borderRadius: 12 } }}
             />
-            <Box
-              mt="auto"
-              width="100%"
-              display="flex"
-              justifyContent="space-between"
-              pt={2}
-            >
+
+            <Box mt={3} width="100%" display="flex" justifyContent="space-between">
               <Button
                 onClick={() => setEditOpen(false)}
                 sx={{
-                  borderRadius: 999,
-                  px: 4,
-                  color: "#9a9a9a",
+                  borderRadius: "999px",
+                  px: 3,
+                  color: isDark ? "#94a3b8" : "#64748b",
                   textTransform: "none",
-                  background: "transparent",
-                  boxShadow: "none",
                 }}
               >
                 Cancel
@@ -644,113 +630,73 @@ const ProfilePage = () => {
                 onClick={handleEditSubmit}
                 variant="contained"
                 sx={{
-                  background: theme.palette.primary.main,
-                  color: theme.palette.primary.contrastText,
-                  borderRadius: 999,
+                  background: "linear-gradient(135deg, #38bdf8, #2563eb)",
+                  color: "#fff",
+                  borderRadius: "999px",
                   px: 4,
-                  textTransform: "none",
                   fontWeight: 700,
-                  "&:hover": { background: theme.palette.primary.dark }
                 }}
               >
-                Save
+                Save Changes
               </Button>
             </Box>
           </Box>
-          {/* Image Cropper Drawer */}
-          <Drawer
-            anchor="bottom"
-            open={cropDrawerOpen}
-            onClose={() => setCropDrawerOpen(false)}
-            PaperProps={{
-              sx: {
-                borderTopLeftRadius: 22,
-                borderTopRightRadius: 22,
-                background: theme.palette.background.paper,
-                width: 410,
-                mx: "auto"
-              },
-            }}
-            ModalProps={{
-              BackdropProps: {
-                sx: {
-                  backgroundColor: "rgba(0, 0, 0, 0.4)",
-                  backdropFilter: "blur(2px)",
-                },
-              },
-            }}
-            sx={{
-              "& .MuiDrawer-paper": {
-                background: "rgba(30, 30, 30, 0.9)",
-                backdropFilter: "blur(14px)",
-                boxShadow: "0px -12px 32px rgba(0, 0, 0, 0.2)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                transition: "all 0.4s ease-in-out",
-              },
-            }}
-          >
-            <Box sx={{ minHeight: "55vh", p: 3, color: "#fff" }}>
-              <Typography
-                variant="h6"
-                mb={2}
-                fontWeight={800}
-                textAlign="center"
-                color={"#fff"}
-              >
-                Crop Profile Picture
-              </Typography>
-              {imagePreview && (
-                <Box
-                  sx={{
-                    position: "relative",
-                    width: "100%",
-                    maxWidth: 350,
-                    mx: "auto",
-                    height: 270,
-                    backgroundColor: theme.palette.grey[900] // Dark background for cropper
-                  }}
-                >
-                  <Cropper
-                    image={imagePreview}
-                    crop={crop}
-                    zoom={zoom}
-                    aspect={1}
-                    onCropChange={setCrop}
-                    onZoomChange={setZoom}
-                    onCropComplete={(_, croppedPixels) =>
-                      setCroppedAreaPixels(croppedPixels)
-                    }
-                  />
-                </Box>
-              )}
-              <Box mt={3} display="flex" justifyContent="flex-end">
-                <Button
-                  variant="contained"
-                  sx={{
-                    background: theme.palette.primary.main,
-                    color: theme.palette.primary.contrastText,
-                    borderRadius: 999,
-                    px: 4,
-                    fontWeight: 600,
-                    "&:hover": { background: theme.palette.primary.dark }
-                  }}
-                  onClick={async () => {
-                    const cropped = await getCroppedImg(
-                      imagePreview,
-                      croppedAreaPixels
-                    );
-                    setEditForm((prev) => ({
-                      ...prev,
-                      photoURL: cropped,
-                    }));
-                    setCropDrawerOpen(false);
-                  }}
-                >
-                  Done
-                </Button>
+        </Drawer>
+
+        {/* Image Cropper Drawer */}
+        <Drawer
+          anchor="bottom"
+          open={cropDrawerOpen}
+          onClose={() => setCropDrawerOpen(false)}
+          PaperProps={{
+            sx: {
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              background: isDark ? "rgba(15, 23, 42, 0.98)" : "rgba(255, 255, 255, 0.98)",
+              width: "100%",
+              maxWidth: 480,
+              mx: "auto",
+              color: isDark ? "#fff" : "#0f172a",
+            },
+          }}
+        >
+          <Box sx={{ minHeight: "55vh", p: 3 }}>
+            <Typography variant="h6" mb={2} fontWeight={700} textAlign="center" color={isDark ? "#fff" : "#0f172a"}>
+              Crop Profile Picture
+            </Typography>
+            {imagePreview && (
+              <Box sx={{ position: "relative", width: "100%", maxWidth: 350, mx: "auto", height: 260, backgroundColor: "#000", borderRadius: 3, overflow: "hidden" }}>
+                <Cropper
+                  image={imagePreview}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onCropComplete={(_, croppedPixels) => setCroppedAreaPixels(croppedPixels)}
+                />
               </Box>
+            )}
+            <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
+              <Button onClick={() => setCropDrawerOpen(false)} sx={{ color: isDark ? "#94a3b8" : "#64748b" }}>
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                sx={{ background: "linear-gradient(135deg, #38bdf8, #2563eb)", color: "#fff", borderRadius: "999px", px: 4, fontWeight: 700 }}
+                onClick={async () => {
+                  const cropped = await getCroppedImg(imagePreview, croppedAreaPixels);
+                  setEditForm((prev) => ({
+                    ...prev,
+                    photoURL: cropped,
+                  }));
+                  setCropDrawerOpen(false);
+                }}
+              >
+                Done
+              </Button>
             </Box>
-          </Drawer>
+          </Box>
         </Drawer>
       </Container>
     </Box>

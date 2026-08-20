@@ -1,30 +1,35 @@
 import React from 'react';
-import { Box, Button, Typography, Avatar, Container, Grid, Card, CardContent, Stack } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Box } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
-import { motion } from 'framer-motion';
+import { useCustomTheme } from '../context/ThemeContext';
 import Navbar from '../components/Navbar';
 import HeroSection from '../sections/Hero';
 import FeaturesSection from '../sections/FeaturesSection';
 import AboutSection from '../sections/AboutSection';
 import FAQSection from '../sections/FAQSection';
-import AboutSectionTeam from '../sections/AboutTeam';
 import ContactSection from '../components/ContactSection';
 import Footer from '../components/Footer';
 
 const LandingPage = () => {
-  const navigate = useNavigate();
   const { user } = useAuth();
+  const { isDark } = useCustomTheme();
 
   return (
-    <Box sx={{ bgcolor: '#000000ff', minHeight: '100vh' }}>
-          <Navbar user={user} />
-          <HeroSection />
-          <AboutSection />
-          <FeaturesSection />
-          <FAQSection />
-          <ContactSection />
-          <Footer />
+    <Box
+      sx={{
+        bgcolor: isDark ? '#000000' : '#f8fafc',
+        color: isDark ? '#f8fafc' : '#0f172a',
+        minHeight: '100vh',
+        transition: 'background-color 0.3s ease, color 0.3s ease',
+      }}
+    >
+      <Navbar user={user} />
+      <HeroSection />
+      <AboutSection />
+      <FeaturesSection />
+      <FAQSection />
+      <ContactSection />
+      <Footer />
     </Box>
   );
 };

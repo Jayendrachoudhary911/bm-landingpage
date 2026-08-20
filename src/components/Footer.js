@@ -1,5 +1,4 @@
-// src/components/Footer.js
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Grid,
@@ -8,60 +7,72 @@ import {
   Button,
   Stack,
   Divider,
-  useTheme,
-  useMediaQuery,
   CircularProgress,
   Tooltip,
-  IconButton,
+  Container,
 } from "@mui/material";
 import { motion } from "framer-motion";
 import * as MuiIcons from "@mui/icons-material";
-import FacebookIcon from "@mui/icons-material/FacebookOutlined";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import YouTubeIcon from "@mui/icons-material/YouTube";
-import EmailIcon from "@mui/icons-material/EmailOutlined";
-import LocationOnIcon from "@mui/icons-material/LocationOnOutlined";
-import CopyrightIcon from "@mui/icons-material/Copyright";
-import OpenInNewIcon from "@mui/icons-material/OpenInNew";
-
+import EmailRoundedIcon from "@mui/icons-material/EmailRounded";
+import LocationOnRoundedIcon from "@mui/icons-material/LocationOnRounded";
+import DownloadRoundedIcon from "@mui/icons-material/DownloadRounded";
+import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import { doc, onSnapshot } from "firebase/firestore";
-import { db } from "../firebase"; // adjust path if needed
+import { db } from "../firebase";
+import { useNavigate } from "react-router-dom";
+import { useCustomTheme } from "../context/ThemeContext";
 
-const navLinks = ["Home", "Features", "FAQ", "About Us"];
+const navLinks = [
+  { label: "Home", href: "/#hero" },
+  { label: "About", href: "/#about" },
+  { label: "Features", href: "/#features" },
+  { label: "FAQ", href: "/#faq" },
+  { label: "Contact", href: "/#contact" },
+  { label: "Our Story", href: "/about" },
+];
 
-// small compatibility map for names you may have used historically
 const STATIC_ICON_MAP = {
   InstagramIcon: InstagramIcon,
   YouTubeIcon: YouTubeIcon,
   YoutubeIcon: YouTubeIcon,
-  "Mail Us": EmailIcon,
-  Email: EmailIcon,
-  FacebookIcon: FacebookIcon,
+  "Mail Us": EmailRoundedIcon,
+  Email: EmailRoundedIcon,
 };
 
 function resolveIcon(name) {
-  if (!name) return EmailIcon;
-  // direct dynamic lookup in @mui/icons-material
+  if (!name) return EmailRoundedIcon;
   if (MuiIcons[name]) return MuiIcons[name];
-  // fallback to static mapping
   if (STATIC_ICON_MAP[name]) return STATIC_ICON_MAP[name];
-  // try adding/removing 'Icon' suffix
   if (MuiIcons[name + "Icon"]) return MuiIcons[name + "Icon"];
   const withoutIcon = name.replace(/Icon$/, "");
   if (MuiIcons[withoutIcon]) return MuiIcons[withoutIcon];
-  // final fallback
-  return EmailIcon;
+  return EmailRoundedIcon;
 }
 
 const Footer = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const { isDark } = useCustomTheme();
+  const navigate = useNavigate();
 
   const [socialLinks, setSocialLinks] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const colors = {
+    background: isDark ? "#000000" : "#ffffff",
+    surface: isDark ? "#0d0d0d" : "#f7f7f7",
+    surfaceStrong: isDark ? "#141414" : "#ffffff",
+    text: isDark ? "#ffffff" : "#111111",
+    secondaryText: isDark ? "#a3a3a3" : "#737373",
+    border: isDark
+      ? "rgba(255, 255, 255, 0.09)"
+      : "rgba(0, 0, 0, 0.08)",
+    subtleBorder: isDark
+      ? "rgba(255, 255, 255, 0.06)"
+      : "rgba(0, 0, 0, 0.05)",
+  };
+
   useEffect(() => {
-    // Listen to landing_page -> links (you requested links doc, not home)
     const docRef = doc(db, "landing_page", "links");
     const unsub = onSnapshot(
       docRef,
@@ -80,8 +91,6 @@ const Footer = () => {
           return;
         }
 
-        // Firestore fields in your DB: hotlinks.icons, hotlinks.name, hotlinks.link, hotlinks.live
-        // Be defensive: sometimes field names vary. Accept 'icons' or 'icon'.
         const iconsArr = Array.isArray(hotlinks.icons)
           ? hotlinks.icons
           : Array.isArray(hotlinks.icon)
@@ -98,7 +107,6 @@ const Footer = () => {
           const IconComponent = resolveIcon(rawIcon);
           const name = namesArr[i] ?? iconsArr[i] ?? `Link ${i + 1}`;
           const url = linksArr[i] ?? "#";
-          // If live array is missing, treat as true
           const live = Array.isArray(liveArr) ? Boolean(liveArr[i]) : true;
 
           return { name, url, IconComponent, live };
@@ -117,11 +125,10 @@ const Footer = () => {
     return () => unsub();
   }, []);
 
-  // Fallback static links if Firestore not available or empty
   const FALLBACK = [
     { name: "Instagram", url: "https://www.instagram.com/bunkmates.app", IconComponent: InstagramIcon, live: true },
     { name: "Youtube", url: "https://www.youtube.com/@Team_BunkMates", IconComponent: YouTubeIcon, live: true },
-    { name: "Mail Us", url: "mailto:help.bunkmates@gmail.com", IconComponent: EmailIcon, live: true },
+    { name: "Mail Us", url: "mailto:help.bunkmates@gmail.com", IconComponent: EmailRoundedIcon, live: true },
   ];
 
   const linksToRender = !loading && Array.isArray(socialLinks) && socialLinks.length > 0 ? socialLinks : FALLBACK;
@@ -130,235 +137,252 @@ const Footer = () => {
     <Box
       component="footer"
       sx={{
-        background: "linear-gradient(180deg, #040406 0%, #0b0b0f 100%)",
-        px: isMobile ? 3 : { xs: 3, md: 12 },
-        py: { xs: 6, md: 8 },
-        boxShadow: "none",
-        color: "#fff",
+        backgroundColor: colors.background,
+        color: colors.text,
+        pt: { xs: 8, md: 12 },
+        pb: { xs: 6, md: 8 },
         position: "relative",
         overflow: "hidden",
+        borderTop: `1px solid ${colors.border}`,
+        transition: "background-color 0.35s ease, color 0.35s ease",
       }}
     >
-      {/* subtle decorative background (optional) */}
-      <Box
-        sx={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage: `url('/mnt/data/021ffc34-0399-4e71-b967-05199b15ff53.png')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          opacity: 0.03,
-          zIndex: 0,
-          pointerEvents: "none",
-        }}
-      />
+      <Container maxWidth="lg" sx={{ px: { xs: 2.5, sm: 4, md: 5 } }}>
+        <Grid container spacing={{ xs: 5, md: 6 }} justifyContent="space-between">
+          {/* Brand Column */}
+          <Grid item xs={12} md={3.5}>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 850,
+                letterSpacing: "-0.04em",
+                color: colors.text,
+                mb: 1.5,
+              }}
+            >
+              BunkMates
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                maxWidth: 320,
+                lineHeight: 1.75,
+                color: colors.secondaryText,
+              }}
+            >
+              Travel together, coordinate seamlessly. The all-in-one platform for collaborative trip itineraries, group expenses, and squad connectivity.
+            </Typography>
+          </Grid>
 
-      <Grid container spacing={6} sx={{ position: "relative", zIndex: 2, justifyContent: "space-between", display: "flex" }}>
-        {/* Branding */}
-        <Grid item xs={12} md={3}>
-          <Typography variant="h4" fontWeight={700} gutterBottom sx={{ color: "#fff" }}>
-            BunkMates
-          </Typography>
-          <Typography variant="body2" sx={{ maxWidth: 280, lineHeight: 1.7, color: "rgba(255,255,255,0.72)" }}>
-            Travel together, split smarter. All-in-one app for collaborative planning, budgeting & group communication.
-          </Typography>
-        </Grid>
-
-        {/* Navigation Links */}
-        <Grid item xs={12} md={3}>
-          <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-            Explore
-          </Typography>
-          <Stack spacing={1.2}>
-            {navLinks.map((link, idx) => (
-              <Link
-                key={idx}
-                href={`#${link.toLowerCase().replace(/\s+/g, "-")}`}
-                underline="none"
-                sx={{
-                  fontSize: 14,
-                  color: "rgba(255,255,255,0.82)",
-                  transition: "all 0.2s ease",
-                  "&:hover": {
-                    color: "rgba(255,218,179,1)",
-                    transform: "translateX(6px)",
-                  },
-                }}
-              >
-                {link}
-              </Link>
-            ))}
-          </Stack>
-        </Grid>
-
-        {/* Contact & Social (fetched) */}
-        <Grid item xs={12} md={3}>
-          <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-            Contact
-          </Typography>
-
-          <Stack spacing={1.5}>
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <EmailIcon sx={{ color: "#d8d8d8", fontSize: 18 }} />
-              <Link
-                href="mailto:help.bunkmates@gmail.com"
-                underline="hover"
-                sx={{
-                  fontSize: 14,
-                  color: "rgba(255,255,255,0.82)",
-                  transition: "all 0.2s ease",
-                  "&:hover": { color: "#00ff94", transform: "translateX(4px)" },
-                }}
-              >
-                Mail us
-              </Link>
+          {/* Quick Links Column */}
+          <Grid item xs={6} sm={4} md={2.5}>
+            <Typography
+              variant="subtitle2"
+              sx={{
+                fontWeight: 750,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                color: colors.text,
+                mb: 2,
+              }}
+            >
+              Quick Links
+            </Typography>
+            <Stack spacing={1.2}>
+              {navLinks.map((item, idx) => (
+                <Link
+                  key={idx}
+                  href={item.href}
+                  underline="none"
+                  sx={{
+                    fontSize: "0.9rem",
+                    color: colors.secondaryText,
+                    transition: "color 0.2s ease, transform 0.2s ease",
+                    "&:hover": {
+                      color: colors.text,
+                      transform: "translateX(2px)",
+                    },
+                  }}
+                >
+                  {item.label}
+                </Link>
+              ))}
             </Stack>
+          </Grid>
 
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <LocationOnIcon sx={{ color: "#d8d8d8", fontSize: 18 }} />
-              <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.82)" }}>
-                Remote · India
-              </Typography>
-            </Stack>
+          {/* Contact Column */}
+          <Grid item xs={12} sm={8} md={3}>
+            <Typography
+              variant="subtitle2"
+              sx={{
+                fontWeight: 750,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                color: colors.text,
+                mb: 2,
+              }}
+            >
+              Connect
+            </Typography>
 
-            {/* Social buttons (fetched) */}
-            <Box sx={{ mt: 2 }}>
-              {loading ? (
-                <CircularProgress size={20} color="inherit" />
-              ) : (
-                <Stack direction="row" spacing={1}>
-                  {linksToRender.map((item, idx) => {
-                    const Icon = item.IconComponent ?? resolveIcon(item.name);
-                    const isLive = item.live !== false; // default true
-                    const btnSx = {
-                      minWidth: 44,
-                      height: 44,
-                      p: 0,
-                      borderRadius: 2,
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      // different look when not live
-                      backgroundColor: isLive ? "rgba(255,255,255,0.04)" : "rgba(255,0,0,0.06)",
-                      color: isLive ? "rgba(255,255,255,0.87)" : "rgba(255,100,100,0.95)",
-                      "&:hover": {
-                        backgroundColor: isLive ? "rgba(255,255,255,0.12)" : "rgba(255,0,0,0.12)",
-                        transform: "translateY(-3px)",
-                      },
-                    };
+            <Stack spacing={1.5}>
+              <Stack direction="row" alignItems="center" spacing={1.2}>
+                <EmailRoundedIcon sx={{ color: colors.secondaryText, fontSize: 18 }} />
+                <Link
+                  href="mailto:help.bunkmates@gmail.com"
+                  underline="hover"
+                  sx={{
+                    fontSize: "0.88rem",
+                    color: colors.secondaryText,
+                    "&:hover": { color: colors.text },
+                  }}
+                >
+                  help.bunkmates@gmail.com
+                </Link>
+              </Stack>
 
-                    return (
-                      <motion.div key={idx} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
-                        <Tooltip title={`${item.name} ${isLive ? "" : "(Not live - disabled)"} `} arrow>
-                          {/* wrap in <span> because disabled buttons can't show tooltip reliably */}
+              <Stack direction="row" alignItems="center" spacing={1.2}>
+                <LocationOnRoundedIcon sx={{ color: colors.secondaryText, fontSize: 18 }} />
+                <Typography variant="body2" sx={{ color: colors.secondaryText, fontSize: "0.88rem" }}>
+                  Remote · Global
+                </Typography>
+              </Stack>
+
+              <Box sx={{ pt: 1 }}>
+                {loading ? (
+                  <CircularProgress size={18} sx={{ color: colors.text }} />
+                ) : (
+                  <Stack direction="row" spacing={1}>
+                    {linksToRender.map((item, idx) => {
+                      const Icon = item.IconComponent ?? resolveIcon(item.name);
+                      const isLive = item.live !== false;
+
+                      return (
+                        <Tooltip title={item.name} key={idx} arrow>
                           <span>
                             <Button
                               aria-label={item.name}
                               onClick={() => {
-                                try {
-                                  if (!isLive) return; // do nothing when not live
-                                  if ((item.url || "").startsWith("mailto:")) {
-                                    window.location.href = item.url;
-                                  } else {
-                                    window.open(item.url, "_blank", "noopener,noreferrer");
-                                  }
-                                } catch (err) {
-                                  console.error("Failed to open link", err);
+                                if (!isLive) return;
+                                if ((item.url || "").startsWith("mailto:")) {
+                                  window.location.href = item.url;
+                                } else {
+                                  window.open(item.url, "_blank", "noopener,noreferrer");
                                 }
                               }}
-                              sx={btnSx}
                               disabled={!isLive}
+                              sx={{
+                                minWidth: 40,
+                                height: 40,
+                                p: 0,
+                                borderRadius: "12px",
+                                backgroundColor: colors.surface,
+                                color: colors.text,
+                                border: `1px solid ${colors.border}`,
+                                "&:hover": {
+                                  backgroundColor: colors.surfaceStrong,
+                                  borderColor: isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.15)",
+                                },
+                              }}
                             >
-                              <Icon sx={{ fontSize: 20 }} />
-                              <OpenInNewIcon sx={{ fontSize: 12, ml: 0.5, opacity: 0.0 }} />
+                              <Icon sx={{ fontSize: 18 }} />
                             </Button>
                           </span>
                         </Tooltip>
-                      </motion.div>
-                    );
-                  })}
-                </Stack>
-              )}
-            </Box>
-          </Stack>
-        </Grid>
+                      );
+                    })}
+                  </Stack>
+                )}
+              </Box>
+            </Stack>
+          </Grid>
 
-        {/* Join Beta / Social */}
-        <Grid item xs={12} md={3}>
-          <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-            BunkMates Beta
-          </Typography>
+          {/* Action Column */}
+          <Grid item xs={12} md={3}>
+            <Typography
+              variant="subtitle2"
+              sx={{
+                fontWeight: 750,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                color: colors.text,
+                mb: 2,
+              }}
+            >
+              Get Started
+            </Typography>
+            <Typography variant="body2" sx={{ color: colors.secondaryText, mb: 2.5, lineHeight: 1.6 }}>
+              Join travel squads building seamless journeys with BunkMates today.
+            </Typography>
 
-          <Stack direction="row" spacing={1.5} flexWrap="wrap">
-            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={1.2}>
+              <Button
+                onClick={() => navigate("/bm-install")}
+                startIcon={<DownloadRoundedIcon sx={{ fontSize: "1.1rem !important" }} />}
+                sx={{
+                  minHeight: 42,
+                  px: 2.5,
+                  borderRadius: "14px",
+                  textTransform: "none",
+                  fontWeight: 700,
+                  fontSize: "0.88rem",
+                  backgroundColor: colors.text,
+                  color: colors.background,
+                  boxShadow: isDark
+                    ? "0 8px 24px rgba(0, 0, 0, 0.4)"
+                    : "0 6px 18px rgba(0, 0, 0, 0.1)",
+                  "&:hover": {
+                    backgroundColor: isDark ? "#e8e8e8" : "#242424",
+                  },
+                }}
+              >
+                Install App
+              </Button>
+
               <Button
                 href="https://bunk-mates.vercel.app/waitlist"
+                target="_blank"
+                rel="noopener noreferrer"
+                endIcon={<ArrowForwardRoundedIcon sx={{ fontSize: "1rem !important" }} />}
                 sx={{
-                  borderRadius: "30px",
+                  minHeight: 42,
+                  px: 2,
+                  borderRadius: "14px",
                   textTransform: "none",
-                  px: 3,
-                  fontWeight: 600,
-                  background: "linear-gradient(120deg, #923a00ff, #004377ff)",
-                  color: "#fff",
-                  boxShadow: "none",
+                  fontWeight: 650,
+                  fontSize: "0.88rem",
+                  color: colors.text,
+                  backgroundColor: isDark ? "rgba(255, 255, 255, 0.045)" : "rgba(0, 0, 0, 0.035)",
+                  border: `1px solid ${colors.border}`,
                   "&:hover": {
-                    boxShadow: "none",
-                    transform: "translateY(-2px)",
+                    backgroundColor: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.06)",
                   },
                 }}
               >
-                Join Beta
+                Beta Access
               </Button>
-            </motion.div>
-
-            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
-              <Button
-                href="https://bunk-mates.vercel.app/community"
-                sx={{
-                  borderRadius: "30px",
-                  textTransform: "none",
-                  px: 3,
-                  fontWeight: 600,
-                  backgroundColor: "#fff",
-                  color: "#000",
-                  boxShadow: "none",
-                  "&:hover": {
-                    boxShadow: "none",
-                    transform: "translateY(-2px)",
-                    backgroundColor: "#2a2a2a",
-                    color: "#fff",
-                  },
-                }}
-              >
-                Join Community
-              </Button>
-            </motion.div>
-          </Stack>
+            </Stack>
+          </Grid>
         </Grid>
-      </Grid>
 
-      {/* Divider */}
-      <Divider sx={{ my: 4, borderColor: "rgba(255,255,255,0.08)" }} />
+        <Divider sx={{ my: 5, borderColor: colors.border }} />
 
-      {/* Bottom Row */}
-      <Stack
-        direction={{ xs: "column", md: "row" }}
-        justifyContent="space-between"
-        alignItems="center"
-        spacing={2}
-        sx={{ position: "relative", zIndex: 2 }}
-      >
-        <Stack direction="row" alignItems="center" spacing={0.5}>
-          <CopyrightIcon sx={{ fontSize: 16, color: "rgba(255,255,255,0.7)" }} />
-          <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.75)" }}>
-            {new Date().getFullYear()} BunkMate. All rights reserved.
+        {/* Bottom Row */}
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          justifyContent="space-between"
+          alignItems="center"
+          spacing={1.5}
+        >
+          <Typography variant="caption" sx={{ color: colors.secondaryText, fontSize: "0.8rem" }}>
+            © {new Date().getFullYear()} BunkMates. All rights reserved.
+          </Typography>
+
+          <Typography variant="caption" sx={{ color: colors.secondaryText, fontSize: "0.8rem" }}>
+            Built for modern group adventures.
           </Typography>
         </Stack>
-
-        <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.64)" }}>
-          Built with ❤️ for modern travelers.
-        </Typography>
-      </Stack>
+      </Container>
     </Box>
   );
 };
