@@ -93,11 +93,11 @@ const AboutSection = () => {
       sx={{
         position: 'relative',
         py: { xs: 10, sm: 12, md: 16 },
+        px: 1.5,
         backgroundColor: colors.background,
         color: colors.text,
         overflow: 'hidden',
-        transition:
-          'background-color 0.35s ease, color 0.35s ease',
+        transition: 'background-color 0.35s ease, color 0.35s ease',
       }}
     >
       {/* Subtle BM Background Decoration */}
@@ -138,7 +138,7 @@ const AboutSection = () => {
         sx={{
           position: 'relative',
           zIndex: 1,
-          px: { xs: 2.5, sm: 4, md: 5 },
+          px: { xs: 2, sm: 4, md: 5 },
         }}
       >
         <Box
@@ -149,8 +149,8 @@ const AboutSection = () => {
               lg: 'minmax(0, 1.05fr) minmax(420px, 0.95fr)',
             },
             gap: {
-              xs: 7,
-              md: 9,
+              xs: 6,
+              md: 8,
               lg: 10,
             },
             alignItems: 'center',
@@ -166,66 +166,29 @@ const AboutSection = () => {
               ease: [0.22, 1, 0.36, 1],
             }}
           >
-            <Box
-              sx={{
-                maxWidth: 600,
-              }}
-            >
-              {/* Eyebrow */}
-              <Box
-                sx={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 0.8,
-                  px: 1.4,
-                  py: 0.75,
-                  mb: 3,
-                  borderRadius: '999px',
-                  border: `1px solid ${colors.border}`,
-                  backgroundColor: isDark
-                    ? 'rgba(255, 255, 255, 0.035)'
-                    : 'rgba(0, 0, 0, 0.025)',
-                }}
-              >
-                <AutoAwesomeRoundedIcon
-                  sx={{
-                    fontSize: 15,
-                    color: colors.text,
-                  }}
-                />
-
-                <Typography
-                  sx={{
-                    fontSize: '0.78rem',
-                    fontWeight: 700,
-                    letterSpacing: '0.01em',
-                    color: colors.secondaryText,
-                  }}
-                >
-                  Everything your trip needs
-                </Typography>
-              </Box>
+            <Box sx={{ maxWidth: 600 }}>
 
               {/* Heading */}
               <Typography
                 variant="h2"
                 sx={{
                   fontSize: {
-                    xs: '2.6rem',
+                    xs: '2.2rem',
                     sm: '3.35rem',
                     md: '4rem',
                   },
                   lineHeight: {
-                    xs: 1.05,
+                    xs: 1.08,
                     md: 1.02,
                   },
                   letterSpacing: {
-                    xs: '-0.055em',
+                    xs: '-0.05em',
                     md: '-0.065em',
                   },
                   fontWeight: 800,
                   maxWidth: 680,
-                  mb: 3,
+                  mb: 2.5,
+                  color: '#e8d499',
                 }}
               >
                 Less planning chaos.
@@ -233,7 +196,7 @@ const AboutSection = () => {
                 <Box
                   component="span"
                   sx={{
-                    color: colors.secondaryText,
+                    color: '#706954',
                   }}
                 >
                   More of the journey.
@@ -285,15 +248,15 @@ const AboutSection = () => {
                     maxWidth: 590,
                     color: colors.secondaryText,
                     fontSize: {
-                      xs: '1rem',
+                      xs: '0.94rem',
                       md: '1.05rem',
                     },
                     lineHeight: 1.8,
-                    mb: 4.5,
+                    mb: 4,
 
                     '& p': {
                       m: 0,
-                      mb: 1.8,
+                      mb: 1.6,
                     },
 
                     '& p:last-of-type': {
@@ -339,15 +302,14 @@ const AboutSection = () => {
                     textTransform: 'none',
                     fontSize: '0.95rem',
                     fontWeight: 700,
-                    backgroundColor: colors.text,
-                    color: colors.background,
-                    boxShadow: isDark
-                      ? '0 12px 30px rgba(0, 0, 0, 0.35)'
-                      : '0 10px 25px rgba(0, 0, 0, 0.12)',
+                    backgroundColor: '#fff3df',
+                    color: '#301e00',
+                    boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)',
                     '&:hover': {
                       backgroundColor: isDark
-                        ? '#e8e8e8'
+                        ? '#271900'
                         : '#242424',
+                      color: '#fff6e8',
                     },
                   }}
                 >
@@ -373,11 +335,11 @@ const AboutSection = () => {
                     textTransform: 'none',
                     fontSize: '0.95rem',
                     fontWeight: 650,
-                    color: colors.text,
+                    color: '#fff8eb',
                     backgroundColor: isDark
-                      ? 'rgba(255, 255, 255, 0.045)'
+                      ? 'rgba(255, 255, 255, 0.11)'
                       : 'rgba(0, 0, 0, 0.035)',
-                    border: `1px solid ${colors.border}`,
+                    boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)',
                     '&:hover': {
                       backgroundColor: isDark
                         ? 'rgba(255, 255, 255, 0.08)'
@@ -406,44 +368,40 @@ const AboutSection = () => {
               sx={{
                 position: 'relative',
                 p: {
-                  xs: 1.5,
+                  xs: 0,
                   sm: 2,
                 },
                 borderRadius: {
-                  xs: '28px',
+                  xs: '24px',
                   sm: '32px',
                 },
                 backgroundColor: isDark
-                  ? 'rgba(255, 255, 255, 0.035)'
+                  ? 'rgba(255, 255, 255, 0)'
                   : '#f6f6f6',
-                border: `1px solid ${colors.subtleBorder}`,
-                boxShadow: isDark
-                  ? '0 30px 80px rgba(0, 0, 0, 0.28)'
-                  : '0 25px 70px rgba(0, 0, 0, 0.06)',
               }}
             >
               {/* Panel Header */}
               <Box
                 sx={{
                   px: {
-                    xs: 1.5,
+                    xs: 1,
                     sm: 2,
                   },
                   pt: {
-                    xs: 1.5,
+                    xs: 1,
                     sm: 2,
                   },
-                  pb: 2.5,
+                  pb: 2,
                 }}
               >
                 <Typography
                   sx={{
-                    fontSize: '0.75rem',
+                    fontSize: '0.72rem',
                     textTransform: 'uppercase',
                     letterSpacing: '0.12em',
                     fontWeight: 800,
                     color: colors.secondaryText,
-                    mb: 0.8,
+                    mb: 0.6,
                   }}
                 >
                   One trip. One place.
@@ -452,7 +410,7 @@ const AboutSection = () => {
                 <Typography
                   sx={{
                     fontSize: {
-                      xs: '1.35rem',
+                      xs: '1.15rem',
                       sm: '1.55rem',
                     },
                     fontWeight: 750,
@@ -464,59 +422,50 @@ const AboutSection = () => {
                 </Typography>
               </Box>
 
-              <Stack spacing={1.5}>
+              {/* Cards Container: Row layout on mobile, Column on desktop/tablet */}
+              <Stack
+                direction={{ xs: 'row', sm: 'column' }}
+                spacing={{ xs: 1.2, sm: 1.5 }}
+                sx={{
+                  width: '100%',
+                }}
+              >
                 {/* Fragmented Card */}
                 <Box
                   component={motion.div}
                   whileHover={{ y: -2 }}
                   transition={{ duration: 0.2 }}
                   sx={{
+                    flex: { xs: '1 1 50%', sm: '1 1 auto' },
                     p: {
-                      xs: 2.25,
+                      xs: 1.75,
                       sm: 2.75,
                     },
-                    borderRadius: '24px',
+                    borderRadius: { xs: '18px', sm: '24px' },
                     backgroundColor: isDark
                       ? '#111111'
                       : 'rgba(255, 255, 255, 0.8)',
-                    border: `1px solid ${colors.border}`,
+                    boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
                   }}
                 >
                   <Stack
                     direction="row"
-                    spacing={1.25}
+                    spacing={1}
                     alignItems="center"
                     sx={{
-                      mb: 2.2,
+                      mb: { xs: 1.5, sm: 2.2 },
                     }}
                   >
-                    <Box
-                      sx={{
-                        width: 34,
-                        height: 34,
-                        borderRadius: '12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        backgroundColor: isDark
-                          ? 'rgba(255, 255, 255, 0.06)'
-                          : '#f1f1f1',
-                        color: colors.secondaryText,
-                      }}
-                    >
-                      <CloseRoundedIcon
-                        sx={{
-                          fontSize: 19,
-                        }}
-                      />
-                    </Box>
-
                     <Box>
                       <Typography
                         sx={{
-                          fontSize: '0.95rem',
+                          fontSize: { xs: '0.85rem', sm: '0.95rem' },
                           fontWeight: 750,
                           color: colors.text,
+                          lineHeight: 1.2,
                         }}
                       >
                         The usual way
@@ -524,9 +473,10 @@ const AboutSection = () => {
 
                       <Typography
                         sx={{
-                          fontSize: '0.78rem',
+                          fontSize: { xs: '0.68rem', sm: '0.78rem' },
                           color: colors.secondaryText,
                           mt: 0.2,
+                          display: { xs: 'none', sm: 'block' },
                         }}
                       >
                         More apps. More confusion.
@@ -534,17 +484,17 @@ const AboutSection = () => {
                     </Box>
                   </Stack>
 
-                  <Stack spacing={1.45}>
+                  <Stack spacing={{ xs: 1, sm: 1.45 }}>
                     {comparison.chaos.map((item, index) => (
                       <Stack
                         key={index}
                         direction="row"
-                        spacing={1.25}
+                        spacing={{ xs: 0.8, sm: 1.25 }}
                         alignItems="flex-start"
                       >
                         <CloseRoundedIcon
                           sx={{
-                            fontSize: 17,
+                            fontSize: { xs: 14, sm: 17 },
                             mt: '2px',
                             flexShrink: 0,
                             color: isDark ? '#777777' : '#9a9a9a',
@@ -554,10 +504,10 @@ const AboutSection = () => {
                         <Typography
                           sx={{
                             fontSize: {
-                              xs: '0.88rem',
+                              xs: '0.75rem',
                               sm: '0.93rem',
                             },
-                            lineHeight: 1.5,
+                            lineHeight: 1.35,
                             color: colors.secondaryText,
                           }}
                         >
@@ -568,8 +518,10 @@ const AboutSection = () => {
                   </Stack>
                 </Box>
 
+                {/* Divider visible only on sm+ screens */}
                 <Divider
                   sx={{
+                    display: { xs: 'none', sm: 'block' },
                     borderColor: colors.border,
                     mx: 1,
                   }}
@@ -581,53 +533,36 @@ const AboutSection = () => {
                   whileHover={{ y: -3 }}
                   transition={{ duration: 0.2 }}
                   sx={{
+                    flex: { xs: '1 1 50%', sm: '1 1 auto' },
                     position: 'relative',
                     overflow: 'hidden',
                     p: {
-                      xs: 2.25,
+                      xs: 1.75,
                       sm: 2.75,
                     },
-                    borderRadius: '24px',
-                    backgroundColor: isDark ? '#ffffff' : '#111111',
-                    color: isDark ? '#000000' : '#ffffff',
-                    boxShadow: isDark
-                      ? '0 15px 35px rgba(0, 0, 0, 0.3)'
-                      : '0 15px 35px rgba(0, 0, 0, 0.14)',
+                    borderRadius: { xs: '18px', sm: '24px' },
+                    backgroundColor: isDark ? '#fff3df' : '#111111',
+                    color: isDark ? '#543705' : '#ffffff',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
                   }}
                 >
                   <Stack
                     direction="row"
-                    spacing={1.25}
+                    spacing={1}
                     alignItems="center"
                     sx={{
-                      mb: 2.2,
+                      mb: { xs: 1.5, sm: 2.2 },
                     }}
                   >
-                    <Box
-                      sx={{
-                        width: 34,
-                        height: 34,
-                        borderRadius: '12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        backgroundColor: isDark
-                          ? '#eeeeee'
-                          : 'rgba(255, 255, 255, 0.12)',
-                      }}
-                    >
-                      <CheckRoundedIcon
-                        sx={{
-                          fontSize: 19,
-                        }}
-                      />
-                    </Box>
 
                     <Box>
                       <Typography
                         sx={{
-                          fontSize: '0.95rem',
+                          fontSize: { xs: '0.85rem', sm: '0.95rem' },
                           fontWeight: 800,
+                          lineHeight: 1.2,
                         }}
                       >
                         The BunkMates way
@@ -635,9 +570,10 @@ const AboutSection = () => {
 
                       <Typography
                         sx={{
-                          fontSize: '0.78rem',
+                          fontSize: { xs: '0.68rem', sm: '0.78rem' },
                           mt: 0.2,
                           opacity: 0.62,
+                          display: { xs: 'none', sm: 'block' },
                         }}
                       >
                         Your trip, connected.
@@ -645,17 +581,17 @@ const AboutSection = () => {
                     </Box>
                   </Stack>
 
-                  <Stack spacing={1.45}>
+                  <Stack spacing={{ xs: 1, sm: 1.45 }}>
                     {comparison.bunkmate.map((item, index) => (
                       <Stack
                         key={index}
                         direction="row"
-                        spacing={1.25}
+                        spacing={{ xs: 0.8, sm: 1.25 }}
                         alignItems="flex-start"
                       >
                         <CheckRoundedIcon
                           sx={{
-                            fontSize: 17,
+                            fontSize: { xs: 14, sm: 17 },
                             mt: '2px',
                             flexShrink: 0,
                           }}
@@ -664,10 +600,10 @@ const AboutSection = () => {
                         <Typography
                           sx={{
                             fontSize: {
-                              xs: '0.88rem',
+                              xs: '0.75rem',
                               sm: '0.93rem',
                             },
-                            lineHeight: 1.5,
+                            lineHeight: 1.35,
                             fontWeight: 550,
                             opacity: 0.82,
                           }}
@@ -684,10 +620,11 @@ const AboutSection = () => {
                       position: 'absolute',
                       right: -8,
                       bottom: -28,
-                      fontSize: '8rem',
+                      fontSize: { xs: '4.5rem', sm: '8rem' },
                       fontWeight: 900,
                       letterSpacing: '-0.12em',
-                      opacity: 0.035,
+                      opacity: 0.15,
+                      color: '#dba21d',
                       pointerEvents: 'none',
                     }}
                   >

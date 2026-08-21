@@ -321,7 +321,7 @@ const ContactSection = () => {
                 lineHeight: 1.03,
                 fontWeight: 850,
                 letterSpacing: "-0.065em",
-                color: colors.text,
+                color: '#ffc7a7',
                 mb: 2.5,
               }}
             >
@@ -330,7 +330,7 @@ const ContactSection = () => {
               <Box
                 component="span"
                 sx={{
-                  color: colors.secondaryText,
+                  color: '#795c4b',
                 }}
               >
                 even better.
@@ -383,11 +383,7 @@ const ContactSection = () => {
               xs: "28px",
               md: "32px",
             },
-            backgroundColor: colors.surfaceStrong,
-            border: `1px solid ${colors.border}`,
-            boxShadow: isDark
-              ? "0 20px 60px rgba(0,0,0,0.2)"
-              : "0 18px 45px rgba(0,0,0,0.04)",
+            backgroundColor: '#ffc7a7',
           }}
         >
           <Box
@@ -423,9 +419,9 @@ const ContactSection = () => {
                     borderRadius: "15px",
                     mb: 2.5,
                     backgroundColor: isDark
-                      ? "rgba(255,255,255,0.07)"
+                      ? "#b1721412"
                       : "rgba(0,0,0,0.045)",
-                    color: colors.text,
+                    color: '#703e26',
                   }}
                 >
                   <TravelExploreRoundedIcon sx={{ fontSize: 24 }} />
@@ -439,7 +435,7 @@ const ContactSection = () => {
                     },
                     fontWeight: 800,
                     letterSpacing: "-0.045em",
-                    color: colors.text,
+                    color: '#703e26',
                     mb: 1.5,
                   }}
                 >
@@ -450,7 +446,7 @@ const ContactSection = () => {
                   sx={{
                     fontSize: "0.95rem",
                     lineHeight: 1.75,
-                    color: colors.secondaryText,
+                    color: '#896657',
                   }}
                 >
                   Whether it is feedback, a feature request, a partnership idea,
@@ -471,8 +467,7 @@ const ContactSection = () => {
                         gap: 1.5,
                         p: 1.8,
                         borderRadius: "18px",
-                        backgroundColor: colors.surface,
-                        border: `1px solid ${colors.subtleBorder}`,
+                        backgroundColor: '#ffe0d3',
                       }}
                     >
                       <Box
@@ -484,10 +479,9 @@ const ContactSection = () => {
                           placeItems: "center",
                           borderRadius: "12px",
                           backgroundColor: isDark
-                            ? "rgba(255,255,255,0.08)"
+                            ? "#b1721412"
                             : "#ffffff",
-                          border: `1px solid ${colors.border}`,
-                          color: colors.text,
+                          color: '#703e26',
                         }}
                       >
                         <Icon sx={{ fontSize: 20 }} />
@@ -496,7 +490,7 @@ const ContactSection = () => {
                       <Box>
                         <Typography
                           sx={{
-                            color: colors.text,
+                            color: '#703e26',
                             fontWeight: 750,
                             fontSize: "0.88rem",
                             mb: 0.2,
@@ -506,7 +500,7 @@ const ContactSection = () => {
                         </Typography>
                         <Typography
                           sx={{
-                            color: colors.secondaryText,
+                            color: '#896657',
                             fontSize: "0.78rem",
                             lineHeight: 1.5,
                           }}
@@ -524,16 +518,15 @@ const ContactSection = () => {
             <Box
               sx={{
                 p: {
-                  xs: 2.5,
+                  xs: 0,
                   sm: 3.5,
                 },
                 borderRadius: "24px",
-                backgroundColor: colors.surface,
-                border: `1px solid ${colors.subtleBorder}`,
+                backgroundColor: '#ffe0d300',
               }}
             >
               <Stack
-                spacing={2}
+                spacing={2} 
                 component="form"
                 onSubmit={handleSubmit}
                 sx={{ width: "100%" }}
@@ -580,27 +573,29 @@ const ContactSection = () => {
                       variant="outlined"
                       InputLabelProps={{
                         sx: {
-                          color: colors.secondaryText,
+                          color: '#896657',
                           "&.Mui-focused": {
-                            color: colors.text,
+                            color: '#703e26',
+                            borderColor: '#703e26',
                           },
                         },
                       }}
                       InputProps={{
                         sx: {
-                          color: colors.text,
+                          color: '#703e26',
                           borderRadius: item.multiline ? "18px" : "14px",
-                          backgroundColor: colors.surfaceStrong,
+                          backgroundColor: '#ffe0d3',
+                            borderColor: '#703e26',
                           "& fieldset": {
-                            border: `1px solid ${colors.border}`,
+                            border: `1px solid #ffe0d3`,
                           },
                           "&:hover fieldset": {
                             borderColor: isDark
-                              ? "rgba(255,255,255,0.18)"
+                              ? "#703e26"
                               : "rgba(0,0,0,0.15)",
                           },
                           "&.Mui-focused fieldset": {
-                            borderColor: colors.text,
+                            borderColor: '#703e26',
                           },
                         },
                       }}
@@ -663,13 +658,12 @@ const ContactSection = () => {
                       textTransform: "none",
                       fontWeight: 750,
                       fontSize: "0.92rem",
-                      backgroundColor: colors.text,
-                      color: colors.background,
-                      boxShadow: isDark
-                        ? "0 10px 25px rgba(0, 0, 0, 0.4)"
-                        : "0 8px 20px rgba(0, 0, 0, 0.1)",
+                      backgroundColor: '#703e26',
+                      color: '#ffc7a7',
                       "&:hover": {
-                        backgroundColor: isDark ? "#e8e8e8" : "#242424",
+                        backgroundColor: isDark ? "#ffc7a7" : "#242424",
+                        boxShadow: "none",
+                        color: '#703e26',
                       },
                       "&.Mui-disabled": {
                         backgroundColor: isDark

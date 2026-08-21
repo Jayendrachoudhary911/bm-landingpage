@@ -12,6 +12,7 @@ import {
   Button,
   CircularProgress,
   Stack,
+  alpha,
 } from '@mui/material';
 
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
@@ -21,34 +22,18 @@ import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import TravelExploreRoundedIcon from '@mui/icons-material/TravelExploreRounded';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
+import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 
-import {
-  motion,
-  useInView,
-  AnimatePresence,
-} from 'framer-motion';
-
-import {
-  doc,
-  onSnapshot,
-} from 'firebase/firestore';
-
+import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useCustomTheme } from '../context/ThemeContext';
-
-/* =========================================================
-   BUNKMATES CONFIGURATION
-========================================================= */
 
 const BUNKMATES_URLS = {
   landing: 'https://bunkmates.xyz',
   app: 'https://app.bunkmates.xyz',
   install: 'https://bunkmates.xyz/bm-install',
 };
-
-/* =========================================================
-   FALLBACK FAQS
-========================================================= */
 
 const FALLBACK_FAQS = [
   {
@@ -87,10 +72,6 @@ const FALLBACK_FAQS = [
       'Visit app.bunkmates.xyz to open BunkMates, create or join a trip, and start planning with your travel group.',
   },
 ];
-
-/* =========================================================
-   BUNKMATES AI MODAL COMPONENT
-========================================================= */
 
 const BunkMatesAI = ({ open, onClose, isDark, colors }) => {
   const [input, setInput] = useState('');
@@ -208,15 +189,14 @@ RULES:
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.28, ease: 'easeOut' }}
+            transition={{ duration: 0.25 }}
             onClick={onClose}
             style={{
               position: 'fixed',
               inset: 0,
               zIndex: 1300,
-              background: isDark ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.45)',
+              background: isDark ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.5)',
               backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
             }}
           />
 
@@ -232,205 +212,206 @@ RULES:
               px: { xs: 0, sm: 2, md: 3 },
             }}
           >
-            <Box
-              sx={{
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              style={{
                 width: '100%',
-                maxWidth: 920,
+                maxWidth: 880,
                 height: '100dvh',
-                position: 'relative',
                 pointerEvents: 'auto',
                 display: 'flex',
                 flexDirection: 'column',
-                overflow: 'hidden',
-                backgroundColor: colors.background,
-                borderLeft: { xs: 'none', sm: `1px solid ${colors.border}` },
-                borderRight: { xs: 'none', sm: `1px solid ${colors.border}` },
-                boxShadow: isDark ? '0 0 100px rgba(0,0,0,0.8)' : '0 0 80px rgba(0,0,0,0.1)',
               }}
             >
               <Box
                 sx={{
-                  mx: { xs: 1.5, sm: 2 },
-                  mt: { xs: 1.5, sm: 2 },
-                  px: { xs: 2, sm: 2.5 },
-                  py: 1.5,
-                  borderRadius: '24px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 2,
-                  backgroundColor: colors.surface,
-                  border: `1px solid ${colors.border}`,
-                }}
-              >
-                <Stack direction="row" spacing={1.5} alignItems="center">
-                  <Box
-                    sx={{
-                      width: 42,
-                      height: 42,
-                      borderRadius: '14px',
-                      display: 'grid',
-                      placeItems: 'center',
-                      backgroundColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
-                      color: colors.text,
-                    }}
-                  >
-                    <AutoAwesomeRoundedIcon sx={{ fontSize: 20 }} />
-                  </Box>
-                  <Box>
-                    <Typography sx={{ color: colors.text, fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.02em' }}>
-                      BunkMates AI
-                    </Typography>
-                    <Typography sx={{ color: colors.secondaryText, fontSize: '0.75rem' }}>
-                      Intelligent trip companion
-                    </Typography>
-                  </Box>
-                </Stack>
-
-                <IconButton
-                  onClick={onClose}
-                  aria-label="Close AI"
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: '13px',
-                    color: colors.secondaryText,
-                    border: `1px solid ${colors.border}`,
-                    '&:hover': {
-                      backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
-                      color: colors.text,
-                    },
-                  }}
-                >
-                  <CloseRoundedIcon sx={{ fontSize: 20 }} />
-                </IconButton>
-              </Box>
-
-              <Box
-                sx={{
                   flex: 1,
-                  minHeight: 0,
-                  overflowY: 'auto',
+                  my: { xs: 0, sm: 2 },
+                  borderRadius: { xs: 0, sm: '30px' },
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: 2,
-                  px: { xs: 2, sm: 4, md: 5 },
-                  py: 3,
+                  overflow: 'hidden',
+                  backgroundColor: colors.background,
+                  border: { xs: 'none', sm: `1px solid ${colors.border}` },
+                  boxShadow: isDark ? '0 0 100px rgba(0,0,0,0.85)' : '0 0 80px rgba(0,0,0,0.15)',
                 }}
               >
-                {messages.map((message, index) => {
-                  const isUser = message.role === 'user';
-                  return (
+                {/* Modal Top Bar */}
+                <Box
+                  sx={{
+                    px: { xs: 2, sm: 3 },
+                    py: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    backgroundColor: colors.surface,
+                    borderBottom: `1px solid ${colors.border}`,
+                  }}
+                >
+                  <Stack direction="row" spacing={1.5} alignItems="center">
                     <Box
-                      key={index}
                       sx={{
-                        alignSelf: isUser ? 'flex-end' : 'flex-start',
-                        maxWidth: { xs: '90%', sm: '75%' },
+                        width: 40,
+                        height: 40,
+                        borderRadius: '12px',
+                        display: 'grid',
+                        placeItems: 'center',
+                        backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
+                        color: colors.text,
                       }}
                     >
-                      <Box
-                        sx={{
-                          px: 2.2,
-                          py: 1.4,
-                          borderRadius: isUser ? '20px 20px 6px 20px' : '20px 20px 20px 6px',
-                          backgroundColor: isUser ? colors.text : colors.surface,
-                          color: isUser ? colors.background : colors.text,
-                          border: `1px solid ${isUser ? 'transparent' : colors.border}`,
-                          fontSize: '0.92rem',
-                          lineHeight: 1.65,
-                          whiteSpace: 'pre-wrap',
-                          wordBreak: 'break-word',
-                        }}
-                      >
-                        {message.content}
-                      </Box>
+                      <AutoAwesomeRoundedIcon sx={{ fontSize: 20 }} />
                     </Box>
-                  );
-                })}
+                    <Box>
+                      <Typography sx={{ color: colors.text, fontWeight: 800, fontSize: '1rem' }}>
+                        BunkMates AI
+                      </Typography>
+                      <Typography sx={{ color: colors.secondaryText, fontSize: '0.75rem' }}>
+                        Intelligent trip companion
+                      </Typography>
+                    </Box>
+                  </Stack>
 
-                {loading && (
-                  <Box
+                  <IconButton
+                    onClick={onClose}
                     sx={{
-                      alignSelf: 'flex-start',
-                      px: 2,
-                      py: 1.2,
-                      borderRadius: '16px 16px 16px 6px',
-                      backgroundColor: colors.surface,
+                      width: 38,
+                      height: 38,
+                      borderRadius: '12px',
+                      color: colors.secondaryText,
                       border: `1px solid ${colors.border}`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 1.2,
+                      '&:hover': {
+                        backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
+                        color: colors.text,
+                      },
                     }}
                   >
-                    <CircularProgress size={16} sx={{ color: colors.text }} />
-                    <Typography sx={{ color: colors.secondaryText, fontSize: '0.8rem', fontWeight: 600 }}>
-                      Thinking...
-                    </Typography>
-                  </Box>
-                )}
-                <div ref={messagesEndRef} />
-              </Box>
+                    <CloseRoundedIcon sx={{ fontSize: 19 }} />
+                  </IconButton>
+                </Box>
 
-              <Box sx={{ p: { xs: 1.5, sm: 2.5 }, borderTop: `1px solid ${colors.border}`, backgroundColor: colors.surface }}>
-                <TextField
-                  inputRef={inputRef}
-                  fullWidth
-                  value={input}
-                  placeholder="Ask anything about your next trip..."
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSendMessage();
-                    }
+                {/* Messages Feed */}
+                <Box
+                  sx={{
+                    flex: 1,
+                    overflowY: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2,
+                    px: { xs: 2, sm: 4 },
+                    py: 3,
                   }}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          disabled={!input.trim() || loading}
-                          onClick={handleSendMessage}
+                >
+                  {messages.map((message, index) => {
+                    const isUser = message.role === 'user';
+                    return (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.25 }}
+                        style={{
+                          alignSelf: isUser ? 'flex-end' : 'flex-start',
+                          maxWidth: '85%',
+                        }}
+                      >
+                        <Box
                           sx={{
-                            width: 42,
-                            height: 42,
-                            borderRadius: '13px',
-                            backgroundColor: colors.text,
-                            color: colors.background,
-                            '&:hover': {
-                              backgroundColor: isDark ? '#e8e8e8' : '#242424',
-                            },
-                            '&.Mui-disabled': {
-                              backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-                              color: colors.secondaryText,
-                            },
+                            px: 2.2,
+                            py: 1.4,
+                            borderRadius: isUser ? '20px 20px 6px 20px' : '20px 20px 20px 6px',
+                            backgroundColor: isUser ? colors.text : colors.surface,
+                            color: isUser ? colors.background : colors.text,
+                            border: `1px solid ${isUser ? 'transparent' : colors.border}`,
+                            fontSize: '0.92rem',
+                            lineHeight: 1.65,
+                            wordBreak: 'break-word',
                           }}
                         >
-                          <SendRoundedIcon sx={{ fontSize: 18 }} />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                    sx: {
-                      borderRadius: '16px',
-                      backgroundColor: colors.surfaceStrong,
-                      color: colors.text,
-                      '& fieldset': { border: `1px solid ${colors.border}` },
-                      '&:hover fieldset': { borderColor: colors.secondaryText },
-                      '&.Mui-focused fieldset': { borderColor: colors.text },
-                    },
-                  }}
-                />
+                          {message.content}
+                        </Box>
+                      </motion.div>
+                    );
+                  })}
+
+                  {loading && (
+                    <Box
+                      sx={{
+                        alignSelf: 'flex-start',
+                        px: 2,
+                        py: 1.2,
+                        borderRadius: '16px 16px 16px 6px',
+                        backgroundColor: colors.surface,
+                        border: `1px solid ${colors.border}`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1.2,
+                      }}
+                    >
+                      <CircularProgress size={16} sx={{ color: colors.text }} />
+                      <Typography sx={{ color: colors.secondaryText, fontSize: '0.8rem', fontWeight: 600 }}>
+                        Thinking...
+                      </Typography>
+                    </Box>
+                  )}
+                  <div ref={messagesEndRef} />
+                </Box>
+
+                {/* Input Controls */}
+                <Box sx={{ p: { xs: 1.5, sm: 2.5 }, borderTop: `1px solid ${colors.border}`, backgroundColor: colors.surface }}>
+                  <TextField
+                    inputRef={inputRef}
+                    fullWidth
+                    value={input}
+                    placeholder="Ask about planning, squads, or trails..."
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendMessage();
+                      }
+                    }}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            disabled={!input.trim() || loading}
+                            onClick={handleSendMessage}
+                            sx={{
+                              width: 42,
+                              height: 42,
+                              borderRadius: '13px',
+                              backgroundColor: colors.text,
+                              color: colors.background,
+                              '&:hover': {
+                                backgroundColor: isDark ? '#e8e8e8' : '#242424',
+                              },
+                            }}
+                          >
+                            <SendRoundedIcon sx={{ fontSize: 18 }} />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                      sx: {
+                        borderRadius: '16px',
+                        backgroundColor: colors.surfaceStrong,
+                        color: colors.text,
+                        '& fieldset': { border: `1px solid ${colors.border}` },
+                      },
+                    }}
+                  />
+                </Box>
               </Box>
-            </Box>
+            </motion.div>
           </Box>
         </>
       )}
     </AnimatePresence>
   );
 };
-
-/* =========================================================
-   FAQ SECTION COMPONENT
-========================================================= */
 
 const FAQSection = () => {
   const { isDark } = useCustomTheme();
@@ -445,13 +426,13 @@ const FAQSection = () => {
   const isInView = useInView(ref, { once: true });
 
   const colors = {
-    background: isDark ? '#000000' : '#ffffff',
-    surface: isDark ? '#0d0d0d' : '#f7f7f7',
-    surfaceStrong: isDark ? '#141414' : '#ffffff',
-    text: isDark ? '#ffffff' : '#111111',
-    secondaryText: isDark ? '#a3a3a3' : '#737373',
-    border: isDark ? 'rgba(255, 255, 255, 0.09)' : 'rgba(0, 0, 0, 0.08)',
-    subtleBorder: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.05)',
+    background: isDark ? '#09090b' : '#ffffff',
+    surface: isDark ? '#141417' : '#f7f7f8',
+    surfaceStrong: isDark ? '#1a1a1f' : '#ffffff',
+    text: isDark ? '#ffffff' : '#09090b',
+    secondaryText: isDark ? '#a1a1aa' : '#71717a',
+    border: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+    subtleBorder: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
   };
 
   useEffect(() => {
@@ -514,61 +495,23 @@ const FAQSection = () => {
       sx={{
         position: 'relative',
         overflow: 'hidden',
-        py: { xs: 10, sm: 12, md: 16 },
+        py: { xs: 10, sm: 14, md: 18 },
         backgroundColor: colors.background,
         color: colors.text,
         transition: 'background-color 0.35s ease, color 0.35s ease',
       }}
     >
-      {/* Background Glows */}
-      <Box
-        sx={{
-          position: 'absolute',
-          width: { xs: 300, md: 550 },
-          height: { xs: 300, md: 550 },
-          borderRadius: '50%',
-          top: -240,
-          right: -200,
-          backgroundColor: isDark ? 'rgba(255,255,255,0.018)' : 'rgba(0,0,0,0.018)',
-          filter: 'blur(60px)',
-          pointerEvents: 'none',
-        }}
-      />
-      <Box
-        sx={{
-          position: 'absolute',
-          left: -160,
-          bottom: 40,
-          width: { xs: 260, md: 450 },
-          height: { xs: 260, md: 450 },
-          borderRadius: '50%',
-          backgroundColor: isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)',
-          filter: 'blur(70px)',
-          pointerEvents: 'none',
-        }}
-      />
-
-      <Container
-        maxWidth="lg"
-        ref={ref}
-        sx={{
-          position: 'relative',
-          zIndex: 1,
-          px: { xs: 2.5, sm: 4, md: 5 },
-        }}
-      >
+      <Container maxWidth="lg" ref={ref} sx={{ position: 'relative', zIndex: 1, px: { xs: 2.5, sm: 4, md: 5 } }}>
         <Box
           sx={{
             display: 'flex',
             flexDirection: { xs: 'column', md: 'row' },
             alignItems: { xs: 'stretch', md: 'flex-start' },
             justifyContent: 'space-between',
-            gap: { xs: 6, md: 7, lg: 9 },
+            gap: { xs: 6, md: 8, lg: 9 },
           }}
         >
-          {/* =============================================
-              LEFT SECTION: HEADER & AI BANNER
-          ============================================= */}
+          {/* Left Panel */}
           <Box
             component={motion.div}
             initial={{ opacity: 0, y: 20 }}
@@ -578,41 +521,32 @@ const FAQSection = () => {
             sx={{
               flex: { xs: '1 1 100%', md: '0 0 42%' },
               position: { md: 'sticky' },
-              top: { md: 100 },
+              top: { md: 120 },
               display: 'flex',
               flexDirection: 'column',
               alignItems: { xs: 'center', md: 'flex-start' },
               textAlign: { xs: 'center', md: 'left' },
             }}
           >
-            {/* Badge */}
             <Box
               sx={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 0.8,
                 px: 1.4,
-                py: 0.75,
-                mb: 3,
+                py: 0.65,
+                mb: 2.5,
                 borderRadius: '999px',
                 border: `1px solid ${colors.border}`,
-                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.035)' : 'rgba(0, 0, 0, 0.025)',
+                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.03)',
               }}
             >
               <AutoAwesomeRoundedIcon sx={{ fontSize: 15, color: colors.text }} />
-              <Typography
-                sx={{
-                  fontSize: '0.78rem',
-                  fontWeight: 700,
-                  letterSpacing: '0.01em',
-                  color: colors.secondaryText,
-                }}
-              >
+              <Typography sx={{ fontSize: '0.76rem', fontWeight: 750, letterSpacing: '0.02em', color: colors.secondaryText }}>
                 GOT QUESTIONS?
               </Typography>
             </Box>
 
-            {/* Title */}
             <Typography
               variant="h2"
               sx={{
@@ -620,42 +554,32 @@ const FAQSection = () => {
                 lineHeight: 1.05,
                 fontWeight: 850,
                 letterSpacing: '-0.055em',
-                color: colors.text,
-                mb: 2.5,
+                color: '#9ff8c7',
+                mb: 2,
               }}
             >
               Everything sorted.
               <br />
-              <Box component="span" sx={{ color: colors.secondaryText }}>
-                Before the adventure starts.
+              <Box component="span" sx={{ color: '#2c4135' }}>
+                Before takeoff.
               </Box>
             </Typography>
 
-            {/* Subtitle */}
-            <Typography
-              sx={{
-                maxWidth: 440,
-                fontSize: { xs: '0.98rem', md: '1.05rem' },
-                lineHeight: 1.75,
-                color: colors.secondaryText,
-                mb: 4,
-              }}
-            >
-              Find answers to common questions about trip planning, squads, and offline vaults, or ask our intelligent companion.
+            <Typography sx={{ maxWidth: 440, fontSize: { xs: '0.96rem', md: '1.02rem' }, lineHeight: 1.7, color: colors.secondaryText, mb: 3.5 }}>
+              Find quick answers to common questions about trip planning, squads, and offline vaults, or ask our companion.
             </Typography>
 
-            {/* AI Action Card */}
+            {/* AI Callout Card */}
             <Box
               component={motion.div}
-              whileHover={{ y: -3 }}
+              whileHover={{ y: -1, scale: 1.01 }}
               transition={{ duration: 0.2 }}
               sx={{
                 width: '100%',
                 p: { xs: 2.5, sm: 3 },
                 borderRadius: '24px',
-                backgroundColor: colors.surfaceStrong,
-                border: `1px solid ${colors.border}`,
-                boxShadow: isDark ? '0 16px 40px rgba(0,0,0,0.2)' : '0 12px 30px rgba(0,0,0,0.035)',
+                backgroundColor: '#242b2633',
+                boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'flex-start',
@@ -670,19 +594,19 @@ const FAQSection = () => {
                     borderRadius: '14px',
                     display: 'grid',
                     placeItems: 'center',
-                    backgroundColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.045)',
-                    color: colors.text,
+                    backgroundColor: isDark ? 'rgba(0, 160, 8, 0.08)' : 'rgba(0,0,0,0.05)',
+                    color: '#9ff8c7',
                     flexShrink: 0,
                   }}
                 >
                   <AutoAwesomeRoundedIcon sx={{ fontSize: 20 }} />
                 </Box>
                 <Box>
-                  <Typography sx={{ fontSize: '1rem', fontWeight: 800, color: colors.text, letterSpacing: '-0.02em' }}>
+                  <Typography sx={{ fontSize: '1rem', fontWeight: 800, color: '#9ff8c7' }}>
                     Ask BunkMates AI
                   </Typography>
-                  <Typography sx={{ fontSize: '0.8rem', color: colors.secondaryText }}>
-                    Instant planning & feature assistance
+                  <Typography sx={{ fontSize: '0.8rem', color: '#76a78c' }}>
+                    Instant planning & answers
                   </Typography>
                 </Box>
               </Stack>
@@ -692,38 +616,27 @@ const FAQSection = () => {
                 onClick={() => setAiOpen(true)}
                 endIcon={<AutoAwesomeRoundedIcon sx={{ fontSize: '1rem !important' }} />}
                 sx={{
-                  minHeight: 44,
+                  minHeight: 46,
                   px: 2.5,
                   borderRadius: '14px',
                   textTransform: 'none',
-                  fontSize: '0.9rem',
+                  fontSize: '0.92rem',
                   fontWeight: 750,
-                  backgroundColor: colors.text,
-                  color: colors.background,
-                  boxShadow: isDark ? '0 8px 24px rgba(0,0,0,0.4)' : '0 6px 18px rgba(0,0,0,0.1)',
+                  backgroundColor: '#d5ffe7',
+                  color: '#21542e',
                   '&:hover': {
-                    backgroundColor: isDark ? '#e8e8e8' : '#242424',
+                    backgroundColor: isDark ? '#b9ffd7' : '#18181b',
                   },
                 }}
               >
-                Ask AI
+                Launch AI Assistant
               </Button>
             </Box>
           </Box>
 
-          {/* =============================================
-              RIGHT SECTION: SEARCH, ACCORDION & SUPPORT
-          ============================================= */}
-          <Box
-            sx={{
-              flex: { xs: '1 1 100%', md: '0 0 54%' },
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 2,
-            }}
-          >
+          {/* Right Accordion Panel */}
+          <Box sx={{ flex: { xs: '1 1 100%', md: '0 0 54%' }, display: 'flex', flexDirection: 'column', gap: 2 }}>
 
-            {/* Accordion FAQ List */}
             {loading ? (
               <Stack direction="row" spacing={1.5} alignItems="center" justifyContent="center" sx={{ py: 8 }}>
                 <CircularProgress size={22} sx={{ color: colors.text }} />
@@ -761,19 +674,10 @@ const FAQSection = () => {
                           elevation={0}
                           sx={{
                             borderRadius: '20px !important',
-                            backgroundColor: isPanelOpen ? colors.surfaceStrong : colors.surface,
-                            border: `1px solid ${isPanelOpen ? colors.border : colors.subtleBorder}`,
-                            boxShadow: isPanelOpen
-                              ? isDark
-                                ? '0 12px 30px rgba(0,0,0,0.25)'
-                                : '0 8px 24px rgba(0,0,0,0.03)'
-                              : 'none',
+                            backgroundColor: isPanelOpen ? '#d8ffe9' : '#20232133',
+                            boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)',
                             transition: 'all 0.25s ease',
                             '&:before': { display: 'none' },
-                            '&:hover': {
-                              borderColor: colors.border,
-                              backgroundColor: colors.surfaceStrong,
-                            },
                           }}
                         >
                           <AccordionSummary
@@ -786,24 +690,24 @@ const FAQSection = () => {
                                   display: 'grid',
                                   placeItems: 'center',
                                   backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
-                                  color: colors.text,
+                                  color: isPanelOpen ? '#21542e' : '#d8ffe9',
                                 }}
                               >
                                 <ExpandMoreRoundedIcon sx={{ fontSize: 20 }} />
                               </Box>
                             }
                             sx={{
-                              minHeight: 62,
+                              minHeight: 60,
                               px: { xs: 2, sm: 2.6 },
                               '& .MuiAccordionSummary-content': { my: 1.4 },
                             }}
                           >
                             <Typography
                               sx={{
-                                fontSize: { xs: '0.92rem', sm: '1rem' },
+                                fontSize: { xs: '0.92rem', sm: '0.98rem' },
                                 fontWeight: 750,
                                 letterSpacing: '-0.02em',
-                                color: colors.text,
+                                color: isPanelOpen ? '#21542e' : '#d8ffe9',
                               }}
                             >
                               {faq.question}
@@ -813,9 +717,9 @@ const FAQSection = () => {
                           <AccordionDetails sx={{ px: { xs: 2, sm: 2.6 }, pb: 2.4, pt: 0 }}>
                             <Typography
                               sx={{
-                                color: colors.secondaryText,
+                                color: '#3a5e44',
                                 fontSize: { xs: '0.86rem', sm: '0.92rem' },
-                                lineHeight: 1.75,
+                                lineHeight: 1.7,
                               }}
                             >
                               {faq.answer}
@@ -829,20 +733,19 @@ const FAQSection = () => {
               </Stack>
             )}
 
-            {/* Bottom Support Callout Panel */}
+            {/* Bottom Support Callout */}
             <Box
               component={motion.div}
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.5 }}
               sx={{
                 mt: 2,
                 p: { xs: 2.5, sm: 3 },
                 borderRadius: '24px',
-                backgroundColor: colors.surface,
-                border: `1px solid ${colors.border}`,
-                boxShadow: isDark ? '0 16px 40px rgba(0,0,0,0.18)' : '0 12px 30px rgba(0,0,0,0.035)',
+                backgroundColor: '#d8ffe9',
+                boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)',
                 display: 'flex',
                 flexDirection: { xs: 'column', sm: 'row' },
                 alignItems: { xs: 'stretch', sm: 'center' },
@@ -850,7 +753,7 @@ const FAQSection = () => {
                 gap: 2.5,
               }}
             >
-              <Stack direction="row" spacing={1.8} alignItems="center">
+              <Stack direction="row" spacing={1.6} alignItems="center">
                 <Box
                   sx={{
                     width: 42,
@@ -858,19 +761,19 @@ const FAQSection = () => {
                     borderRadius: '13px',
                     display: 'grid',
                     placeItems: 'center',
-                    backgroundColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.045)',
-                    color: colors.text,
+                    backgroundColor: isDark ? 'rgba(8, 51, 11, 0.08)' : 'rgba(0,0,0,0.05)',
+                    color: '#21542e',
                     flexShrink: 0,
                   }}
                 >
                   <SupportAgentRoundedIcon sx={{ fontSize: 20 }} />
                 </Box>
                 <Box>
-                  <Typography sx={{ fontSize: '0.96rem', fontWeight: 800, color: colors.text, mb: 0.2 }}>
-                    Still need help?
+                  <Typography sx={{ fontSize: '0.95rem', fontWeight: 800, color: '#21542e', mb: 0.2 }}>
+                    Still have questions?
                   </Typography>
-                  <Typography sx={{ fontSize: '0.82rem', color: colors.secondaryText, lineHeight: 1.5 }}>
-                    Reach out and our team will get your squad sorted.
+                  <Typography sx={{ fontSize: '0.8rem', color: '#397047' }}>
+                    Reach out directly and our crew will assist you.
                   </Typography>
                 </Box>
               </Stack>
@@ -885,15 +788,14 @@ const FAQSection = () => {
                   textTransform: 'none',
                   fontSize: '0.88rem',
                   fontWeight: 700,
-                  color: colors.text,
-                  backgroundColor: isDark ? 'rgba(255, 255, 255, 0.045)' : 'rgba(0, 0, 0, 0.035)',
-                  border: `1px solid ${colors.border}`,
+                  color: '#d8ffe9',
+                  backgroundColor: isDark ? '#21542e' : 'rgba(0, 0, 0, 0.04)',
                   '&:hover': {
-                    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+                    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.09)' : 'rgba(0, 0, 0, 0.07)',
                   },
                 }}
               >
-                Contact Support
+                Contact Crew
               </Button>
             </Box>
           </Box>
