@@ -4,14 +4,12 @@ import { motion } from "framer-motion";
 import AboutHero from "../components/AboutHero";
 import AboutBunkMate from "../components/AboutBunkMates";
 import ContactSection from "../components/ContactSection";
-import { useAuth } from "../context/AuthContext";
 import { useCustomTheme } from "../context/ThemeContext";
 import OurMissionSection from "../components/omp";
 import WhatMakesDifferent from "../components/wmbmd";
 import FAQSection from "../sections/FAQSection";
 
 export default function About() {
-  const { user } = useAuth();
   const { isDark } = useCustomTheme();
 
   useEffect(() => {

@@ -5,9 +5,6 @@ import {
   Button,
   Container,
   Stack,
-  useTheme,
-  useMediaQuery,
-  alpha,
 } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import DownloadRoundedIcon from "@mui/icons-material/DownloadRounded";
@@ -110,9 +107,7 @@ const RAW_DOODLE_ICONS = [
 ];
 
 export default function AboutHero() {
-  const muiTheme = useTheme();
   const { isDark } = useCustomTheme();
-  const isMobile = useMediaQuery(muiTheme.breakpoints.down("sm"));
   const navigate = useNavigate();
 
   const [phraseIndex, setPhraseIndex] = useState(0);

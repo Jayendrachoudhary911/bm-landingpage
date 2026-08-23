@@ -12,17 +12,14 @@ import {
   Button,
   CircularProgress,
   Stack,
-  alpha,
 } from '@mui/material';
 
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
-import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import TravelExploreRoundedIcon from '@mui/icons-material/TravelExploreRounded';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
-import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { doc, onSnapshot } from 'firebase/firestore';
@@ -182,273 +179,273 @@ RULES:
   };
 
   return (
-<AnimatePresence>
-  {open && (
-    <>
-      {/* Backdrop */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.25 }}
-        onClick={onClose}
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 1300,
-          background: isDark ? "rgba(0, 0, 0, 0.05)" : "rgba(0, 0, 0, 0.5)",
-          backdropFilter: "blur(12px)",
-          touchAction: "none", // Blocks touch scroll propagation on mobile
-        }}
-      />
+    <AnimatePresence>
+      {open && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            onClick={onClose}
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 1300,
+              background: isDark ? "rgba(0, 0, 0, 0.05)" : "rgba(0, 0, 0, 0.5)",
+              backdropFilter: "blur(12px)",
+              touchAction: "none",
+            }}
+          />
 
-      {/* Modal Container */}
-      <Box
-        sx={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 1301,
-          pointerEvents: "none",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "stretch",
-          px: { xs: 0, sm: 2, md: 3 },
-          overscrollBehavior: "contain", // Prevents scroll chaining to background
-        }}
-      >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          style={{
-            width: "100%",
-            maxWidth: 880,
-            height: "100dvh",
-            pointerEvents: "auto",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
+          {/* Modal Container */}
           <Box
             sx={{
-              flex: 1,
-              my: { xs: 0, sm: 2 },
-              borderRadius: { xs: 0, sm: "30px" },
+              position: "fixed",
+              inset: 0,
+              zIndex: 1301,
+              pointerEvents: "none",
               display: "flex",
-              flexDirection: "column",
-              overflow: "hidden",
-              backgroundColor: "transparent",
+              justifyContent: "center",
+              alignItems: "stretch",
+              px: { xs: 0, sm: 2, md: 3 },
+              overscrollBehavior: "contain",
             }}
           >
-            {/* Modal Top Bar */}
-            <Box
-              sx={{
-                px: { xs: 2, sm: 3 },
-                py: 2,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                backgroundColor: "transparent",
-              }}
-            >
-              <Stack direction="row" spacing={1.5} alignItems="center">
-                <Box
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 1,
-                    display: "grid",
-                    placeItems: "center",
-                    backgroundColor: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.05)",
-                    boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)",
-                    color: '#d8ffea',
-                  }}
-                >
-                  <AutoAwesomeRoundedIcon sx={{ fontSize: 20 }} />
-                </Box>
-                <Box>
-                  <Typography sx={{ color: '#d8ffea', fontWeight: 800, fontSize: "1rem" }}>
-                    BunkMates AI
-                  </Typography>
-                  <Typography sx={{ color: '#879b90', fontSize: "0.75rem" }}>
-                    Intelligent trip companion
-                  </Typography>
-                </Box>
-              </Stack>
-
-              <IconButton
-                onClick={onClose}
-                sx={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 4,
-                  color: colors.secondaryText,
-                  backgroundColor: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.05)",
-                  boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)",
-                  "&:hover": {
-                    backgroundColor: isDark ? "rgba(255, 255, 255, 0.11)" : "rgba(0, 0, 0, 0.05)",
-                    color: colors.text,
-                  },
-                }}
-              >
-                <CloseRoundedIcon sx={{ fontSize: 19 }} />
-              </IconButton>
-            </Box>
-
-            {/* Messages Feed */}
-            <Box
-              sx={{
-                flex: 1,
-                overflowY: "auto",
-                overscrollBehavior: "contain", // Locks internal scroll within the container
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              style={{
+                width: "100%",
+                maxWidth: 880,
+                height: "100dvh",
+                pointerEvents: "auto",
                 display: "flex",
                 flexDirection: "column",
-                gap: 2,
-                px: { xs: 2, sm: 4 },
-                py: 3,
               }}
             >
-              {messages.map((message, index) => {
-                const isUser = message.role === "user";
-                return (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.25 }}
-                    style={{
-                      alignSelf: isUser ? "flex-end" : "flex-start",
-                      maxWidth: "85%",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        px: 2.2,
-                        py: 1.4,
-                        borderRadius: isUser ? "24px 24px 6px 24px" : "24px 24px 24px 6px",
-                        backgroundColor: isUser ? "#21542e" : colors.surface,
-                        color: isUser ? "#b6ffd7" : '#d8ffea',
-                        boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)",
-                        fontSize: "0.92rem",
-                        lineHeight: 1.65,
-                        wordBreak: "break-word",
-                      }}
-                    >
-                      {message.content}
-                    </Box>
-                  </motion.div>
-                );
-              })}
-
-              {loading && (
+              <Box
+                sx={{
+                  flex: 1,
+                  my: { xs: 0, sm: 2 },
+                  borderRadius: { xs: 0, sm: "30px" },
+                  display: "flex",
+                  flexDirection: "column",
+                  overflow: "hidden",
+                  backgroundColor: "transparent",
+                }}
+              >
+                {/* Modal Top Bar */}
                 <Box
                   sx={{
-                    alignSelf: "flex-start",
-                    px: 2,
-                    py: 1.2,
-                    borderRadius: "16px 16px 16px 6px",
-                    backgroundColor: colors.surface,
-                    border: `1px solid ${colors.border}`,
+                    px: { xs: 2, sm: 3 },
+                    py: 2,
                     display: "flex",
                     alignItems: "center",
-                    gap: 1.2,
+                    justifyContent: "space-between",
+                    backgroundColor: "transparent",
                   }}
                 >
-                  <CircularProgress size={16} sx={{ color: colors.text }} />
-                  <Typography sx={{ color: colors.secondaryText, fontSize: "0.8rem", fontWeight: 600 }}>
-                    Thinking...
-                  </Typography>
-                </Box>
-              )}
-              <div ref={messagesEndRef} />
-            </Box>
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 1,
+                        display: "grid",
+                        placeItems: "center",
+                        backgroundColor: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.05)",
+                        boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)",
+                        color: '#d8ffea',
+                      }}
+                    >
+                      <AutoAwesomeRoundedIcon sx={{ fontSize: 20 }} />
+                    </Box>
+                    <Box>
+                      <Typography sx={{ color: '#d8ffea', fontWeight: 800, fontSize: "1rem" }}>
+                        BunkMates AI
+                      </Typography>
+                      <Typography sx={{ color: '#879b90', fontSize: "0.75rem" }}>
+                        Intelligent trip companion
+                      </Typography>
+                    </Box>
+                  </Stack>
 
-            {/* Input Controls */}
-            <Box sx={{ p: { xs: 1.5, sm: 2.5 }, backgroundColor: "transparent" }}>
-              <TextField
-                inputRef={inputRef}
-                fullWidth
-                value={input}
-                placeholder="Ask about planning, squads, or trails..."
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage();
-                  }
-                }}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        disabled={!input.trim() || loading}
-                        onClick={handleSendMessage}
-                        sx={{
-                          width: 42,
-                          height: 42,
-                          borderRadius: 4,
-                          backgroundColor: "#b6ffd7",
-                          color: "#21542e",
-                          boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)",
-                          transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-                          "&:hover": {
-                            backgroundColor: "#9ef0c4",
-                            color: "#163d20",
-                            transform: "scale(1.04)",
-                            boxShadow: "0 4px 14px rgba(182, 255, 215, 0.4)",
-                          },
-                          "&:active": {
-                            transform: "scale(0.96)",
-                          },
-                          "&:disabled": {
-                            backgroundColor: isDark ? "rgba(182, 255, 215, 0.08)" : "rgba(33, 84, 46, 0.08)",
-                            color: isDark ? "rgba(182, 255, 215, 0.25)" : "rgba(33, 84, 46, 0.3)",
-                            boxShadow: "none",
-                          },
+                  <IconButton
+                    onClick={onClose}
+                    sx={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: 4,
+                      color: colors.secondaryText,
+                      backgroundColor: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.05)",
+                      boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)",
+                      "&:hover": {
+                        backgroundColor: isDark ? "rgba(255, 255, 255, 0.11)" : "rgba(0, 0, 0, 0.05)",
+                        color: colors.text,
+                      },
+                    }}
+                  >
+                    <CloseRoundedIcon sx={{ fontSize: 19 }} />
+                  </IconButton>
+                </Box>
+
+                {/* Messages Feed */}
+                <Box
+                  sx={{
+                    flex: 1,
+                    overflowY: "auto",
+                    overscrollBehavior: "contain",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                    px: { xs: 2, sm: 4 },
+                    py: 3,
+                  }}
+                >
+                  {messages.map((message, index) => {
+                    const isUser = message.role === "user";
+                    return (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.25 }}
+                        style={{
+                          alignSelf: isUser ? "flex-end" : "flex-start",
+                          maxWidth: "85%",
                         }}
                       >
-                        <SendRoundedIcon sx={{ fontSize: 18 }} />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                  sx: {
-                    borderRadius: 4,
-                    backgroundColor: isDark ? "#141417" : "#f7f7f8",
-                    color: isDark ? "#ffffff" : "#21542e",
-                    fontSize: "0.94rem",
-                    transition: "all 0.25s ease",
-                    border: 0,
-                    px: 1,
-                    boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)",
-                    "& fieldset": {
-                      transition: "border-color 0.2s ease",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: isDark ? "rgba(182, 255, 215, 0)" : "rgba(33, 84, 46, 0.35)",
-                    },
-                    "&.Mui-focused": {
-                      backgroundColor: isDark ? "#18181c" : "#ffffff",
-                      boxShadow: `0 0 0 3px ${isDark ? "rgba(182, 255, 215, 0.12)" : "rgba(182, 255, 215, 0.35)"}`,
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#b6ffd7 !important",
-                      borderWidth: "0px",
-                    },
-                    "& input::placeholder": {
-                      color: isDark ? "rgba(255, 255, 255, 0.45)" : "rgba(33, 84, 46, 0.55)",
-                      opacity: 1,
-                    },
-                  },
-                }}
-              />
-            </Box>
+                        <Box
+                          sx={{
+                            px: 2.2,
+                            py: 1.4,
+                            borderRadius: isUser ? "24px 24px 6px 24px" : "24px 24px 24px 6px",
+                            backgroundColor: isUser ? "#21542e" : colors.surface,
+                            color: isUser ? "#b6ffd7" : '#d8ffea',
+                            boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)",
+                            fontSize: "0.92rem",
+                            lineHeight: 1.65,
+                            wordBreak: "break-word",
+                          }}
+                        >
+                          {message.content}
+                        </Box>
+                      </motion.div>
+                    );
+                  })}
+
+                  {loading && (
+                    <Box
+                      sx={{
+                        alignSelf: "flex-start",
+                        px: 2,
+                        py: 1.2,
+                        borderRadius: "16px 16px 16px 6px",
+                        backgroundColor: colors.surface,
+                        border: `1px solid ${colors.border}`,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1.2,
+                      }}
+                    >
+                      <CircularProgress size={16} sx={{ color: colors.text }} />
+                      <Typography sx={{ color: colors.secondaryText, fontSize: "0.8rem", fontWeight: 600 }}>
+                        Thinking...
+                      </Typography>
+                    </Box>
+                  )}
+                  <div ref={messagesEndRef} />
+                </Box>
+
+                {/* Input Controls */}
+                <Box sx={{ p: { xs: 1.5, sm: 2.5 }, backgroundColor: "transparent" }}>
+                  <TextField
+                    inputRef={inputRef}
+                    fullWidth
+                    value={input}
+                    placeholder="Ask about planning, squads, or trails..."
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendMessage();
+                      }
+                    }}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            disabled={!input.trim() || loading}
+                            onClick={handleSendMessage}
+                            sx={{
+                              width: 42,
+                              height: 42,
+                              borderRadius: 4,
+                              backgroundColor: "#b6ffd7",
+                              color: "#21542e",
+                              boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)",
+                              transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                              "&:hover": {
+                                backgroundColor: "#9ef0c4",
+                                color: "#163d20",
+                                transform: "scale(1.04)",
+                                boxShadow: "0 4px 14px rgba(182, 255, 215, 0.4)",
+                              },
+                              "&:active": {
+                                transform: "scale(0.96)",
+                              },
+                              "&:disabled": {
+                                backgroundColor: isDark ? "rgba(182, 255, 215, 0.08)" : "rgba(33, 84, 46, 0.08)",
+                                color: isDark ? "rgba(182, 255, 215, 0.25)" : "rgba(33, 84, 46, 0.3)",
+                                boxShadow: "none",
+                              },
+                            }}
+                          >
+                            <SendRoundedIcon sx={{ fontSize: 18 }} />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                      sx: {
+                        borderRadius: 4,
+                        backgroundColor: isDark ? "#141417" : "#f7f7f8",
+                        color: isDark ? "#ffffff" : "#21542e",
+                        fontSize: "0.94rem",
+                        transition: "all 0.25s ease",
+                        border: 0,
+                        px: 1,
+                        boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)",
+                        "& fieldset": {
+                          transition: "border-color 0.2s ease",
+                        },
+                        "&:hover fieldset": {
+                          borderColor: isDark ? "rgba(182, 255, 215, 0)" : "rgba(33, 84, 46, 0.35)",
+                        },
+                        "&.Mui-focused": {
+                          backgroundColor: isDark ? "#18181c" : "#ffffff",
+                          boxShadow: `0 0 0 3px ${isDark ? "rgba(182, 255, 215, 0.12)" : "rgba(182, 255, 215, 0.35)"}`,
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#b6ffd7 !important",
+                          borderWidth: "0px",
+                        },
+                        "& input::placeholder": {
+                          color: isDark ? "rgba(255, 255, 255, 0.45)" : "rgba(33, 84, 46, 0.55)",
+                          opacity: 1,
+                        },
+                      },
+                    }}
+                  />
+                </Box>
+              </Box>
+            </motion.div>
           </Box>
-        </motion.div>
-      </Box>
-    </>
-  )}
-</AnimatePresence>
+        </>
+      )}
+    </AnimatePresence>
   );
 };
 
@@ -457,10 +454,10 @@ const FAQSection = () => {
 
   const [expanded, setExpanded] = useState(0);
   const [faqs, setFaqs] = useState(FALLBACK_FAQS);
-  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [aiOpen, setAiOpen] = useState(false);
 
+  const searchQuery = '';
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
 
@@ -675,7 +672,6 @@ const FAQSection = () => {
 
           {/* Right Accordion Panel */}
           <Box sx={{ flex: { xs: '1 1 100%', md: '0 0 54%' }, display: 'flex', flexDirection: 'column', gap: 2 }}>
-
             {loading ? (
               <Stack direction="row" spacing={1.5} alignItems="center" justifyContent="center" sx={{ py: 8 }}>
                 <CircularProgress size={22} sx={{ color: colors.text }} />

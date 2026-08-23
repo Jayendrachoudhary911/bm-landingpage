@@ -14,7 +14,6 @@ const M3_EXPRESSIVE_PALETTE = {
 
 export default function BackToTop() {
   const [visible, setVisible] = useState(false);
-  const [scrollPercentage, setScrollPercentage] = useState(0);
   const { isDark } = useCustomTheme();
 
   const emeraldTheme = M3_EXPRESSIVE_PALETTE.emerald;
@@ -30,10 +29,7 @@ export default function BackToTop() {
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
 
-      setScrollPercentage(progress);
       setVisible(scrollTop > 280);
     };
 
@@ -48,10 +44,6 @@ export default function BackToTop() {
       behavior: "smooth",
     });
   };
-
-  const radius = 18;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (scrollPercentage / 100) * circumference;
 
   return (
     <AnimatePresence>

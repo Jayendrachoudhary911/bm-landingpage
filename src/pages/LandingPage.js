@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import { useAuth } from '../context/AuthContext';
 import { useCustomTheme } from '../context/ThemeContext';
 import HeroSection from '../sections/Hero';
 import FeaturesSection from '../sections/FeaturesSection';
@@ -10,7 +9,6 @@ import FAQSection from '../sections/FAQSection';
 import ContactSection from '../components/ContactSection';
 
 const LandingPage = () => {
-  const { user } = useAuth();
   const { isDark } = useCustomTheme();
 
   return (

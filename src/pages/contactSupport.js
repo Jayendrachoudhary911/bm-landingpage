@@ -24,7 +24,6 @@ import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
 import SupportAgentRoundedIcon from "@mui/icons-material/SupportAgentRounded";
-import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import TravelExploreRoundedIcon from "@mui/icons-material/TravelExploreRounded";
 import EmailRoundedIcon from "@mui/icons-material/EmailRounded";
 import LocationOnRoundedIcon from "@mui/icons-material/LocationOnRounded";

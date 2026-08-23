@@ -14,7 +14,6 @@ import {
   useTheme,
 } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
-import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import MapRoundedIcon from "@mui/icons-material/MapRounded";
 import ForumRoundedIcon from "@mui/icons-material/ForumRounded";
 import PaymentsRoundedIcon from "@mui/icons-material/PaymentsRounded";
@@ -89,14 +88,6 @@ const FEATURE_CATEGORIES = [
   { id: "connect", label: "Messaging & Social", palette: M3_EXPRESSIVE_PALETTE.purple },
   { id: "travel", label: "Maps & Offline", palette: M3_EXPRESSIVE_PALETTE.emerald },
   { id: "security", label: "Privacy & Sync", palette: M3_EXPRESSIVE_PALETTE.amber },
-];
-
-const TAG_PALETTES = [
-  M3_EXPRESSIVE_PALETTE.purple,
-  M3_EXPRESSIVE_PALETTE.blue,
-  M3_EXPRESSIVE_PALETTE.emerald,
-  M3_EXPRESSIVE_PALETTE.orange,
-  M3_EXPRESSIVE_PALETTE.amber,
 ];
 
 const LIVE_FEATURES = [

@@ -1,7 +1,6 @@
 import React from "react";
-import { Box, Typography, Stack, Container, alpha } from "@mui/material";
+import { Box, Typography, Stack, Container } from "@mui/material";
 import { motion } from "framer-motion";
-import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import { useCustomTheme } from "../context/ThemeContext";
 
 const highlights = [

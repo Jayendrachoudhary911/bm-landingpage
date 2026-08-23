@@ -12,7 +12,6 @@ import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
 import LockRoundedIcon from "@mui/icons-material/LockRounded";
 import VisibilityOffRoundedIcon from "@mui/icons-material/VisibilityOffRounded";
 import CloudDoneRoundedIcon from "@mui/icons-material/CloudDoneRounded";
-import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import FingerprintRoundedIcon from "@mui/icons-material/FingerprintRounded";
 import DownloadRoundedIcon from "@mui/icons-material/DownloadRounded";
 import EmailRoundedIcon from "@mui/icons-material/EmailRounded";

@@ -30,8 +30,6 @@ const ThemeContext = createContext({
 export const useCustomTheme = () => useContext(ThemeContext);
 
 export const CustomThemeProvider = ({ children }) => {
-  const mode = 'dark';
-  const isDark = true;
 
   const toggleTheme = () => {
     // Locked to pure dark theme per user request

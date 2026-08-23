@@ -17,19 +17,14 @@ import {
   Snackbar,
   Alert,
   Collapse,
-  Dialog,
-  DialogTitle,
-  DialogContent,
 } from "@mui/material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import DownloadRoundedIcon from "@mui/icons-material/DownloadRounded";
 import QrCode2RoundedIcon from "@mui/icons-material/QrCode2Rounded";
 import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
-import DevicesRoundedIcon from "@mui/icons-material/DevicesRounded";
 import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 import ExpandLessRoundedIcon from "@mui/icons-material/ExpandLessRounded";
-import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
 import ArrowBackIosNewRoundedIcon from "@mui/icons-material/ArrowBackIosNewRounded";
@@ -77,7 +72,6 @@ export default function DownloadPage() {
   const { isDark } = useCustomTheme();
   const navigate = useNavigate();
 
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [qrOpen, setQrOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
 
@@ -159,26 +153,6 @@ export default function DownloadPage() {
       icon: <LockRoundedIcon sx={{ fontSize: 20 }} />,
     },
   ];
-
-  useEffect(() => {
-    const handler = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-    window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
-  }, []);
-
-  const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    try {
-      await deferredPrompt.userChoice;
-    } catch {
-      // ignore
-    }
-    setDeferredPrompt(null);
-  };
 
   const handleExternalDownload = () => {
     window.open("/assets/application/BunkMates_Beta.apk", "_blank");
@@ -446,8 +420,6 @@ export default function DownloadPage() {
         transition: "color 0.35s ease",
       }}
     >
-
-      {/* Main Container */}
       <Container maxWidth="md" sx={{ mt: { xs: 11, md: 14 }, px: { xs: 2, sm: 3, md: 4 } }}>
         <Button
           onClick={() => navigate(-1)}
@@ -732,9 +704,7 @@ export default function DownloadPage() {
           </Box>
         </Box>
 
-        {/* =========================================================
-            COMBINED ABOUT & WHAT'S NEW SECTION (2x Mobile, 4x Desktop)
-        ========================================================= */}
+        {/* About & What's New Section */}
         <Box sx={{ mb: 5 }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
             <Typography
@@ -758,7 +728,7 @@ export default function DownloadPage() {
             sx={{
               p: { xs: 2.5, sm: 3.5 },
               borderRadius: "24px",
-              backgroundColor: 'transparent',
+              backgroundColor: "transparent",
               border: `0px solid ${colors.border}`,
               display: "flex",
               flexDirection: "column",
@@ -767,7 +737,7 @@ export default function DownloadPage() {
           >
             {/* App Overview */}
             <Typography sx={{ color: colors.secondaryText, fontSize: "0.92rem", lineHeight: 1.75 }}>
-              <strong style={{ color: colors.text }}>BunkMates</strong> is your intelligent group travel companion — helping you plan, manage, and enjoy every trip seamlessly. From budgeting and messaging to maps and reminders, it keeps your adventures organized, smart, and stress-free[cite: 20, 21].
+              <strong style={{ color: colors.text }}>BunkMates</strong> is your intelligent group travel companion — helping you plan, manage, and enjoy every trip seamlessly. From budgeting and messaging to maps and reminders, it keeps your adventures organized, smart, and stress-free.
             </Typography>
 
             {/* Embedded What's New Release Updates */}
@@ -834,7 +804,7 @@ export default function DownloadPage() {
               </Box>
             </Box>
 
-            {/* Core Features: 2x in Mobile, 4x in Desktop */}
+            {/* Core Features */}
             <Box>
               <Typography sx={{ fontWeight: 800, fontSize: "0.95rem", color: colors.text, mb: 1.5 }}>
                 Core Features
@@ -882,7 +852,7 @@ export default function DownloadPage() {
               </Box>
             </Box>
 
-            {/* App Information: 2x in Mobile, 4x in Desktop */}
+            {/* App Information */}
             <Box>
               <Typography sx={{ fontWeight: 800, fontSize: "0.95rem", color: colors.text, mb: 1.5 }}>
                 App Information
@@ -943,9 +913,7 @@ export default function DownloadPage() {
           </Paper>
         </Box>
 
-        {/* =========================================================
-            RATINGS & REVIEWS SECTION
-        ========================================================= */}
+        {/* Ratings and reviews */}
         <Box sx={{ mb: 6 }}>
           <Typography
             variant="h5"
@@ -1343,6 +1311,7 @@ export default function DownloadPage() {
         </Box>
       </SwipeableDrawer>
 
+      {/* QR Code Pass Modal */}
       <SwipeableDrawer
         anchor="bottom"
         open={qrOpen}
@@ -1372,25 +1341,21 @@ export default function DownloadPage() {
           },
         }}
       >
-
-        {/* =========================================================
-            TICKET / RECEIPT CONTAINER WITH CUTOUT NOTCHES
-        ========================================================= */}
         <Box
           sx={{
             position: "relative",
             borderRadius: "26px",
-            backgroundColor: 'rgba(255, 255, 255, 0.07)',
+            backgroundColor: "rgba(255, 255, 255, 0.07)",
             backdropFilter: "blur(24px)",
             WebkitBackdropFilter: "blur(24px)",
             border: `0px solid ${colors.border}`,
-            boxShadow: 'none',
+            boxShadow: "none",
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
           }}
         >
-          {/* Top Ticket Segment: App Header & Specs */}
+          {/* Top Ticket Segment */}
           <Box sx={{ p: { xs: 2.5, sm: 3 }, pb: 2.5 }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2.5 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
@@ -1459,9 +1424,8 @@ export default function DownloadPage() {
             </Box>
           </Box>
 
-          {/* Ticket Perforation Divider with Left and Right Notches */}
+          {/* Ticket Perforation Divider */}
           <Box sx={{ position: "relative", width: "100%", my: 0.5, display: "flex", alignItems: "center" }}>
-            {/* Left Notch */}
             <Box
               sx={{
                 position: "absolute",
@@ -1475,7 +1439,6 @@ export default function DownloadPage() {
               }}
             />
 
-            {/* Perforated Dashed Line */}
             <Box
               sx={{
                 width: "100%",
@@ -1484,7 +1447,6 @@ export default function DownloadPage() {
               }}
             />
 
-            {/* Right Notch */}
             <Box
               sx={{
                 position: "absolute",
@@ -1499,7 +1461,7 @@ export default function DownloadPage() {
             />
           </Box>
 
-          {/* Bottom Ticket Segment: Scannable QR Code & Instructions */}
+          {/* Bottom Ticket Segment */}
           <Box
             sx={{
               p: { xs: 2.5, sm: 3 },
@@ -1541,7 +1503,7 @@ export default function DownloadPage() {
           </Box>
         </Box>
 
-        {/* Action Controls: Share Pass & Download Direct */}
+        {/* Action Controls */}
         <Box sx={{ display: "flex", gap: 1.5, mt: 2.5 }}>
           <Button
             component={motion.button}
@@ -1594,7 +1556,7 @@ export default function DownloadPage() {
         </Box>
       </SwipeableDrawer>
 
-      {/* Swipeable Drawer for Quick Meta */}
+      {/* Quick Meta Specifications Drawer */}
       <SwipeableDrawer
         anchor="bottom"
         open={aboutOpen}
@@ -1633,7 +1595,7 @@ export default function DownloadPage() {
           </Box>
 
           <Typography sx={{ color: colors.secondaryText, fontSize: "0.9rem", lineHeight: 1.7, mb: 3 }}>
-            BunkMates is an intelligent group travel companion engineered to help squads plan, coordinate, and experience seamless trips together[cite: 20, 21].
+            BunkMates is an intelligent group travel companion engineered to help squads plan, coordinate, and experience seamless trips together.
           </Typography>
 
           <Box sx={{ p: 2.5, borderRadius: "20px", backgroundColor: colors.surface, border: `1px solid ${colors.subtleBorder}`, mb: 3 }}>

@@ -8,7 +8,6 @@ import {
   MenuItem,
   IconButton,
   SwipeableDrawer,
-  List,
   ListItem,
   ListItemText,
   Divider,
@@ -445,7 +444,7 @@ const Navbar = ({ user }) => {
     );
 
     return () => unsubscribe();
-  }, [user?.uid]);
+  }, [user?.uid, senderProfiles]);
 
   const getMillis = useCallback((ts) => {
     if (!ts) return 0;
@@ -582,13 +581,6 @@ const Navbar = ({ user }) => {
     if (!filterSenderId) return groupedNotifications;
     return groupedNotifications.filter((g) => g.senderId === filterSenderId);
   }, [groupedNotifications, filterSenderId]);
-
-  const activeSenderAllMessages = useMemo(() => {
-    if (!selectedGroup) return [];
-    return notifications
-      .filter((n) => n.senderId === selectedGroup.senderId)
-      .sort((a, b) => getMillis(a.timestamp) - getMillis(b.timestamp));
-  }, [notifications, selectedGroup, getMillis]);
 
   const emeraldColor = M3_EXPRESSIVE_PALETTE.emerald;
   const blueColor = M3_EXPRESSIVE_PALETTE.blue;
@@ -2156,7 +2148,7 @@ const Navbar = ({ user }) => {
                             onClick={() => handleSelectGroup(group)}
                             sx={{
                               p: 2,
-                              borderRadius: isMobile ? 2: 4,
+                              borderRadius: isMobile ? 2 : 4,
                               backgroundColor: isMobile
                                 ? isExpandedMobile
                                   ? isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.05)"

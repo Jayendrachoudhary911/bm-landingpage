@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { Box, Typography, Container, Paper, Stack, alpha } from "@mui/material";
+import { Box, Typography, Container, Paper, alpha } from "@mui/material";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
 import MapRoundedIcon from "@mui/icons-material/MapRounded";
