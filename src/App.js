@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { useAuth, AuthProvider } from './context/AuthContext';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import About from './pages/About';
 import ProfilePage from './pages/ProfilePage';
 import DownloadPage from './pages/download';
-import DummyReview from './pages/dummy_reviews';
-import { AuthProvider } from './context/AuthContext';
+import FeaturesPage from './pages/FeaturesPage';
+import ContactSupportPage from './pages/contactSupport';
+import SafetyPrivacyPage from './pages/SafetyPrivacy';
+import CommunityGuidelinesPage from './pages/CommunityGuidelines';
 import { AnimatePresence } from 'framer-motion';
-import ScrollProgress from './components/ScrollProgress';
+import ScrollToSection from './components/ScrollToSection';
+import Footer from './components/Footer';
+import Navbar from './components/Navbar';
 import BackToTop from './components/BackToTop';
 
 function ScrollToTopOnRoute() {
@@ -23,23 +28,36 @@ function ScrollToTopOnRoute() {
 }
 
 function AppContent() {
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const location = useLocation();
+
+  // Define paths where Navbar and Footer should be hidden
+  const hideNavAndFooter = ['/login', '/signup', '/profile'].includes(location.pathname);
 
   return (
     <>
       <ScrollToTopOnRoute />
-      <BackToTop />
+      <ScrollToSection />
+      
+      {!hideNavAndFooter && <Navbar user={user} />}
+      {!hideNavAndFooter && <BackToTop />}
+      
       <AnimatePresence mode="wait">
-        <Routes>
+        <Routes location={location} key={location.pathname}>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/about" element={<About />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/bm-install" element={<DownloadPage />} />
-          <Route path="/dummy-review" element={<DummyReview />} />
+          <Route path="/contact" element={<ContactSupportPage />} />
+          <Route path="/privacy" element={<SafetyPrivacyPage />} />
+          <Route path="/community-guidelines" element={<CommunityGuidelinesPage />} />
+          <Route path="/features" element={<FeaturesPage />} />
         </Routes>
       </AnimatePresence>
+
+      {!hideNavAndFooter && <Footer />}
     </>
   );
 }

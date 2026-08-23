@@ -383,7 +383,7 @@ const ContactSection = () => {
               xs: "28px",
               md: "32px",
             },
-            backgroundColor: '#ffc7a7',
+            backgroundColor: '#ffdbc5',
           }}
         >
           <Box
@@ -467,7 +467,7 @@ const ContactSection = () => {
                         gap: 1.5,
                         p: 1.8,
                         borderRadius: "18px",
-                        backgroundColor: '#ffe0d3',
+                        backgroundColor: '#ffece4',
                       }}
                     >
                       <Box
@@ -584,7 +584,7 @@ const ContactSection = () => {
                         sx: {
                           color: '#703e26',
                           borderRadius: item.multiline ? "18px" : "14px",
-                          backgroundColor: '#ffe0d3',
+                          backgroundColor: '#ffefe8',
                             borderColor: '#703e26',
                           "& fieldset": {
                             border: `1px solid #ffe0d3`,

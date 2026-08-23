@@ -60,7 +60,6 @@ import {
   onSnapshot,
   doc,
 } from "firebase/firestore";
-import Navbar from "../components/Navbar";
 import { useCustomTheme } from "../context/ThemeContext";
 
 const REVIEWS_COLLECTION_PATH = ["landing_page", "download_page", "reviews"];
@@ -447,7 +446,6 @@ export default function DownloadPage() {
         transition: "color 0.35s ease",
       }}
     >
-      <Navbar user={auth.currentUser} />
 
       {/* Main Container */}
       <Container maxWidth="md" sx={{ mt: { xs: 11, md: 14 }, px: { xs: 2, sm: 3, md: 4 } }}>

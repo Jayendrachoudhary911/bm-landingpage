@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
+// src/pages/SignupPage.js
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Box,
   Button,
   TextField,
   Typography,
-  Paper,
   InputAdornment,
   IconButton,
   Divider,
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
   Avatar,
   Alert,
   CircularProgress,
-} from '@mui/material';
+  Stack,
+  Grid,
+} from "@mui/material";
 import {
   Visibility,
   VisibilityOff,
@@ -25,45 +25,190 @@ import {
   ArrowBack,
   LockOutlined,
   BadgeOutlined,
-} from '@mui/icons-material';
+  PhoneIphoneRounded,
+  CheckCircleRounded,
+  CancelRounded,
+  TerrainRounded as TerrainIcon,
+} from "@mui/icons-material";
+import FlightTakeoffRoundedIcon from "@mui/icons-material/FlightTakeoffRounded";
+import LocationOnRoundedIcon from "@mui/icons-material/LocationOnRounded";
+import ExploreRoundedIcon from "@mui/icons-material/ExploreRounded";
+import LuggageRoundedIcon from "@mui/icons-material/LuggageRounded";
+import MapRoundedIcon from "@mui/icons-material/MapRounded";
+import CameraAltRoundedIcon from "@mui/icons-material/CameraAltRounded";
+import WbSunnyRoundedIcon from "@mui/icons-material/WbSunnyRounded";
+import DirectionsCarRoundedIcon from "@mui/icons-material/DirectionsCarRounded";
+import HikingRoundedIcon from "@mui/icons-material/HikingRounded";
+import LocalActivityRoundedIcon from "@mui/icons-material/LocalActivityRounded";
+import LandscapeRoundedIcon from "@mui/icons-material/LandscapeRounded";
+import SouthEastRoundedIcon from "@mui/icons-material/SouthEastRounded";
+import TurnRightRoundedIcon from "@mui/icons-material/TurnRightRounded";
+import NavigationRoundedIcon from "@mui/icons-material/NavigationRounded";
 import {
   createUserWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
   updateProfile,
-} from 'firebase/auth';
-import { setDoc, doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { useCustomTheme } from '../context/ThemeContext';
+} from "firebase/auth";
+import {
+  setDoc,
+  doc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
+import { auth, db } from "../firebase";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useAuth } from "../context/AuthContext";
+import { useCustomTheme } from "../context/ThemeContext";
 
 const provider = new GoogleAuthProvider();
-const MotionBox = motion(Box);
-const MotionPaper = motion(Paper);
 
-const SignupPage = () => {
-  const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
-  const [googleUsername, setGoogleUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPass, setConfirmPass] = useState('');
+const PALETTE_COLORS = ["#88b7f0", "#8cefcb", "#f5d397", "#ffd6b4", "#c8b6ff"];
+
+const RAW_DOODLE_ICONS = [
+  { Icon: TerrainIcon, top: "6%", left: "4%", size: 34, rotate: -10, floatDur: 6.5 },
+  { Icon: FlightTakeoffRoundedIcon, top: "8%", left: "30%", size: 26, rotate: -18, floatDur: 6 },
+  { Icon: TurnRightRoundedIcon, top: "12%", left: "48%", size: 28, rotate: 35, floatDur: 7.2 },
+  { Icon: LocationOnRoundedIcon, top: "8%", right: "10%", size: 30, rotate: -8, floatDur: 7 },
+  { Icon: LandscapeRoundedIcon, top: "28%", left: "3%", size: 36, rotate: 12, floatDur: 8.5 },
+  { Icon: SouthEastRoundedIcon, top: "34%", left: "24%", size: 26, rotate: -10, floatDur: 6 },
+  { Icon: LuggageRoundedIcon, top: "50%", left: "5%", size: 30, rotate: 16, floatDur: 9 },
+  { Icon: ExploreRoundedIcon, top: "32%", right: "5%", size: 32, rotate: -18, floatDur: 6.5 },
+  { Icon: NavigationRoundedIcon, top: "45%", right: "20%", size: 24, rotate: 45, floatDur: 7.5 },
+  { Icon: CameraAltRoundedIcon, top: "68%", left: "6%", size: 24, rotate: -10, floatDur: 8.5 },
+  { Icon: WbSunnyRoundedIcon, top: "78%", left: "38%", size: 28, rotate: 15, floatDur: 7.5 },
+  { Icon: TerrainIcon, top: "82%", right: "10%", size: 38, rotate: -6, floatDur: 8 },
+  { Icon: DirectionsCarRoundedIcon, top: "86%", left: "16%", size: 28, rotate: -12, floatDur: 8 },
+  { Icon: HikingRoundedIcon, top: "60%", right: "34%", size: 28, rotate: 8, floatDur: 7 },
+  { Icon: LocalActivityRoundedIcon, top: "90%", left: "32%", size: 24, rotate: -22, floatDur: 9 },
+  { Icon: MapRoundedIcon, top: "70%", right: "5%", size: 26, rotate: 14, floatDur: 8.2 },
+];
+
+export default function SignupPage() {
+  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [googleUsername, setGoogleUsername] = useState("");
+  const [googleMobile, setGoogleMobile] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPass, setConfirmPass] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [googleDialogOpen, setGoogleDialogOpen] = useState(false);
   const [googleUser, setGoogleUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState("");
   const [shake, setShake] = useState(false);
 
-  const navigate = useNavigate();
-  const { gradients } = useCustomTheme();
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [usernameStatus, setUsernameStatus] = useState(null);
 
-  // Password strength calculation
+  const [isCheckingGoogleUsername, setIsCheckingGoogleUsername] = useState(false);
+  const [googleUsernameStatus, setGoogleUsernameStatus] = useState(null);
+  const [googleDialogError, setGoogleDialogError] = useState("");
+  const [savingGoogleProfile, setSavingGoogleProfile] = useState(false);
+
+  const { user } = useAuth();
+  const { isDark } = useCustomTheme();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user && !googleDialogOpen) {
+      navigate("/", { replace: true });
+    }
+  }, [user, googleDialogOpen, navigate]);
+
+  const assignedDoodles = useMemo(() => {
+    return RAW_DOODLE_ICONS.map((doodle, idx) => ({
+      ...doodle,
+      color: PALETTE_COLORS[idx % PALETTE_COLORS.length],
+    }));
+  }, []);
+
+  // Debounced real-time username availability validation
+  useEffect(() => {
+    const cleanUsername = username.trim().toLowerCase();
+
+    if (!cleanUsername) {
+      setUsernameStatus(null);
+      setIsCheckingUsername(false);
+      return;
+    }
+
+    if (cleanUsername.length < 3) {
+      setUsernameStatus("invalid");
+      setIsCheckingUsername(false);
+      return;
+    }
+
+    setIsCheckingUsername(true);
+    const delayDebounceFn = setTimeout(async () => {
+      try {
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("username", "==", cleanUsername));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          setUsernameStatus("taken");
+        } else {
+          setUsernameStatus("available");
+        }
+      } catch (err) {
+        console.error("Error checking username:", err);
+      } finally {
+        setIsCheckingUsername(false);
+      }
+    }, 450);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [username]);
+
+  // Debounced username validation for Google modal
+  useEffect(() => {
+    const cleanUsername = googleUsername.trim().toLowerCase();
+
+    if (!cleanUsername) {
+      setGoogleUsernameStatus(null);
+      setIsCheckingGoogleUsername(false);
+      return;
+    }
+
+    if (cleanUsername.length < 3) {
+      setGoogleUsernameStatus("invalid");
+      setIsCheckingGoogleUsername(false);
+      return;
+    }
+
+    setIsCheckingGoogleUsername(true);
+    const delayDebounceFn = setTimeout(async () => {
+      try {
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("username", "==", cleanUsername));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          setGoogleUsernameStatus("taken");
+        } else {
+          setGoogleUsernameStatus("available");
+        }
+      } catch (err) {
+        console.error("Error checking username:", err);
+      } finally {
+        setIsCheckingGoogleUsername(false);
+      }
+    }, 450);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [googleUsername]);
+
   const getPasswordStrength = (pass) => {
-    if (!pass) return { score: 0, label: '', color: '#94a3b8' };
+    if (!pass) return { score: 0, label: "", color: "#94a3b8" };
     let score = 0;
     if (pass.length >= 6) score++;
     if (pass.length >= 10) score++;
@@ -71,48 +216,62 @@ const SignupPage = () => {
     if (/[0-9]/.test(pass)) score++;
     if (/[^A-Za-z0-9]/.test(pass)) score++;
 
-    if (score <= 2) return { score: 1, label: 'Weak', color: '#ef4444' };
-    if (score <= 4) return { score: 2, label: 'Good', color: '#f59e0b' };
-    return { score: 3, label: 'Strong', color: '#10b981' };
+    if (score <= 2) return { score: 1, label: "Weak", color: "#ef4444" };
+    if (score <= 4) return { score: 2, label: "Good", color: "#f59e0b" };
+    return { score: 3, label: "Strong", color: "#10b981" };
   };
 
   const strength = getPasswordStrength(password);
 
-  const saveUserToFirestore = async (user, customUsername, customName) => {
-    const userRef = doc(db, 'users', user.uid);
+  const saveUserToFirestore = async (usr, customUsername, customName, mobileNum = "") => {
+    const userRef = doc(db, "users", usr.uid);
     await setDoc(userRef, {
-      bio: '',
-      email: user.email,
+      bio: "",
+      email: usr.email,
       friends: [],
-      mobile: '',
-      name: customName || user.displayName || '',
+      mobile: mobileNum.trim(),
+      name: customName || usr.displayName || "",
       nicknames: {},
-      photoURL: user.photoURL || '',
-      type: 'Regular',
+      photoURL: usr.photoURL || "",
+      type: "Regular",
       username: customUsername.toLowerCase().trim(),
     });
   };
 
   const handleSignup = async (e) => {
     if (e) e.preventDefault();
-    setErrorMsg('');
+    setErrorMsg("");
 
     if (!name.trim() || !username.trim() || !email.trim() || !password) {
-      setErrorMsg('Please fill out all required fields.');
+      setErrorMsg("Please fill out all required fields.");
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      return;
+    }
+
+    if (usernameStatus === "taken") {
+      setErrorMsg("This username is already taken. Please choose another one.");
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      return;
+    }
+
+    if (username.trim().length < 3) {
+      setErrorMsg("Username must be at least 3 characters long.");
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
     }
 
     if (password.length < 6) {
-      setErrorMsg('Password must be at least 6 characters.');
+      setErrorMsg("Password must be at least 6 characters.");
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
     }
 
     if (password !== confirmPass) {
-      setErrorMsg('Passwords do not match.');
+      setErrorMsg("Passwords do not match.");
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
@@ -120,13 +279,17 @@ const SignupPage = () => {
 
     setLoading(true);
     try {
-      const userCred = await createUserWithEmailAndPassword(auth, email.trim(), password);
+      const userCred = await createUserWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password
+      );
       await updateProfile(userCred.user, { displayName: name.trim() });
-      await saveUserToFirestore(userCred.user, username, name);
-      navigate('/');
+      await saveUserToFirestore(userCred.user, username, name, mobile);
+      navigate("/");
     } catch (err) {
       console.error(err);
-      setErrorMsg(err.message.replace('Firebase: ', ''));
+      setErrorMsg(err.message.replace("Firebase: ", ""));
       setShake(true);
       setTimeout(() => setShake(false), 500);
     } finally {
@@ -135,569 +298,1041 @@ const SignupPage = () => {
   };
 
   const handleGoogleSignup = async () => {
-    setErrorMsg('');
+    setErrorMsg("");
     setGoogleLoading(true);
     try {
       const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      const usr = result.user;
+      const userDoc = await getDoc(doc(db, "users", usr.uid));
+
       if (userDoc.exists()) {
-        navigate('/');
+        navigate("/");
         return;
       }
-      setGoogleUser(user);
-      setGoogleUsername(user.email.split('@')[0]);
+
+      setGoogleUser(usr);
+      setGoogleUsername(usr.email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, ""));
       setGoogleDialogOpen(true);
     } catch (err) {
       console.error(err);
-      setErrorMsg(err.message.replace('Firebase: ', ''));
+      setErrorMsg(err.message.replace("Firebase: ", ""));
     } finally {
       setGoogleLoading(false);
     }
   };
 
-  const handleGoogleUsernameSave = async () => {
+  const handleGoogleDetailsSubmit = async () => {
+    setGoogleDialogError("");
     if (!googleUsername.trim()) {
-      alert('Please choose a username.');
+      setGoogleDialogError("Username is required.");
       return;
     }
+
+    if (googleUsername.trim().length < 3) {
+      setGoogleDialogError("Username must be at least 3 characters long.");
+      return;
+    }
+
+    if (googleUsernameStatus === "taken") {
+      setGoogleDialogError("This username is already taken. Please choose another one.");
+      return;
+    }
+
+    setSavingGoogleProfile(true);
     try {
-      await updateProfile(googleUser, { displayName: googleUser.displayName || googleUsername });
-      await saveUserToFirestore(googleUser, googleUsername, googleUser.displayName);
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("username", "==", googleUsername.toLowerCase().trim()));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        setGoogleDialogError("This username is already taken. Please enter a different one.");
+        setSavingGoogleProfile(false);
+        return;
+      }
+
+      await updateProfile(googleUser, {
+        displayName: googleUser.displayName || googleUsername,
+      });
+      await saveUserToFirestore(
+        googleUser,
+        googleUsername,
+        googleUser.displayName,
+        googleMobile
+      );
       setGoogleDialogOpen(false);
-      navigate('/');
+      navigate("/");
     } catch (err) {
       console.error(err);
-      setErrorMsg(err.message);
+      setGoogleDialogError(err.message);
+    } finally {
+      setSavingGoogleProfile(false);
     }
+  };
+
+  const fieldStyleProps = {
+    "& .MuiOutlinedInput-root": {
+      borderRadius: "16px",
+      color: isDark ? "#ffffff" : "#09090b",
+      backgroundColor: isDark ? "rgba(255, 255, 255, 0.04)" : "rgba(255, 255, 255, 0.8)",
+      backdropFilter: "blur(20px)",
+      WebkitBackdropFilter: "blur(20px)",
+      boxShadow: isDark
+        ? "inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)"
+        : "inset 0 1px 1px rgba(255, 255, 255, 0.9), 0 2px 6px rgba(0, 0, 0, 0.03)",
+      transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+      pl: 1.5,
+      pr: 1.5,
+      py: 0.2,
+      "& fieldset": {
+        border: "none",
+      },
+      "&:hover": {
+        backgroundColor: isDark ? "rgba(255, 255, 255, 0.07)" : "#ffffff",
+        boxShadow: isDark
+          ? "inset 0 1px 1px rgba(255, 255, 255, 0.18), 0 4px 14px rgba(0, 0, 0, 0.25)"
+          : "inset 0 1px 1px rgba(255, 255, 255, 1), 0 4px 12px rgba(0, 0, 0, 0.06)",
+        "& fieldset": {
+          border: "none",
+        },
+      },
+      "&.Mui-focused": {
+        backgroundColor: isDark ? "rgba(255, 255, 255, 0.08)" : "#ffffff",
+        boxShadow: isDark
+          ? "inset 0 1px 1px rgba(255, 255, 255, 0.2), 0 0 0 2px rgba(140, 239, 203, 0.25)"
+          : "inset 0 1px 1px rgba(255, 255, 255, 1), 0 0 0 2px rgba(0, 109, 55, 0.18)",
+        "& fieldset": {
+          border: "none",
+        },
+      },
+      "& input": {
+        px: 1.2,
+        py: 1.5,
+        fontSize: "0.92rem",
+        fontWeight: 600,
+        letterSpacing: "-0.01em",
+        "&::placeholder": {
+          color: isDark ? "rgba(161, 161, 170, 0.5)" : "rgba(100, 116, 139, 0.5)",
+          opacity: 1,
+        },
+      },
+    },
+  };
+
+  const iconSx = {
+    color: isDark ? "#a1a1aa" : "#64748b",
+    fontSize: 20,
   };
 
   return (
     <>
       <Box
         sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: gradients.headerDark,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          p: 2,
-          py: { xs: 8, md: 10 },
-          position: 'relative',
-          overflow: 'hidden',
+          p: { xs: 1.5, sm: 2.5, md: 3 },
+          backgroundColor: isDark ? "#000000" : "#f1f3f5",
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        {/* Ambient Glowing Orbs */}
-        <MotionBox
-          animate={{
-            x: [20, -20, 20],
-            y: [-15, 15, -15],
-          }}
-          transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
-          sx={{
-            position: "absolute",
-            top: "10%",
-            right: "10%",
-            width: 340,
-            height: 340,
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(56, 189, 248, 0.25), transparent 70%)",
-            filter: "blur(65px)",
-            pointerEvents: "none",
-          }}
-        />
-
-        {/* Top action bar: Back */}
         <Box
           sx={{
-            position: 'absolute',
-            top: 24,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '90%',
-            maxWidth: '1160px',
-            display: 'flex',
-            justifyContent: 'flex-start',
-            alignItems: 'center',
-            zIndex: 10,
+            position: "relative",
+            overflow: "hidden",
+            width: "100%",
+            minHeight: "calc(100vh - 48px)",
+            borderRadius: { xs: "24px", sm: "32px", md: 3 },
+            backgroundColor: isDark ? "#0c0c0c" : "#ffffff",
+            boxShadow:
+              "inset 0 1px 1px rgba(255, 255, 255, 0.11), inset 0 -1px 1px rgba(255, 255, 255, 0.07), 0 1px 0px rgba(0,0,0,0.1)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            px: { xs: 2, sm: 4, md: 6 },
+            py: { xs: 6, sm: 7, md: 8 },
+            color: isDark ? "#ffffff" : "#09090b",
           }}
         >
-          <Button
-            startIcon={<ArrowBack />}
-            onClick={() => navigate('/')}
+          <Box
             sx={{
-              color: '#fff',
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              px: 2.5,
-              py: 0.8,
-              borderRadius: '999px',
-              fontWeight: 600,
-              textTransform: 'none',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                transform: 'translateX(-2px)',
-              },
+              position: "absolute",
+              top: { xs: 20, md: 28 },
+              left: { xs: 20, md: 36 },
+              zIndex: 10,
             }}
           >
-            Back to Home
-          </Button>
-        </Box>
-
-        {/* Signup Card */}
-        <MotionPaper
-          initial={{ opacity: 0, y: 30, scale: 0.96 }}
-          animate={{
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            x: shake ? [-8, 8, -8, 8, 0] : 0,
-          }}
-          transition={{ duration: 0.5 }}
-          elevation={16}
-          sx={{
-            p: { xs: 3.5, sm: 5 },
-            width: '100%',
-            maxWidth: 460,
-            borderRadius: 5,
-            background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.88), rgba(2, 6, 23, 0.92))',
-            backdropFilter: 'blur(24px)',
-            border: '1px solid rgba(56, 189, 248, 0.25)',
-            boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(56, 189, 248, 0.15)',
-            mt: { xs: 8, sm: 4 },
-            position: 'relative',
-            zIndex: 2,
-          }}
-        >
-          <Box textAlign="center" mb={3}>
-            <Box
+            <Button
+              startIcon={<ArrowBack sx={{ fontSize: 18 }} />}
+              onClick={() => navigate("/")}
               sx={{
-                width: 52,
-                height: 52,
-                borderRadius: '16px',
-                background: 'linear-gradient(135deg, #38bdf8, #2563eb)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#ffffff',
-                boxShadow: '0 8px 25px rgba(56, 189, 248, 0.4)',
-                mb: 2,
+                color: isDark ? "#ffffff" : "#09090b",
+                backgroundColor: isDark ? "#ffffff10" : "#f1f4f8",
+                boxShadow:
+                  "inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)",
+                px: 2.2,
+                py: 0.7,
+                borderRadius: "12px",
+                fontWeight: 750,
+                fontSize: "0.82rem",
+                textTransform: "none",
+                backdropFilter: "blur(10px)",
+                "&:hover": {
+                  backgroundColor: isDark ? "#ffffff20" : "#e2e8f0",
+                  transform: "translateX(-2px)",
+                },
               }}
             >
-              <Person sx={{ fontSize: 30 }} />
-            </Box>
-
-            <Typography
-              variant="h4"
-              fontWeight={800}
-              gutterBottom
-              sx={{
-                color: '#ffffff',
-                letterSpacing: '-0.5px',
-              }}
-            >
-              Create Account
-            </Typography>
-
-            <Typography
-              variant="body2"
-              sx={{
-                color: '#94a3b8',
-                fontSize: '0.95rem',
-              }}
-            >
-              Join BunkMates and plan trips seamlessly with your friends.
-            </Typography>
+              Back to Home
+            </Button>
           </Box>
 
-          {errorMsg && (
-            <Alert severity="error" sx={{ mb: 2.5, borderRadius: 3 }}>
-              {errorMsg}
-            </Alert>
-          )}
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+              zIndex: 1,
+              overflow: "hidden",
+            }}
+          >
+            {assignedDoodles.map((doodle, i) => {
+              const DoodleIconComponent = doodle.Icon;
+              return (
+                <motion.div
+                  key={i}
+                  animate={{
+                    y: [0, -12, 0],
+                    rotate: [doodle.rotate, doodle.rotate + 6, doodle.rotate],
+                  }}
+                  transition={{
+                    duration: doodle.floatDur,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                  style={{
+                    position: "absolute",
+                    top: doodle.top,
+                    left: doodle.left,
+                    right: doodle.right,
+                  }}
+                >
+                  <DoodleIconComponent
+                    sx={{
+                      fontSize: { xs: doodle.size * 0.75, md: doodle.size },
+                      color: doodle.color,
+                      opacity: isDark ? 0.22 : 0.28,
+                    }}
+                  />
+                </motion.div>
+              );
+            })}
+          </Box>
 
-          <form onSubmit={handleSignup}>
-            <TextField
-              label="Full Name"
-              fullWidth
-              variant="outlined"
-              margin="dense"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              InputLabelProps={{ style: { color: '#94a3b8' } }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Person sx={{ color: '#38bdf8' }} />
-                  </InputAdornment>
-                ),
-                sx: {
-                  borderRadius: 3.5,
-                  color: '#fff',
-                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                  '& fieldset': {
-                    borderColor: 'rgba(255, 255, 255, 0.15)',
-                  },
-                  '&:hover fieldset': { borderColor: '#38bdf8' },
-                  '&.Mui-focused fieldset': { borderColor: '#0284c7' },
-                },
-              }}
-            />
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage: isDark
+                ? `
+                  linear-gradient(to right, #1f1f1f4e 1px, transparent 1px),
+                  linear-gradient(to bottom, #1f1f1f4d 1px, transparent 1px)
+                `
+                : `
+                  linear-gradient(to right, #edf0f2 1px, transparent 1px),
+                  linear-gradient(to bottom, #edf0f2 1px, transparent 1px)
+                `,
+              backgroundSize: "55px 55px",
+              pointerEvents: "none",
+              zIndex: 1,
+            }}
+          />
 
-            <TextField
-              label="Username"
-              fullWidth
-              variant="outlined"
-              margin="dense"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              InputLabelProps={{ style: { color: '#94a3b8' } }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <BadgeOutlined sx={{ color: '#38bdf8' }} />
-                  </InputAdornment>
-                ),
-                sx: {
-                  borderRadius: 3.5,
-                  color: '#fff',
-                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                  mt: 1,
-                  '& fieldset': {
-                    borderColor: 'rgba(255, 255, 255, 0.15)',
-                  },
-                  '&:hover fieldset': { borderColor: '#38bdf8' },
-                  '&.Mui-focused fieldset': { borderColor: '#0284c7' },
-                },
-              }}
-            />
+          <Box
+            sx={{
+              width: "100%",
+              position: "relative",
+              zIndex: 2,
+              mt: { xs: 5, md: 0 },
+            }}
+          >
+            <Grid
+              container
+              spacing={{ xs: 4, md: 4 }}
+              alignItems="center"
+              justifyContent="space-around"
+            >
+              {/* Left Headline in Two Clean Lines */}
+              <Grid
+                item
+                xs={12}
+                md={5.5}
+                lg={5}
+                sx={{ textAlign: { xs: "center", md: "left" } }}
+              >
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                >
+                  <Box
+                    sx={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 1,
+                      px: { xs: 1.6, sm: 2.2 },
+                      py: 0.65,
+                      borderRadius: "999px",
+                      fontSize: { xs: "0.74rem", sm: "0.85rem" },
+                      fontWeight: 750,
+                      color: isDark ? "#ffffff" : "#09090b",
+                      backgroundColor: isDark ? "#171a22" : "#f1f4f7",
+                      boxShadow:
+                        "inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)",
+                      mb: { xs: 2, sm: 2.5 },
+                    }}
+                  >
+                    <TerrainIcon sx={{ fontSize: 16, color: "#8cefcb" }} />
+                    <span>Create Your Squad Profile</span>
+                  </Box>
+                </motion.div>
 
-            <TextField
-              label="Email Address"
-              fullWidth
-              variant="outlined"
-              margin="dense"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              InputLabelProps={{ style: { color: '#94a3b8' } }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Email sx={{ color: '#38bdf8' }} />
-                  </InputAdornment>
-                ),
-                sx: {
-                  borderRadius: 3.5,
-                  color: '#fff',
-                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                  mt: 1,
-                  '& fieldset': {
-                    borderColor: 'rgba(255, 255, 255, 0.15)',
-                  },
-                  '&:hover fieldset': { borderColor: '#38bdf8' },
-                  '&.Mui-focused fieldset': { borderColor: '#0284c7' },
-                },
-              }}
-            />
-
-            <TextField
-              label="Password"
-              type={showPassword ? 'text' : 'password'}
-              fullWidth
-              variant="outlined"
-              margin="dense"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              InputLabelProps={{ style: { color: '#94a3b8' } }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <LockOutlined sx={{ color: '#38bdf8' }} />
-                  </InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                      sx={{ color: '#94a3b8' }}
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-                sx: {
-                  borderRadius: 3.5,
-                  color: '#fff',
-                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                  mt: 1,
-                  '& fieldset': {
-                    borderColor: 'rgba(255, 255, 255, 0.15)',
-                  },
-                  '&:hover fieldset': { borderColor: '#38bdf8' },
-                  '&.Mui-focused fieldset': { borderColor: '#0284c7' },
-                },
-              }}
-            />
-
-            {/* Password Strength Meter */}
-            {password && (
-              <Box sx={{ mt: 1, px: 0.5 }}>
-                <Box display="flex" justifyContent="space-between" mb={0.5}>
-                  <Typography variant="caption" sx={{ color: '#94a3b8' }}>
-                    Password Strength:
-                  </Typography>
-                  <Typography variant="caption" fontWeight={700} sx={{ color: strength.color }}>
-                    {strength.label}
-                  </Typography>
-                </Box>
-                <Box display="flex" gap={0.6}>
-                  {[1, 2, 3].map((step) => (
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1, duration: 0.6, ease: "easeOut" }}
+                >
+                  <Typography
+                    component="h1"
+                    fontWeight={850}
+                    sx={{
+                      mb: 2.5,
+                      color: isDark ? "#ffffff" : "#09090b",
+                      letterSpacing: { xs: "-0.04em", sm: "-0.05em" },
+                      fontSize: {
+                        xs: "2rem",
+                        sm: "2.8rem",
+                        md: "3.5rem",
+                        lg: "4rem",
+                      },
+                      lineHeight: 1.15,
+                    }}
+                  >
+                    Start exploring with
+                    <br />
                     <Box
-                      key={step}
+                      component="span"
                       sx={{
-                        flex: 1,
-                        height: 4,
-                        borderRadius: 2,
-                        backgroundColor: step <= strength.score ? strength.color : 'rgba(255,255,255,0.1)',
-                        transition: 'background-color 0.3s ease',
+                        color: "#8cefcb",
+                        display: "inline-block",
                       }}
-                    />
-                  ))}
-                </Box>
-              </Box>
-            )}
-
-            <TextField
-              label="Confirm Password"
-              type={showConfirmPassword ? 'text' : 'password'}
-              fullWidth
-              variant="outlined"
-              margin="dense"
-              value={confirmPass}
-              onChange={(e) => setConfirmPass(e.target.value)}
-              InputLabelProps={{ style: { color: '#94a3b8' } }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <LockOutlined sx={{ color: '#38bdf8' }} />
-                  </InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      edge="end"
-                      sx={{ color: '#94a3b8' }}
                     >
-                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-                sx: {
-                  borderRadius: 3.5,
-                  color: '#fff',
-                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                  mt: 1.5,
-                  '& fieldset': {
-                    borderColor: 'rgba(255, 255, 255, 0.15)',
-                  },
-                  '&:hover fieldset': { borderColor: '#38bdf8' },
-                  '&.Mui-focused fieldset': { borderColor: '#0284c7' },
-                },
-              }}
-            />
+                      BunkMates.
+                    </Box>
+                  </Typography>
+                </motion.div>
 
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              size="large"
-              disabled={loading}
-              sx={{
-                mt: 3,
-                borderRadius: '999px',
-                py: 1.4,
-                fontWeight: 700,
-                fontSize: '1rem',
-                background: 'linear-gradient(135deg, #38bdf8, #2563eb)',
-                color: '#ffffff',
-                boxShadow: '0 8px 25px rgba(37, 99, 235, 0.35)',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  background: 'linear-gradient(135deg, #60a5fa, #1d4ed8)',
-                  boxShadow: '0 12px 30px rgba(37, 99, 235, 0.5)',
-                  transform: 'translateY(-2px)',
-                },
-              }}
-            >
-              {loading ? <CircularProgress size={22} color="inherit" /> : "Create Account"}
-            </Button>
-          </form>
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
+                >
+                  <Typography
+                    sx={{
+                      maxWidth: 520,
+                      mx: { xs: "auto", md: 0 },
+                      color: isDark ? "#a1a1aa" : "#52525b",
+                      fontSize: { xs: "0.95rem", sm: "1.1rem" },
+                      lineHeight: 1.7,
+                    }}
+                  >
+                    Join thousands of travelers coordinating live group
+                    itineraries, splitting costs without stress, and discovering
+                    unforgettable destinations together[cite: 3, 5].
+                  </Typography>
+                </motion.div>
+              </Grid>
 
-          <Divider
-            sx={{
-              my: 2.5,
-              borderColor: 'rgba(255,255,255,0.1)',
-              color: '#64748b',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-            }}
-          >
-            OR
-          </Divider>
+              {/* Right Centered Signup Form without Card Heading */}
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={5.5}
+                sx={{ display: "flex", justifyContent: "center" }}
+              >
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.94, y: 16 }}
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                    y: 0,
+                    x: shake ? [-8, 8, -8, 8, 0] : 0,
+                  }}
+                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <Box
+                    sx={{
+                      p: { xs: 1.2, sm: 4.5, md: 5 },
+                      borderRadius: "30px",
+                      backgroundColor: isDark ? "#00000000" : "#f8fafc",
+                      width: { xs: 360, sm: 440, md: 480 },
+                    }}
+                  >
+                    {errorMsg && (
+                      <Alert
+                        severity="error"
+                        sx={{
+                          mb: 2.5,
+                          borderRadius: "14px",
+                          backgroundColor: isDark
+                            ? "rgba(239, 68, 68, 0.12)"
+                            : "rgba(254, 242, 242, 0.9)",
+                          color: isDark ? "#fca5a5" : "#b91c1c",
+                          fontSize: "0.82rem",
+                        }}
+                      >
+                        {errorMsg}
+                      </Alert>
+                    )}
 
-          <Button
-            variant="outlined"
-            fullWidth
-            size="large"
-            disabled={googleLoading}
-            startIcon={googleLoading ? <CircularProgress size={18} /> : <Google />}
-            sx={{
-              borderRadius: '999px',
-              py: 1.3,
-              textTransform: 'none',
-              fontWeight: 600,
-              fontSize: '0.95rem',
-              borderColor: 'rgba(255,255,255,0.2)',
-              color: '#fff',
-              background: 'rgba(255,255,255,0.05)',
-              backdropFilter: 'blur(6px)',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                background: 'rgba(255,255,255,0.12)',
-                borderColor: '#38bdf8',
-                transform: 'translateY(-1px)',
-                boxShadow: '0 6px 20px rgba(56, 189, 248, 0.2)',
-              },
-            }}
-            onClick={handleGoogleSignup}
-          >
-            {googleLoading ? "Connecting..." : "Sign Up with Google"}
-          </Button>
+                    <Stack spacing={1.8} component="form" onSubmit={handleSignup}>
+                      {/* Full Name */}
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: "0.8rem",
+                            fontWeight: 750,
+                            color: isDark ? "#d4d4d8" : "#3f3f46",
+                            mb: 0.6,
+                            ml: 0.5,
+                          }}
+                        >
+                          Full Name{" "}
+                          <Box component="span" sx={{ color: "#ef4444" }}>
+                            *
+                          </Box>
+                        </Typography>
+                        <TextField
+                          placeholder="e.g. Alex Henderson"
+                          fullWidth
+                          variant="outlined"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          sx={fieldStyleProps}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Person sx={iconSx} />
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Box>
 
-          <Typography
-            variant="body2"
-            sx={{
-              mt: 3,
-              textAlign: 'center',
-              color: '#94a3b8',
-            }}
-          >
-            Already have an account?{' '}
-            <Button
-              variant="text"
-              size="small"
-              sx={{
-                color: '#38bdf8',
-                fontWeight: 800,
-                textTransform: 'none',
-                p: 0,
-                minWidth: 'auto',
-                '&:hover': { textDecoration: 'underline', backgroundColor: 'transparent' },
-              }}
-              onClick={() => navigate('/login')}
-            >
-              Log In
-            </Button>
-          </Typography>
-        </MotionPaper>
+                      {/* Username */}
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: "0.8rem",
+                            fontWeight: 750,
+                            color: isDark ? "#d4d4d8" : "#3f3f46",
+                            mb: 0.6,
+                            ml: 0.5,
+                          }}
+                        >
+                          Username{" "}
+                          <Box component="span" sx={{ color: "#ef4444" }}>
+                            *
+                          </Box>
+                        </Typography>
+                        <TextField
+                          placeholder="e.g. squad_explorer"
+                          fullWidth
+                          variant="outlined"
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
+                          helperText={
+                            usernameStatus === "available"
+                              ? "Username is available!"
+                              : usernameStatus === "taken"
+                              ? "Username is already taken."
+                              : usernameStatus === "invalid"
+                              ? "Must be at least 3 characters."
+                              : ""
+                          }
+                          FormHelperTextProps={{
+                            sx: {
+                              color:
+                                usernameStatus === "available"
+                                  ? "#8cefcb"
+                                  : usernameStatus === "taken"
+                                  ? "#ef4444"
+                                  : "#a1a1aa",
+                              fontWeight: 750,
+                              fontSize: "0.75rem",
+                              ml: 1,
+                              mt: 0.5,
+                            },
+                          }}
+                          sx={fieldStyleProps}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <BadgeOutlined sx={iconSx} />
+                              </InputAdornment>
+                            ),
+                            endAdornment: (
+                              <InputAdornment position="end" sx={{ mr: 0.5 }}>
+                                {isCheckingUsername ? (
+                                  <CircularProgress size={18} sx={{ color: "#8cefcb" }} />
+                                ) : usernameStatus === "available" ? (
+                                  <CheckCircleRounded sx={{ color: "#8cefcb", fontSize: 20 }} />
+                                ) : usernameStatus === "taken" ? (
+                                  <CancelRounded sx={{ color: "#ef4444", fontSize: 20 }} />
+                                ) : null}
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Box>
+
+                      {/* Mobile Number */}
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: "0.8rem",
+                            fontWeight: 750,
+                            color: isDark ? "#d4d4d8" : "#3f3f46",
+                            mb: 0.6,
+                            ml: 0.5,
+                          }}
+                        >
+                          Mobile Number
+                        </Typography>
+                        <TextField
+                          placeholder="e.g. +91 98765 43210"
+                          fullWidth
+                          variant="outlined"
+                          value={mobile}
+                          onChange={(e) => setMobile(e.target.value)}
+                          sx={fieldStyleProps}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <PhoneIphoneRounded sx={iconSx} />
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Box>
+
+                      {/* Email Address */}
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: "0.8rem",
+                            fontWeight: 750,
+                            color: isDark ? "#d4d4d8" : "#3f3f46",
+                            mb: 0.6,
+                            ml: 0.5,
+                          }}
+                        >
+                          Email Address{" "}
+                          <Box component="span" sx={{ color: "#ef4444" }}>
+                            *
+                          </Box>
+                        </Typography>
+                        <TextField
+                          placeholder="e.g. travel@bunkmates.app"
+                          fullWidth
+                          variant="outlined"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          sx={fieldStyleProps}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Email sx={iconSx} />
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Box>
+
+                      {/* Password */}
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: "0.8rem",
+                            fontWeight: 750,
+                            color: isDark ? "#d4d4d8" : "#3f3f46",
+                            mb: 0.6,
+                            ml: 0.5,
+                          }}
+                        >
+                          Password{" "}
+                          <Box component="span" sx={{ color: "#ef4444" }}>
+                            *
+                          </Box>
+                        </Typography>
+                        <TextField
+                          placeholder="••••••••"
+                          type={showPassword ? "text" : "password"}
+                          fullWidth
+                          variant="outlined"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          sx={fieldStyleProps}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <LockOutlined sx={iconSx} />
+                              </InputAdornment>
+                            ),
+                            endAdornment: (
+                              <InputAdornment position="end" sx={{ mr: 0.5 }}>
+                                <IconButton
+                                  onClick={() => setShowPassword(!showPassword)}
+                                  edge="end"
+                                  sx={{
+                                    color: isDark ? "#a1a1aa" : "#64748b",
+                                    p: 0.8,
+                                    "&:hover": { color: isDark ? "#ffffff" : "#09090b" },
+                                  }}
+                                >
+                                  {showPassword ? (
+                                    <VisibilityOff sx={{ fontSize: 18 }} />
+                                  ) : (
+                                    <Visibility sx={{ fontSize: 18 }} />
+                                  )}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+
+                        {password && (
+                          <Box sx={{ px: 1, mt: 0.8 }}>
+                            <Box
+                              display="flex"
+                              justifyContent="space-between"
+                              mb={0.6}
+                            >
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: isDark ? "#a1a1aa" : "#64748b",
+                                  fontSize: "0.72rem",
+                                  fontWeight: 650,
+                                }}
+                              >
+                                Password Strength:
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                fontWeight={800}
+                                sx={{
+                                  color: strength.color,
+                                  fontSize: "0.72rem",
+                                }}
+                              >
+                                {strength.label}
+                              </Typography>
+                            </Box>
+                            <Box display="flex" gap={0.6}>
+                              {[1, 2, 3].map((step) => (
+                                <Box
+                                  key={step}
+                                  sx={{
+                                    flex: 1,
+                                    height: 4,
+                                    borderRadius: 2,
+                                    backgroundColor:
+                                      step <= strength.score
+                                        ? strength.color
+                                        : isDark
+                                        ? "rgba(255,255,255,0.08)"
+                                        : "rgba(0,0,0,0.08)",
+                                    transition: "background-color 0.3s ease",
+                                  }}
+                                />
+                              ))}
+                            </Box>
+                          </Box>
+                        )}
+                      </Box>
+
+                      {/* Confirm Password */}
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: "0.8rem",
+                            fontWeight: 750,
+                            color: isDark ? "#d4d4d8" : "#3f3f46",
+                            mb: 0.6,
+                            ml: 0.5,
+                          }}
+                        >
+                          Confirm Password{" "}
+                          <Box component="span" sx={{ color: "#ef4444" }}>
+                            *
+                          </Box>
+                        </Typography>
+                        <TextField
+                          placeholder="••••••••"
+                          type={showConfirmPassword ? "text" : "password"}
+                          fullWidth
+                          variant="outlined"
+                          value={confirmPass}
+                          onChange={(e) => setConfirmPass(e.target.value)}
+                          sx={fieldStyleProps}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <LockOutlined sx={iconSx} />
+                              </InputAdornment>
+                            ),
+                            endAdornment: (
+                              <InputAdornment position="end" sx={{ mr: 0.5 }}>
+                                <IconButton
+                                  onClick={() =>
+                                    setShowConfirmPassword(!showConfirmPassword)
+                                  }
+                                  edge="end"
+                                  sx={{
+                                    color: isDark ? "#a1a1aa" : "#64748b",
+                                    p: 0.8,
+                                    "&:hover": { color: isDark ? "#ffffff" : "#09090b" },
+                                  }}
+                                >
+                                  {showConfirmPassword ? (
+                                    <VisibilityOff sx={{ fontSize: 18 }} />
+                                  ) : (
+                                    <Visibility sx={{ fontSize: 18 }} />
+                                  )}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Box>
+
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        fullWidth
+                        disabled={loading || isCheckingUsername}
+                        sx={{
+                          mt: 1,
+                          borderRadius: "14px",
+                          py: 1.4,
+                          fontWeight: 800,
+                          fontSize: "0.95rem",
+                          textTransform: "none",
+                          backgroundColor: "#8cefcb",
+                          color: "#00381e",
+                          "&:hover": {
+                            backgroundColor: "#aff6dc",
+                            transform: "translateY(-1px)",
+                          },
+                        }}
+                      >
+                        {loading ? (
+                          <CircularProgress size={20} color="inherit" />
+                        ) : (
+                          "Create Account"
+                        )}
+                      </Button>
+                    </Stack>
+
+                    <Divider
+                      sx={{
+                        my: 3,
+                        borderColor: isDark
+                          ? "rgba(255,255,255,0.08)"
+                          : "rgba(0,0,0,0.08)",
+                        color: isDark ? "#71717a" : "#94a3b8",
+                        fontSize: "0.76rem",
+                        fontWeight: 800,
+                      }}
+                    >
+                      OR
+                    </Divider>
+
+                    <Button
+                      variant="outlined"
+                      fullWidth
+                      disabled={googleLoading}
+                      startIcon={
+                        googleLoading ? (
+                          <CircularProgress size={16} />
+                        ) : (
+                          <Google sx={{ fontSize: 18 }} />
+                        )
+                      }
+                      sx={{
+                        borderRadius: "14px",
+                        py: 1.25,
+                        textTransform: "none",
+                        fontWeight: 750,
+                        fontSize: "0.88rem",
+                        color: isDark ? "#ffffff" : "#09090b",
+                        backgroundColor: isDark
+                          ? "rgba(255, 255, 255, 0.04)"
+                          : "#ffffff",
+                        backdropFilter: "blur(20px)",
+                        boxShadow:
+                          "inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)",
+                        border: "none",
+                        "&:hover": {
+                          backgroundColor: isDark
+                            ? "rgba(255, 255, 255, 0.08)"
+                            : "#f8fafc",
+                        },
+                      }}
+                      onClick={handleGoogleSignup}
+                    >
+                      {googleLoading
+                        ? "Connecting..."
+                        : "Sign Up with Google"}
+                    </Button>
+
+                    <Typography
+                      sx={{
+                        mt: 3,
+                        textAlign: "center",
+                        color: isDark ? "#a1a1aa" : "#64748b",
+                        fontSize: "0.84rem",
+                      }}
+                    >
+                      Already have an account?{" "}
+                      <Button
+                        variant="text"
+                        size="small"
+                        sx={{
+                          color: "#8cefcb",
+                          fontWeight: 850,
+                          textTransform: "none",
+                          p: 0,
+                          minWidth: "auto",
+                          fontSize: "0.84rem",
+                          textDecoration: "underline",
+                          "&:hover": {
+                            textDecoration: "underline",
+                            backgroundColor: "transparent",
+                          },
+                        }}
+                        onClick={() => navigate("/login")}
+                      >
+                        Log In
+                      </Button>
+                    </Typography>
+                  </Box>
+                </motion.div>
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
       </Box>
 
-      {/* Google Username Completion Dialog */}
+      {/* Mandatory Google Details Dialog (Cannot close until submitted) */}
       <Dialog
         open={googleDialogOpen}
-        onClose={() => setGoogleDialogOpen(false)}
+        disableEscapeKeyDown
         PaperProps={{
           sx: {
-            backgroundColor: 'rgba(15, 23, 42, 0.98)',
-            border: '1px solid rgba(56, 189, 248, 0.3)',
-            color: '#fff',
-            borderRadius: 4,
+            backgroundColor: isDark ? "#12151d" : "#ffffff",
+            border: `1.5px solid ${
+              isDark ? "rgba(140, 239, 203, 0.3)" : "rgba(0,0,0,0.1)"
+            }`,
+            color: isDark ? "#ffffff" : "#09090b",
+            borderRadius: "28px",
             p: 2,
-            minWidth: { xs: 300, sm: 380 },
-            backdropFilter: 'blur(24px)',
+            minWidth: { xs: 320, sm: 400 },
+            boxShadow: "0 25px 60px rgba(0, 0, 0, 0.6)",
           },
         }}
       >
-        <DialogTitle sx={{ textAlign: 'center', fontWeight: 800, color: '#fff' }}>
-          Complete Your Profile
-        </DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{ p: { xs: 2, sm: 3 } }}>
           {googleUser && (
-            <Box textAlign="center" mb={2}>
+            <Box textAlign="center" mb={3}>
               <Avatar
                 src={googleUser.photoURL}
                 sx={{
                   width: 72,
                   height: 72,
-                  mx: 'auto',
+                  mx: "auto",
                   mb: 1.5,
-                  border: '3px solid #38bdf8',
-                  boxShadow: '0 0 15px rgba(56,189,248,0.4)',
+                  border: "2.5px solid #8cefcb",
+                  boxShadow: "0 0 20px rgba(140, 239, 203, 0.35)",
                 }}
               />
-              <Typography variant="h6" sx={{ fontWeight: 700, color: '#fff' }}>
-                {googleUser.displayName}
+              <Typography
+                sx={{
+                  fontWeight: 850,
+                  color: isDark ? "#ffffff" : "#09090b",
+                  fontSize: "1.15rem",
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                Complete Your Squad Profile
               </Typography>
-              <Typography variant="body2" sx={{ color: '#94a3b8', fontSize: 13 }}>
-                {googleUser.email}
+              <Typography
+                sx={{
+                  color: isDark ? "#a1a1aa" : "#64748b",
+                  fontSize: "0.82rem",
+                  mt: 0.4,
+                }}
+              >
+                Set up your traveler username to finish signing up.
               </Typography>
             </Box>
           )}
-          <TextField
-            label="Choose a Username"
-            fullWidth
-            variant="outlined"
-            margin="normal"
-            value={googleUsername}
-            onChange={(e) => setGoogleUsername(e.target.value)}
-            InputLabelProps={{ style: { color: '#94a3b8' } }}
-            InputProps={{
-              sx: {
-                borderRadius: 3,
-                color: '#fff',
-                '& fieldset': { borderColor: 'rgba(255,255,255,0.2)' },
-                '&:hover fieldset': { borderColor: '#38bdf8' },
-                '&.Mui-focused fieldset': { borderColor: '#0284c7' },
-              },
-            }}
-          />
+
+          {googleDialogError && (
+            <Alert
+              severity="error"
+              sx={{
+                mb: 2,
+                borderRadius: "12px",
+                backgroundColor: isDark
+                  ? "rgba(239, 68, 68, 0.12)"
+                  : "rgba(254, 242, 242, 0.9)",
+                color: isDark ? "#fca5a5" : "#b91c1c",
+                fontSize: "0.8rem",
+              }}
+            >
+              {googleDialogError}
+            </Alert>
+          )}
+
+          <Stack spacing={2}>
+            {/* Username */}
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: "0.8rem",
+                  fontWeight: 750,
+                  color: isDark ? "#d4d4d8" : "#3f3f46",
+                  mb: 0.6,
+                  ml: 0.5,
+                }}
+              >
+                Username{" "}
+                <Box component="span" sx={{ color: "#ef4444" }}>
+                  *
+                </Box>
+              </Typography>
+              <TextField
+                placeholder="e.g. squad_explorer"
+                fullWidth
+                variant="outlined"
+                value={googleUsername}
+                onChange={(e) => setGoogleUsername(e.target.value)}
+                helperText={
+                  googleUsernameStatus === "available"
+                    ? "Username is available!"
+                    : googleUsernameStatus === "taken"
+                    ? "Username is already taken."
+                    : googleUsernameStatus === "invalid"
+                    ? "Must be at least 3 characters."
+                    : ""
+                }
+                FormHelperTextProps={{
+                  sx: {
+                    color:
+                      googleUsernameStatus === "available"
+                        ? "#8cefcb"
+                        : googleUsernameStatus === "taken"
+                        ? "#ef4444"
+                        : "#a1a1aa",
+                    fontWeight: 750,
+                    fontSize: "0.75rem",
+                    ml: 1,
+                    mt: 0.5,
+                  },
+                }}
+                sx={fieldStyleProps}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <BadgeOutlined sx={iconSx} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end" sx={{ mr: 0.5 }}>
+                      {isCheckingGoogleUsername ? (
+                        <CircularProgress size={18} sx={{ color: "#8cefcb" }} />
+                      ) : googleUsernameStatus === "available" ? (
+                        <CheckCircleRounded sx={{ color: "#8cefcb", fontSize: 20 }} />
+                      ) : googleUsernameStatus === "taken" ? (
+                        <CancelRounded sx={{ color: "#ef4444", fontSize: 20 }} />
+                      ) : null}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
+
+            {/* Mobile Number */}
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: "0.8rem",
+                  fontWeight: 750,
+                  color: isDark ? "#d4d4d8" : "#3f3f46",
+                  mb: 0.6,
+                  ml: 0.5,
+                }}
+              >
+                Mobile Number
+              </Typography>
+              <TextField
+                placeholder="e.g. +91 98765 43210"
+                fullWidth
+                variant="outlined"
+                value={googleMobile}
+                onChange={(e) => setGoogleMobile(e.target.value)}
+                sx={fieldStyleProps}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PhoneIphoneRounded sx={iconSx} />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
+
+            <Button
+              variant="contained"
+              fullWidth
+              disabled={savingGoogleProfile || isCheckingGoogleUsername}
+              onClick={handleGoogleDetailsSubmit}
+              sx={{
+                mt: 1,
+                backgroundColor: "#8cefcb",
+                color: "#00381e",
+                textTransform: "none",
+                borderRadius: "14px",
+                py: 1.3,
+                fontWeight: 800,
+                fontSize: "0.95rem",
+                boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.2), 0 4px 14px rgba(140, 239, 203, 0.3)",
+                "&:hover": {
+                  backgroundColor: "#aff6dc",
+                },
+              }}
+            >
+              {savingGoogleProfile ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                "Finish & Enter BunkMates"
+              )}
+            </Button>
+          </Stack>
         </DialogContent>
-        <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
-          <Button
-            onClick={() => setGoogleDialogOpen(false)}
-            sx={{
-              color: '#94a3b8',
-              borderRadius: '999px',
-              textTransform: 'none',
-              px: 3,
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleGoogleUsernameSave}
-            sx={{
-              background: 'linear-gradient(135deg, #38bdf8, #2563eb)',
-              color: '#fff',
-              textTransform: 'none',
-              borderRadius: '999px',
-              px: 4,
-              fontWeight: 700,
-            }}
-          >
-            Save & Continue
-          </Button>
-        </DialogActions>
       </Dialog>
     </>
   );
-};
-
-export default SignupPage;
+}

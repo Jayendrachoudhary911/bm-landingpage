@@ -1,35 +1,18 @@
 import React, { useEffect } from "react";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { motion } from "framer-motion";
 import AboutHero from "../components/AboutHero";
 import AboutBunkMate from "../components/AboutBunkMates";
 import ContactSection from "../components/ContactSection";
-import Footer from "../components/Footer";
-import ScrollToSection from "../components/ScrollToSection";
 import { useAuth } from "../context/AuthContext";
 import { useCustomTheme } from "../context/ThemeContext";
-import Navbar from "../components/Navbar";
 import OurMissionSection from "../components/omp";
 import WhatMakesDifferent from "../components/wmbmd";
 import FAQSection from "../sections/FAQSection";
 
-const About = () => {
+export default function About() {
   const { user } = useAuth();
   const { isDark } = useCustomTheme();
-
-  const colors = {
-    background: isDark ? "#000000" : "#ffffff",
-    surface: isDark ? "#0d0d0d" : "#f7f7f7",
-    surfaceStrong: isDark ? "#141414" : "#ffffff",
-    text: isDark ? "#ffffff" : "#111111",
-    secondaryText: isDark ? "#a3a3a3" : "#737373",
-    border: isDark
-      ? "rgba(255, 255, 255, 0.09)"
-      : "rgba(0, 0, 0, 0.08)",
-    subtleBorder: isDark
-      ? "rgba(255, 255, 255, 0.06)"
-      : "rgba(0, 0, 0, 0.05)",
-  };
 
   useEffect(() => {
     const section = document.getElementById("about-start");
@@ -39,8 +22,8 @@ const About = () => {
   return (
     <Box
       sx={{
-        backgroundColor: colors.background,
-        color: colors.text,
+        backgroundColor: isDark ? "#000000" : "#f1f3f5",
+        color: isDark ? "#ffffff" : "#09090b",
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
@@ -49,8 +32,6 @@ const About = () => {
         transition: "background-color 0.35s ease, color 0.35s ease",
       }}
     >
-      <Navbar user={user} />
-      <ScrollToSection />
 
       <Box
         component={motion.div}
@@ -64,66 +45,70 @@ const About = () => {
           width: "100%",
           position: "relative",
           zIndex: 1,
+          pt: { xs: 1.5, sm: 2.5, md: 3 },
+          px: { xs: 1.5, sm: 2.5, md: 3 },
         }}
       >
-        {/* Header Hero Container with Hero Section Background Style */}
+        {/* Main Hero Card Container */}
         <Box
           sx={{
             position: "relative",
             overflow: "hidden",
+            width: "100%",
+            minHeight: "calc(90vh - 8px)",
+            maxHeight: {xs: '110vh', md: "calc(90vh - 38px)"},
+            mt: {xs: 6, md: 7},
+            borderRadius: { xs: "24px", sm: "32px", md: "40px" },
+            backgroundColor: isDark ? "#0c0c0c" : "#ffffff",
+            boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.11), inset 0 -1px 1px rgba(255, 255, 255, 0.07), 0 1px 0px rgba(0,0,0,0.1)',
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            width: "100%",
-            backgroundColor: "#000000",
-            background: isDark
-              ? `
-                radial-gradient(ellipse at 0% 0%, rgba(0, 0, 0, 0.96) 0%, rgba(0, 0, 0, 0.98) 55%, rgba(0, 167, 204, 0.3) 88%, rgba(0, 92, 110, 0.6) 100%),
-                #000000
-              `
-              : `
-                radial-gradient(ellipse at 20% 20%, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.98) 55%, rgba(14, 165, 233, 0.45) 88%, rgba(56, 189, 248, 0.8) 100%),
-                #0f172a
-              `,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            pt: { xs: 14, md: 18 },
-            pb: { xs: 6, md: 8 },
-            px: { xs: 1.5, sm: 3, md: 6 },
-            color: "#ffffff",
-            borderBottom: `1px solid ${colors.subtleBorder}`,
-            transition: "background 0.5s ease",
+            px: { xs: 2, sm: 3, md: 4 },
+            pt: { xs: 8, md: 10 },
+            pb: { xs: 4, md: 6 },
+            color: isDark ? "#ffffff" : "#09090b",
           }}
         >
-          {/* Intense Cyan Edge Glow */}
+          {/* Background Grid Pattern */}
           <Box
             sx={{
               position: "absolute",
               inset: 0,
-              boxShadow: "inset 0 0 80px 10px rgba(0, 84, 110, 0.4)",
+              backgroundImage: isDark
+                ? `
+                  linear-gradient(to right, #1f1f1f4e 1px, transparent 1px),
+                  linear-gradient(to bottom, #1f1f1f4e 1px, transparent 1px)
+                `
+                : `
+                  linear-gradient(to right, #edf0f2 1px, transparent 1px),
+                  linear-gradient(to bottom, #edf0f2 1px, transparent 1px)
+                `,
+              backgroundSize: "55px 55px",
               pointerEvents: "none",
               zIndex: 1,
             }}
           />
 
-          {/* Grid Texture */}
-          <Box
-            sx={{
-              position: "absolute",
-              inset: 0,
-              backgroundImage: `
-                linear-gradient(to right, rgba(0, 48, 58, 0.2) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(0, 48, 58, 0.2) 1px, transparent 1px)
-              `,
-              backgroundSize: "60px 60px",
-              pointerEvents: "none",
-              zIndex: 1,
-            }}
-          />
+        <Typography
+          sx={{
+            position: "absolute",
+            right: { xs: -10, sm: 10 },
+            bottom: -25,
+            fontSize: { xs: "5rem", sm: "7rem" },
+            fontWeight: 900,
+            letterSpacing: "-0.08em",
+            color: isDark ? "rgba(255, 255, 255, 0.025)" : "rgba(0, 0, 0, 0.025)",
+            pointerEvents: "none",
+            userSelect: "none",
+            zIndex: 0,
+          }}
+        >
+          BUNKMATE
+        </Typography>
 
-          {/* Foreground Hero & About Content */}
+          {/* Foreground Hero & About Sub-Hero */}
           <Box
             sx={{
               position: "relative",
@@ -139,15 +124,12 @@ const About = () => {
           </Box>
         </Box>
 
-        {/* Section Flow */}
+        {/* Following Page Flow */}
         <OurMissionSection />
         <WhatMakesDifferent />
         <FAQSection />
         <ContactSection />
-        <Footer />
       </Box>
     </Box>
   );
-};
-
-export default About;
+}

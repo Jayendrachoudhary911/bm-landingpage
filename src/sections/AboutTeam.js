@@ -149,7 +149,7 @@ const AboutSectionTeam = () => {
       width: '100%',
       p: { xs: 2, sm: 2.6 },
       borderRadius: { xs: '18px', sm: '22px' },
-      backgroundColor: isDark ? '#003e7d37' : 'rgba(247, 247, 248, 0.85)',
+      backgroundColor: isDark ? '#003e7d1e' : 'rgba(247, 247, 248, 0.85)',
       backdropFilter: 'blur(16px)',
       display: 'flex',
       flexDirection: 'column',
@@ -273,7 +273,7 @@ const AboutSectionTeam = () => {
                 mb: 2,
                 borderRadius: '999px',
                 boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)',
-                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.03)',
+                backgroundColor: isDark ? 'rgba(20, 48, 172, 0.09)' : 'rgba(0, 0, 0, 0.03)',
               }}
             >
               <AutoAwesomeRoundedIcon sx={{ fontSize: 14, color: colors.text }} />
@@ -303,7 +303,7 @@ const AboutSectionTeam = () => {
               }}
             >
               Built by travelers,{' '}
-              <Box component="span" sx={{ color: colors.secondaryText }}>
+              <Box component="span" sx={{ color: '#203362' }}>
                 for travelers.
               </Box>
             </Typography>
@@ -326,7 +326,7 @@ const AboutSectionTeam = () => {
               sx={{
                 p: 1.8,
                 borderRadius: 1.4,
-                backgroundColor: isDark ? '#8bbaef' : 'rgba(0,0,0,0.025)',
+                backgroundColor: isDark ? '#abd2ff' : 'rgba(0,0,0,0.025)',
                 textAlign: 'left',
                 width: '100%',
                 maxWidth: 500,

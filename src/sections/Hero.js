@@ -572,7 +572,7 @@ export default function HeroSection() {
                       textTransform: "none",
                       boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)',
                       color: isDark ? "#ffffff" : "#09090b",
-                            backdropFilter: 'blur(10px)',
+                      backdropFilter: 'blur(10px)',
                       backgroundColor: isDark ? "#ffffff10" : "#f8fafc",
                       whiteSpace: "nowrap",
                       "&:hover": {

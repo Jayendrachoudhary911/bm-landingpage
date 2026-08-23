@@ -188,7 +188,7 @@ const AboutSection = () => {
                   fontWeight: 800,
                   maxWidth: 680,
                   mb: 2.5,
-                  color: '#e8d499',
+                  color: '#ffeebd',
                 }}
               >
                 Less planning chaos.
@@ -302,14 +302,14 @@ const AboutSection = () => {
                     textTransform: 'none',
                     fontSize: '0.95rem',
                     fontWeight: 700,
-                    backgroundColor: '#fff3df',
+                    backgroundColor: '#fff5e4',
                     color: '#301e00',
                     boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)',
                     '&:hover': {
                       backgroundColor: isDark
                         ? '#271900'
                         : '#242424',
-                      color: '#fff6e8',
+                      color: '#fff5e4',
                     },
                   }}
                 >
@@ -541,7 +541,7 @@ const AboutSection = () => {
                       sm: 2.75,
                     },
                     borderRadius: { xs: '18px', sm: '24px' },
-                    backgroundColor: isDark ? '#fff3df' : '#111111',
+                    backgroundColor: isDark ? '#fff5e4' : '#111111',
                     color: isDark ? '#543705' : '#ffffff',
                     display: 'flex',
                     flexDirection: 'column',

@@ -1,28 +1,20 @@
 import React from "react";
-import { Box, Typography, Stack, Container } from "@mui/material";
+import { Box, Typography, Stack, Container, alpha } from "@mui/material";
 import { motion } from "framer-motion";
 import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import { useCustomTheme } from "../context/ThemeContext";
 
-const AboutBunkMate = () => {
+const highlights = [
+  { label: "Coordinated Stops", desc: "Interactive shared itinerary", color: "#88b7f0" },
+  { label: "Fair Splits", desc: "Automated group expense tracking", color: "#8cefcb" },
+  { label: "Vault Offline", desc: "Documents & offline map pins", color: "#ffd6b4" },
+];
+
+export default function AboutBunkMate() {
   const { isDark } = useCustomTheme();
 
-  const colors = {
-    surfaceStrong: isDark ? "rgba(15, 23, 42, 0.75)" : "rgba(255, 255, 255, 0.88)",
-    text: isDark ? "#ffffff" : "#0f172a",
-    secondaryText: isDark ? "#bababa" : "#64748b",
-    border: isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(2, 132, 199, 0.16)",
-    subtleBorder: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(15, 23, 42, 0.08)",
-  };
-
-  const highlights = [
-    { label: "Coordinated Stops", desc: "Interactive shared itinerary" },
-    { label: "Fair Splits", desc: "Automated group expense tracking" },
-    { label: "Vault Offline", desc: "Documents & offline map pins" },
-  ];
-
   return (
-    <Container maxWidth="md" sx={{ px: { xs: 2, sm: 4 }, mb: 4, position: "relative", zIndex: 2 }}>
+    <Container maxWidth="md" sx={{ px: { xs: 1.5, sm: 3 }, mb: 4, position: "relative", zIndex: 2 }}>
       <Box
         component={motion.div}
         initial={{ opacity: 0, y: 24 }}
@@ -35,100 +27,41 @@ const AboutBunkMate = () => {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          p: { xs: 3, sm: 5 },
-          borderRadius: { xs: "28px", sm: "32px" },
-          backgroundColor: '#ffffff05',
-          backdropFilter: "blur(28px)",
-          WebkitBackdropFilter: "blur(28px)",
-          boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0, 0, 0, 0.01)',
+          p: { xs: 3, sm: 4.5 },
+          borderRadius: { xs: "22px", sm: "28px" },
+          backgroundColor: isDark ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.6)",
+          boxShadow: isDark
+            ? "inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 12px 32px rgba(0, 0, 0, 0.4)"
+            : "inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 8px 24px rgba(0, 0, 0, 0.04)",
           textAlign: "center",
         }}
       >
-        {/* Radial Glow Mask in Background */}
+        {/* Radial Ambient Glow */}
         <Box
           sx={{
             position: "absolute",
-            top: -80,
-            right: -80,
-            width: 260,
-            height: 260,
+            top: -60,
+            right: -60,
+            width: 200,
+            height: 200,
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(204, 204, 204, 0.18) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(140, 239, 203, 0.15) 0%, transparent 70%)",
             filter: "blur(30px)",
             pointerEvents: "none",
             zIndex: 0,
           }}
         />
 
-        {/* Ambient Grid Pattern Mask */}
-        <Box
-          sx={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: isDark
-              ? "linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px)"
-              : "linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px)",
-            backgroundSize: "32px 32px",
-            maskImage: "radial-gradient(ellipse at center, black 30%, transparent 80%)",
-            WebkitMaskImage: "radial-gradient(ellipse at center, black 30%, transparent 80%)",
-            pointerEvents: "none",
-            zIndex: 0,
-          }}
-        />
-
-        {/* Decorative Watermark Mask */}
-        <Typography
-          sx={{
-            position: "absolute",
-            right: { xs: -10, sm: 10 },
-            bottom: -35,
-            fontSize: { xs: "6rem", sm: "8rem" },
-            fontWeight: 900,
-            letterSpacing: "-0.08em",
-            color: isDark ? "rgba(255,255,255,0.025)" : "rgba(0,0,0,0.025)",
-            pointerEvents: "none",
-            userSelect: "none",
-            zIndex: 0,
-          }}
-        >
-          BUNKMATE
-        </Typography>
-
         {/* Main Content */}
-        <Stack spacing={2.5} alignItems="center" sx={{ width: "100%", position: "relative", zIndex: 1 }}>
-          <Box
-            sx={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 0.8,
-              px: 1.4,
-              py: 0.6,
-              borderRadius: "999px",
-              boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.11), 0 1px 0px rgba(0,0,0,0.1)',
-              backgroundColor: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(2, 132, 199, 0.06)",
-            }}
-          >
-            <AutoAwesomeRoundedIcon sx={{ fontSize: 14, color: isDark ? "#ffffff" : "#0284c7" }} />
-            <Typography
-              sx={{
-                fontSize: "0.74rem",
-                fontWeight: 750,
-                letterSpacing: "0.02em",
-                color: isDark ? "#ffffff" : "#0369a1",
-                textTransform: "uppercase",
-              }}
-            >
-              The Squad Hub
-            </Typography>
-          </Box>
+        <Stack spacing={2} alignItems="center" sx={{ width: "100%", position: "relative", zIndex: 1 }}>
 
           <Typography
             variant="h4"
             sx={{
               fontWeight: 850,
-              letterSpacing: "-0.04em",
-              color: colors.text,
-              fontSize: { xs: "1.5rem", sm: "2rem" },
+              letterSpacing: "-0.03em",
+              color: isDark ? "#ffffff" : "#09090b",
+              fontSize: { xs: "1.45rem", sm: "1.85rem" },
             }}
           >
             What is BunkMates?
@@ -136,44 +69,42 @@ const AboutBunkMate = () => {
 
           <Typography
             sx={{
-              color: colors.secondaryText,
-              maxWidth: "680px",
-              fontSize: { xs: "0.92rem", sm: "1rem" },
-              lineHeight: 1.8,
+              color: isDark ? "#a1a1aa" : "#52525b",
+              maxWidth: "640px",
+              fontSize: { xs: "0.9rem", sm: "0.98rem" },
+              lineHeight: 1.75,
             }}
           >
-            BunkMates is a collaborative trip platform designed for friends and travel crews[cite: 14]. Whether it is budgeting, offline packing lists, or shared memories—we unify the experience into one cohesive space designed to eliminate travel friction[cite: 14].
+            BunkMates is a collaborative trip platform designed for friends and travel crews. Whether it is budgeting, offline packing lists, or shared memories—we unify the experience into one cohesive space designed to eliminate travel friction.
           </Typography>
 
-          {/* Feature Highlights Strip */}
+          {/* Highlights 3-Column Strip */}
           <Box
             sx={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr 1fr" },
               gap: 1.5,
               width: "100%",
-              pt: 1.5,
+              pt: 1,
             }}
           >
             {highlights.map((item, index) => (
               <Box
                 key={index}
                 sx={{
-                  flex: { xs: "1 1 100%", sm: "1 1 calc(33.333% - 12px)" },
-                  maxWidth: { sm: "220px" },
-                  p: 1.8,
-                  borderRadius: "18px",
-                  backgroundColor: isDark ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.7)",
-                  border: `1px solid ${colors.subtleBorder}`,
+                  p: 1.6,
+                  borderRadius: "16px",
+                  backgroundColor: isDark ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.8)",
+                  border: `1px solid ${isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(0, 0, 0, 0.05)"}`,
+                  boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.08)",
                   textAlign: "center",
                 }}
               >
                 <Typography
                   sx={{
-                    fontSize: "0.85rem",
+                    fontSize: "0.86rem",
                     fontWeight: 750,
-                    color: colors.text,
+                    color: isDark ? "#ffffff" : "#09090b",
                     mb: 0.3,
                   }}
                 >
@@ -181,8 +112,8 @@ const AboutBunkMate = () => {
                 </Typography>
                 <Typography
                   sx={{
-                    fontSize: "0.75rem",
-                    color: colors.secondaryText,
+                    fontSize: "0.74rem",
+                    color: isDark ? "#8b8b8b" : "#64748b",
                     lineHeight: 1.4,
                   }}
                 >
@@ -195,6 +126,4 @@ const AboutBunkMate = () => {
       </Box>
     </Container>
   );
-};
-
-export default AboutBunkMate;
+}

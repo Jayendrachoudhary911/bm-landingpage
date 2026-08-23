@@ -1,26 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { Box, Tooltip } from "@mui/material";
+import { Box, Tooltip, alpha } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import KeyboardArrowUpRoundedIcon from "@mui/icons-material/KeyboardArrowUpRounded";
 import { useCustomTheme } from "../context/ThemeContext";
+
+const M3_EXPRESSIVE_PALETTE = {
+  emerald: {
+    accent: "#8cefcb",
+    light: { bg: "#A6F5BA", text: "#00210E", container: "#DBFCE3", onContainer: "#006D37" },
+    dark: { bg: "#b6ffd7", text: "#21542e", container: "#e4fff0", onContainer: "#17c14d" },
+  },
+};
 
 export default function BackToTop() {
   const [visible, setVisible] = useState(false);
   const [scrollPercentage, setScrollPercentage] = useState(0);
   const { isDark } = useCustomTheme();
 
+  const emeraldTheme = M3_EXPRESSIVE_PALETTE.emerald;
+
   const colors = {
-    background: isDark ? "#000000" : "#ffffff",
-    surface: isDark ? "#0d0d0d" : "#f7f7f7",
-    surfaceStrong: isDark ? "#141414" : "#ffffff",
-    text: isDark ? "#ffffff" : "#111111",
-    secondaryText: isDark ? "#a3a3a3" : "#737373",
-    border: isDark
-      ? "rgba(255, 255, 255, 0.09)"
-      : "rgba(0, 0, 0, 0.08)",
-    subtleBorder: isDark
-      ? "rgba(255, 255, 255, 0.06)"
-      : "rgba(0, 0, 0, 0.05)",
+    background: isDark ? "#121216" : "#ffffff",
+    surface: isDark ? "#18181d" : "#f8fafc",
+    text: isDark ? "#fafafa" : "#09090b",
+    border: isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.08)",
+    track: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.06)",
   };
 
   useEffect(() => {
@@ -34,6 +38,7 @@ export default function BackToTop() {
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -67,66 +72,44 @@ export default function BackToTop() {
             <Box
               onClick={scrollToTop}
               component={motion.button}
-              whileHover={{ scale: 1.06, y: -2 }}
-              whileTap={{ scale: 0.94 }}
+              whileHover={{ scale: 1.08, y: -2 }}
+              whileTap={{ scale: 0.92 }}
               sx={{
-                width: 44,
-                height: 44,
+                width: 46,
+                height: 46,
                 borderRadius: "50%",
-                backgroundColor: colors.surfaceStrong,
-                border: `1px solid ${colors.border}`,
+                backgroundColor: isDark ? "rgba(18, 18, 22, 0.85)" : "rgba(255, 255, 255, 0.9)",
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+                border: `0px solid ${colors.border}`,
                 boxShadow: isDark
-                  ? "0 10px 30px rgba(0, 0, 0, 0.45)"
-                  : "0 8px 24px rgba(0, 0, 0, 0.08)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                  ? "inset 0 1px 1px rgba(255, 255, 255, 0.12), 0 12px 30px rgba(0, 0, 0, 0.5)"
+                  : "inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 8px 24px rgba(0, 0, 0, 0.08)",
+                display: "grid",
+                placeItems: "center",
                 cursor: "pointer",
                 position: "relative",
                 p: 0,
-                color: colors.text,
+                color: isDark ? "#ffffff" : "#09090b",
                 outline: "none",
-                transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+                transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
                 "&:hover": {
-                  borderColor: isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.18)",
+                  borderColor: alpha(emeraldTheme.accent, 0.6),
+                  color: isDark ? emeraldTheme.accent : emeraldTheme.light.onContainer,
+                  boxShadow: `0 8px 24px ${alpha(emeraldTheme.accent, 0.25)}`,
                 },
               }}
             >
-              <svg
-                width="44"
-                height="44"
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  transform: "rotate(-90deg)",
+              <KeyboardArrowUpRoundedIcon
+                sx={{
+                  fontSize: 22,
+                  zIndex: 1,
+                  transition: "transform 0.2s ease",
+                  ".MuiBox-root:hover &": {
+                    transform: "translateY(-1px)",
+                  },
                 }}
-              >
-                <circle
-                  cx="22"
-                  cy="22"
-                  r={radius}
-                  stroke={colors.subtleBorder}
-                  strokeWidth="2"
-                  fill="transparent"
-                />
-                <circle
-                  cx="22"
-                  cy="22"
-                  r={radius}
-                  stroke={colors.text}
-                  strokeWidth="2"
-                  fill="transparent"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={strokeDashoffset}
-                  strokeLinecap="round"
-                  style={{
-                    transition: "stroke-dashoffset 0.1s linear",
-                  }}
-                />
-              </svg>
-
-              <KeyboardArrowUpRoundedIcon sx={{ fontSize: 22, zIndex: 1 }} />
+              />
             </Box>
           </Tooltip>
         </motion.div>
